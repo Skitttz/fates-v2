@@ -1,48 +1,27 @@
-🇧🇷<div align="center" >
-
+<div id="user-content-toc" align="center"><ul align="center" style="list-style: none;"><img width="20%" src="https://i.ibb.co/VMNdP7w/icon.png"><summary><h1><b>Fates</b></h1></summary><p>[Clothing Showcase]</p></img></ul>
 </div>
-
-<p align="center">
-  <a href="#contexto-">Contexto</a>&nbsp;&nbsp;&nbsp;┋&nbsp;&nbsp;&nbsp;
-  <a href="#tecnologias-%EF%B8%8F">Tecnologias</a>&nbsp;&nbsp;&nbsp;┋&nbsp;&nbsp;&nbsp;
-  <a href="#desafios-">Desafios</a>&nbsp;&nbsp;&nbsp;┋&nbsp;&nbsp;&nbsp;
-  <a href="#como-acessar-">Como Acessar</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-
-</p>
-
-<div align="center">
-</div>
-
-## Contexto 📝
-
-## Tecnologias 🖥️
-
-## Desafios 🎯
-
-## Como acessar 🚪🚶
-
----
-
-🇺🇸
 
 <div align="center" >
 </div>
 
 <p align="center">
-  <a href="#context-">Context</a>&nbsp;&nbsp;&nbsp;┋&nbsp;&nbsp;&nbsp;
-  <a href="#technologies-%EF%B8%8F">Technologies</a>&nbsp;&nbsp;&nbsp;┋&nbsp;&nbsp;&nbsp;
-  <a href="#challenges-">Challenges</a>&nbsp;&nbsp;&nbsp;┋&nbsp;&nbsp;&nbsp;
-  <a href="#how-to-access-">How to Access</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <a href="#-overview">Overview</a>&nbsp;&nbsp;&nbsp;┋&nbsp;&nbsp;&nbsp;
+  <a href="#-technologies">Technologies</a>&nbsp;&nbsp;&nbsp;┋&nbsp;&nbsp;&nbsp;
+  <a href="#-challenges">Challenges</a>&nbsp;&nbsp;&nbsp;┋&nbsp;&nbsp;&nbsp;
+   <a href="#-getting-started">Getting Started</a>&nbsp;&nbsp;&nbsp;┋&nbsp;&nbsp;&nbsp;
+  <a href="#-demo">Demo</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 
 </p>
 
 <div align="center">
 </div>
 
-## Context 📝
+## 📝 Overview
 
-## Technologies 🖥️
+## 🔧 Technologies
 
-## Challenges 🎯
+## 🎯 Challenges 
 
-## How to Access 🚪🚶
+## 🚀 Getting Started
+
+## 🚪🚶 Demo
