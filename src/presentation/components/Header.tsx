@@ -2,11 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import logo from '@/presentation/assets/logo.svg';
 import {
-  MagnifyingGlassIcon,
   ShoppingBagIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/solid';
-import Input from '@presentation/components/forms/Input';
 
 export function Header() {
   return (
@@ -15,14 +13,15 @@ export function Header() {
         <Link href={'/'}>
           <Image src={logo} width={114} height={40} alt="Logo Fates" />
         </Link>
-        <form className="flex w-[20em] items-center gap-3 rounded-full bg-zinc-900 px-5 py-3 ring-zinc-700">
-          <MagnifyingGlassIcon className="size-5 text-zinc-500" />
-          <Input
-            placeholder="Search products..."
-            className="flex-1 bg-transparent text-sm outline-none placeholder:text-zinc-500"
-          />
-        </form>
       </div>
+      <div className='flex gap-5 font-medium text-zinc-300'>
+        <Link href={'/'}>Home</Link>
+        <div className="w-px h-6 bg-zinc-700"></div>
+        <Link href={'/produtos'}>Produtos</Link>
+        <div className="w-px h-6 bg-zinc-700"></div>
+        <Link href={'/contato'}>Contato</Link>
+      </div>
+
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           <ShoppingBagIcon className="size-4" />
