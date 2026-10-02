@@ -1,4 +1,4 @@
-/** envelope padrão da fates-v2-api */
+/** envelope padrão da API */
 export type RemoteResponse<T> = {
   status: number;
   data?: T;
