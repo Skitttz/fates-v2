@@ -7,4 +7,4 @@ export const MARQUEE_PRIMARY_ITEMS = [
   'Frete grátis',
 ];
 
-export const MARQUEE_SECONDARY_ITEMS = ['Edição limitada', 'Sem reposição', 'Fates crew', 'Corre'];
+export const MARQUEE_SECONDARY_ITEMS = ['Edição limitada', 'Sem reposição', 'Fates', 'Corre'];

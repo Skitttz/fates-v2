@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { ShoppingBagIcon } from '@heroicons/react/24/solid';
 import { ROUTES } from '@/presentation/constants/route';
 import { useCart } from '@/presentation/contexts/cart';

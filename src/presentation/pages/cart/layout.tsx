@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { CartItemRow, CartSummary, OrderConfirmation } from '@/presentation/components/cart';
 import { EmptyState } from '@/presentation/components/feedback';
 import { Button, buttonVariants, GlitchText, Skeleton } from '@/presentation/components/ui';

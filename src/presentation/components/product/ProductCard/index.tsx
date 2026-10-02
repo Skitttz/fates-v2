@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 
 import { Sticker } from '@/presentation/components/ui';
 import { getCategoryLabel } from '@/presentation/constants/categories';
@@ -24,7 +24,7 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
             alt={product.name}
             fill
             priority={priority}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className={cn(
               'transition-transform duration-500 ease-out group-hover:-rotate-2 group-hover:scale-110',
               getImageFit(image) === 'contain' ? 'object-contain p-8' : 'object-cover',

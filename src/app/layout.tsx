@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { Anton, Inter, Permanent_Marker } from 'next/font/google';
+import { Suspense } from 'react';
 import { IChildren } from '@/core/types';
 import { AppProvidersFactory } from '@/main/providers/app-providers-factory';
+import { ViewTransitionListener } from '@/presentation/components/navigation';
 import '@/styles/globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -13,7 +15,7 @@ export const metadata: Metadata = {
     default: 'Fates | Streetwear',
     template: '%s | Fates',
   },
-  description: 'Vitrine de streetwear da Fates Crew. Drop 01 disponível.',
+  description: 'Vitrine de streetwear da Fates. Drop 01 disponível.',
 };
 
 export default function RootLayout({ children }: IChildren) {
@@ -21,6 +23,9 @@ export default function RootLayout({ children }: IChildren) {
     <html lang="pt-BR" className={`${inter.variable} ${anton.variable} ${marker.variable}`}>
       <body className="bg-zinc-950 font-sans text-zinc-50 antialiased">
         <AppProvidersFactory>{children}</AppProvidersFactory>
+        <Suspense fallback={null}>
+          <ViewTransitionListener />
+        </Suspense>
       </body>
     </html>
   );

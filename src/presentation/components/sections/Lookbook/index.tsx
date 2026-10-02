@@ -1,15 +1,15 @@
 import Image from 'next/image';
 import { Reveal, SectionHeading } from '@/presentation/components/ui';
 import { cn } from '@/presentation/utils/cn';
-import { LOOKBOOK_PHOTOS } from './constants';
+import { LOOKBOOK_PHOTOS, LOOKBOOK_SECTION } from './constants';
 
 export function Lookbook() {
   return (
     <section id="lookbook" className="scroll-mt-24">
       <SectionHeading
-        eyebrow="#fatescrew"
-        title="Lookbook"
-        description="A rua é a vitrine. Cola no pico, cola o sticker, cola com a crew."
+        eyebrow={LOOKBOOK_SECTION.eyebrow}
+        title={LOOKBOOK_SECTION.title}
+        description={LOOKBOOK_SECTION.description}
       />
       <div className="grid grid-cols-1 gap-10 px-2 sm:grid-cols-3 sm:gap-6">
         {LOOKBOOK_PHOTOS.map((photo, index) => (

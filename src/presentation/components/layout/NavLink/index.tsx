@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { usePathname } from 'next/navigation';
 
 import { cn } from '@/presentation/utils/cn';
