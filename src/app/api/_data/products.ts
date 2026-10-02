@@ -54,16 +54,15 @@ export const PRODUCTS: RemoteProductModel[] = [
     price_in_cents: 2490,
     sizes: ['Único'],
     colors: ['Sortido'],
-    images: ['/images/products/sticker-pack-fates-1.jpg', '/images/products/sticker-pack-fates-2.jpg'],
+    images: [
+      '/images/products/sticker-pack-fates-1.jpg',
+      '/images/products/sticker-pack-fates-2.jpg',
+    ],
     tag: 'LIMITED',
   },
 ];
 
-const normalize = (value: string) =>
-  value
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .toLowerCase();
+const normalize = (value: string) => value.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 
 export const findProducts = ({ query, category }: { query?: string; category?: string }) => {
   const term = normalize(query?.trim() ?? '');
