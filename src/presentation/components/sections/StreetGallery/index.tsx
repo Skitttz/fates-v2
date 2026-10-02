@@ -11,7 +11,7 @@ export function StreetGallery() {
         title={STREET_GALLERY_SECTION.title}
         description={STREET_GALLERY_SECTION.description}
       />
-      <div className="grid grid-cols-1 gap-10 px-2 sm:grid-cols-3 sm:gap-6">
+      <div className="grid grid-cols-1 gap-12 px-2 sm:grid-cols-3 sm:gap-8 lg:gap-14 xl:gap-20 2xl:px-10">
         {STREET_GALLERY_PHOTOS.map((photo, index) => (
           <Reveal key={photo.caption} delay={index * 150}>
             <figure
