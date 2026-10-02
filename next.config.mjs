@@ -17,7 +17,7 @@ const nextConfig = {
     ];
   },
   images: {
-    // imagens dos produtos são servidas pela api em /public
+    // imagens dos produtos são servidas pela API em /public
     remotePatterns: [
       {
         protocol: apiUrl.protocol.replace(':', ''),
