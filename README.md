@@ -23,7 +23,7 @@ Fates é uma vitrine de streetwear feita com Next.js 14 (App Router) para aplica
 
 Funcionalidades:
 
-- Home com hero, fitas de marquee, produtos em destaque, banner do drop e lookbook
+- Home com hero, fitas de marquee, produtos em destaque, banner do drop e a seção "Pela cidade"
 - Catálogo com busca (`?q=`) e filtro por categoria (`?category=`), funcionando sem JavaScript
 - Página de produto com galeria, escolha de cor/tamanho/quantidade e adição ao carrinho
 - Carrinho persistido no `localStorage`
