@@ -1,45 +1,40 @@
+import Link from 'next/link';
+import { ErrorState } from '@/presentation/components/feedback';
+import { ProductsGrid } from '@/presentation/components/product';
+import { DropBanner, HeroSection, Lookbook, MarqueeBand } from '@/presentation/components/sections';
+import { buttonVariants, SectionHeading } from '@/presentation/components/ui';
+import { ROUTES } from '@/presentation/constants/route';
+import { FEATURED_SECTION } from './constants';
 import { StoreLayoutProps } from './types';
-import { HeroSection, ProductsGrid } from '@/presentation/components/sections';
-import ProdutoImg1 from '@@assets/mock-produto-1.png';
-import ProdutoImg2 from '@@assets/mock-produto-2.png';
-import ProdutoImg3 from '@@assets/mock-produto-3.png';
 
-const PRODUCTS = [
-  {
-    id: '1',
-    href: '/',
-    image: ProdutoImg1,
-    category: 'PRIMAVERA',
-    name: 'MOLETOM BASIC FATES',
-    price: 'R$ 80',
-  },
-  {
-    id: '2',
-    href: '/',
-    image: ProdutoImg2,
-    category: 'PRIMAVERA',
-    name: 'CAMISA BASIC FATES',
-    price: 'R$ 60',
-  },
-  {
-    id: '3',
-    href: '/',
-    image: ProdutoImg3,
-    category: 'PRIMAVERA',
-    name: 'TOUCA BASIC FATES',
-    price: 'R$ 40',
-  },
-];
-
-export default function StoreLayout({
-  data,
-  error,
-  loading,
-}: StoreLayoutProps) {
+export default function StoreLayout({ products, error }: StoreLayoutProps) {
   return (
     <div className="w-full">
       <HeroSection />
-      <ProductsGrid products={PRODUCTS} showAccent={true} />
+      <MarqueeBand />
+
+      <div className="mx-auto flex max-w-[100em] flex-col gap-24 px-4 pt-8 sm:px-8">
+        <section aria-labelledby="featured-title">
+          <SectionHeading
+            id="featured-title"
+            eyebrow={FEATURED_SECTION.eyebrow}
+            title={FEATURED_SECTION.title}
+            description={FEATURED_SECTION.description}
+            action={
+              <Link
+                href={ROUTES.PRODUCTS}
+                className={buttonVariants({ variant: 'ghost', className: 'hidden sm:inline-flex' })}
+              >
+                Ver tudo →
+              </Link>
+            }
+          />
+          {error ? <ErrorState message={error} /> : <ProductsGrid products={products} />}
+        </section>
+
+        <DropBanner />
+        <Lookbook />
+      </div>
     </div>
   );
 }
