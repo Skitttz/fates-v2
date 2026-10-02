@@ -25,15 +25,15 @@ describe('Vitrine', () => {
     cy.contains('h1', 'Camiseta Masculina Fates').should('exist');
   });
 
-  it('rola suavemente até o lookbook pela âncora do hero', () => {
+  it('rola suavemente até a seção pela cidade pela âncora do hero', () => {
     cy.visit('/');
-    cy.contains('a', 'Lookbook').click();
-    cy.location('hash').should('eq', '#lookbook');
+    cy.contains('a', 'Pela cidade').click();
+    cy.location('hash').should('eq', '#pela-cidade');
     cy.window().its('scrollY').should('be.greaterThan', 0);
   });
 
   it('mostra a página 404 para produto inexistente', () => {
     cy.visit('/products/nao-existe', { failOnStatusCode: false });
-    cy.contains('Perdeu o rolê').should('exist');
+    cy.contains('Fora do mapa').should('exist');
   });
 });
