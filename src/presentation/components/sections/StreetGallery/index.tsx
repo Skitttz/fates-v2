@@ -16,7 +16,7 @@ export function StreetGallery() {
           <Reveal key={photo.caption} delay={index * 150}>
             <figure
               className={cn(
-                'group relative bg-zinc-50 p-3 pb-14 shadow-brutal-lime transition-transform duration-500 ease-out hover:z-10 hover:-translate-y-2 hover:rotate-0 hover:scale-[1.03]',
+                'group relative bg-zinc-50 p-3 pb-20 shadow-brutal-lime transition-transform duration-500 ease-out hover:z-10 hover:-translate-y-2 hover:rotate-0 hover:scale-[1.03]',
                 photo.rotation,
               )}
             >
@@ -30,8 +30,13 @@ export function StreetGallery() {
                   className="object-cover grayscale transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0"
                 />
               </div>
-              <figcaption className="absolute bottom-3 left-4 font-marker text-xl text-black">
-                {photo.caption}
+              <figcaption className="absolute bottom-3 left-4 right-4 flex flex-col gap-1">
+                <span className="font-marker text-xl leading-tight text-black">
+                  {photo.caption}
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-[0.25em] text-zinc-500">
+                  {photo.place}
+                </span>
               </figcaption>
             </figure>
           </Reveal>
