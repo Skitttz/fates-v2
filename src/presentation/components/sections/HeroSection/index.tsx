@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { AnchorLink, Link } from '@/presentation/components/navigation';
 import HeroImg from '@/presentation/assets/hero.png';
 import { buttonVariants, GlitchText, SpinningBadge } from '@/presentation/components/ui';
 import { HERO_BADGE_TEXT, HERO_DEFAULTS } from './constants';
@@ -59,12 +59,12 @@ export function HeroSection({
           <Link href={primaryCta.href} className={buttonVariants({ size: 'lg' })}>
             {primaryCta.label}
           </Link>
-          <Link
+          <AnchorLink
             href={secondaryCta.href}
             className={buttonVariants({ variant: 'outline', size: 'lg' })}
           >
             {secondaryCta.label}
-          </Link>
+          </AnchorLink>
         </div>
       </div>
 

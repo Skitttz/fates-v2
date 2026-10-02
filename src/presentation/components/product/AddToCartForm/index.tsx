@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { FormEvent, useEffect, useState } from 'react';
 import { CheckIcon } from '@heroicons/react/24/solid';
 import { Button, buttonVariants, QuantityStepper } from '@/presentation/components/ui';

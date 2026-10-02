@@ -1,4 +1,4 @@
-export const FEATURED_LIMIT = 4;
+export const FEATURED_LIMIT = 3;
 
 export const FEATURED_SECTION = {
   eyebrow: 'drop 01',

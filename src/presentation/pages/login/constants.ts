@@ -5,7 +5,7 @@ export const LOGIN_FIELDS: Array<keyof LoginFormState> = ['email', 'password'];
 export const INITIAL_LOGIN_STATE: LoginFormState = { email: '', password: '' };
 
 export const LOGIN_PAGE = {
-  eyebrow: 'área da crew',
+  eyebrow: 'área do cliente',
   title: 'Entrar',
   submit: 'Entrar',
   loading: 'Entrando...',

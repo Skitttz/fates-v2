@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { EmptyState, ErrorState } from '@/presentation/components/feedback';
 import { CategoryFilter, ProductsGrid, SearchForm } from '@/presentation/components/product';
 import { buttonVariants, GlitchText } from '@/presentation/components/ui';

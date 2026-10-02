@@ -24,7 +24,7 @@ export class ValidationStub implements Validation {
 export class AuthenticationSpy implements Authentication {
   params?: Authentication.Params;
   callsCount = 0;
-  account: AccountModel = { name: 'Fates Crew', email: 'demo@fates.com', accessToken: 'token' };
+  account: AccountModel = { name: 'Demo', email: 'demo@fates.com', accessToken: 'token' };
   error?: Error;
 
   async auth(params: Authentication.Params): Promise<AccountModel> {

@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { CheckBadgeIcon } from '@heroicons/react/24/solid';
 import { AddToCartForm, ProductGallery } from '@/presentation/components/product';
 import { Sticker } from '@/presentation/components/ui';

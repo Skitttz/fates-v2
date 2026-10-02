@@ -6,7 +6,7 @@ export const mockProductModel = (overrides: Partial<ProductModel> = {}): Product
   sequence += 1;
 
   return {
-    id: sequence,
+    id: `product-id-${sequence}`,
     slug: `product-${sequence}`,
     name: `Product ${sequence}`,
     description: 'Any description',

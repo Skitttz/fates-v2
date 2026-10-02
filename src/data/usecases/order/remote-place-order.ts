@@ -1,6 +1,6 @@
-import { AccessDeniedError, UnexpectedError } from '@/domain/errors';
+import { AccessDeniedError, InvalidOrderError, UnexpectedError } from '@/domain/errors';
 import { PlaceOrder } from '@/domain/usecases';
-import { RemoteOrderModel } from '../../models';
+import { RemoteOrderModel, RemoteResponse } from '../../models';
 import { HttpClient, HttpStatusCode } from '../../protocols/http';
 
 export class RemotePlaceOrder implements PlaceOrder {
@@ -9,23 +9,29 @@ export class RemotePlaceOrder implements PlaceOrder {
     private readonly httpClient: HttpClient<RemotePlaceOrder.Model>,
   ) {}
 
-  async place(params: PlaceOrder.Params): Promise<PlaceOrder.Model> {
+  async place({ items }: PlaceOrder.Params): Promise<PlaceOrder.Model> {
     const httpResponse = await this.httpClient.request({
       url: this.url,
       method: 'post',
-      body: params,
+      body: {
+        items: items.map(({ productId, size, color, quantity }) => ({
+          clothingId: productId,
+          size,
+          color,
+          quantity,
+        })),
+      },
     });
 
     switch (httpResponse.statusCode) {
-      case HttpStatusCode.ok: {
-        const order = httpResponse.body;
+      case HttpStatusCode.ok:
+      case HttpStatusCode.created: {
+        const order = httpResponse.body?.data;
         if (!order) throw new UnexpectedError();
-        return {
-          code: order.code,
-          total: order.total_in_cents / 100,
-          createdAt: order.created_at,
-        };
+        return { code: order.code, total: order.total, createdAt: order.createdAt };
       }
+      case HttpStatusCode.badRequest:
+        throw new InvalidOrderError(httpResponse.body?.error);
       case HttpStatusCode.unauthorized:
       case HttpStatusCode.forbidden:
         throw new AccessDeniedError();
@@ -36,5 +42,5 @@ export class RemotePlaceOrder implements PlaceOrder {
 }
 
 export namespace RemotePlaceOrder {
-  export type Model = RemoteOrderModel;
+  export type Model = RemoteResponse<RemoteOrderModel>;
 }

@@ -19,14 +19,17 @@ describe('AuthorizeHttpClientDecorator', () => {
     expect(httpClientSpy.headers).toEqual({ a: '1' });
   });
 
-  it('adds x-access-token header keeping the original headers', async () => {
+  it('adds the bearer token keeping the original headers', async () => {
     const { sut, storage, httpClientSpy } = makeSut();
     const account = mockAccountModel();
     storage.set('account', account);
 
     await sut.request({ url: 'http://api.test', method: 'post', headers: { a: '1' } });
 
-    expect(httpClientSpy.headers).toEqual({ a: '1', 'x-access-token': account.accessToken });
+    expect(httpClientSpy.headers).toEqual({
+      a: '1',
+      Authorization: `Bearer ${account.accessToken}`,
+    });
   });
 
   it('returns the decorated client response', async () => {

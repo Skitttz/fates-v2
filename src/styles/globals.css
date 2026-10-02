@@ -63,7 +63,52 @@
   }
 }
 
+@layer components {
+  /* fallback para browsers sem View Transitions */
+  .page-enter {
+    @apply animate-page-in;
+  }
+
+  @supports (view-transition-name: none) {
+    .page-enter {
+      animation: none;
+    }
+  }
+}
+
+/* transição entre páginas: a atual sai e a nova entra num corte de baixo pra cima */
+@keyframes vt-out {
+  to {
+    opacity: 0;
+    transform: translateY(-3%) scale(0.98);
+  }
+}
+
+@keyframes vt-in {
+  from {
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(4%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: translateY(0);
+  }
+}
+
+::view-transition-old(root) {
+  animation: vt-out 260ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+::view-transition-new(root) {
+  animation: vt-in 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+
   *,
   *::before,
   *::after {

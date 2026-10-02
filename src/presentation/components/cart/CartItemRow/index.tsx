@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { TrashIcon } from '@heroicons/react/24/outline';
 import { QuantityStepper } from '@/presentation/components/ui';
 import { ROUTES } from '@/presentation/constants/route';

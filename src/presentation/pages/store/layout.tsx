@@ -1,7 +1,12 @@
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { ErrorState } from '@/presentation/components/feedback';
 import { ProductsGrid } from '@/presentation/components/product';
-import { DropBanner, HeroSection, Lookbook, MarqueeBand } from '@/presentation/components/sections';
+import {
+  DropBanner,
+  HeroSection,
+  MarqueeBand,
+  StreetGallery,
+} from '@/presentation/components/sections';
 import { buttonVariants, SectionHeading } from '@/presentation/components/ui';
 import { ROUTES } from '@/presentation/constants/route';
 import { FEATURED_SECTION } from './constants';
@@ -33,7 +38,7 @@ export default function StoreLayout({ products, error }: StoreLayoutProps) {
         </section>
 
         <DropBanner />
-        <Lookbook />
+        <StreetGallery />
       </div>
     </div>
   );

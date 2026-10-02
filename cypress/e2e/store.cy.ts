@@ -2,14 +2,14 @@ describe('Vitrine', () => {
   it('mostra os produtos do drop na home', () => {
     cy.visit('/');
     cy.contains('h1', 'Essência').should('exist');
-    cy.get('[data-testid="product-card"]').should('have.length', 4);
+    cy.get('[data-testid="product-card"]').should('have.length', 3);
   });
 
   it('busca e filtra produtos no catálogo', () => {
     cy.visit('/products');
-    cy.get('input[name="q"]').type('touca{enter}');
-    cy.url().should('include', 'q=touca');
-    cy.get('[data-testid="product-card"]').should('have.length', 1).and('contain', 'Touca');
+    cy.get('input[name="q"]').type('gorro{enter}');
+    cy.url().should('include', 'q=gorro');
+    cy.get('[data-testid="product-card"]').should('have.length', 1).and('contain', 'Gorro');
 
     cy.visit('/products?category=calcas');
     cy.get('[data-testid="product-card"]').should('have.length', 1).and('contain', 'Calça');
@@ -20,13 +20,20 @@ describe('Vitrine', () => {
 
   it('abre o detalhe do produto a partir do card', () => {
     cy.visit('/');
-    cy.contains('[data-testid="product-card"]', 'Camiseta Basic Fates').click();
-    cy.url().should('include', '/products/camiseta-basic-fates');
-    cy.contains('h1', 'Camiseta Basic Fates').should('exist');
+    cy.contains('[data-testid="product-card"]', 'Camiseta Masculina Fates').click();
+    cy.url().should('include', '/products/camiseta-masculina-fates');
+    cy.contains('h1', 'Camiseta Masculina Fates').should('exist');
+  });
+
+  it('rola suavemente até a seção pela cidade pela âncora do hero', () => {
+    cy.visit('/');
+    cy.contains('a', 'Pela cidade').click();
+    cy.location('hash').should('eq', '#pela-cidade');
+    cy.window().its('scrollY').should('be.greaterThan', 0);
   });
 
   it('mostra a página 404 para produto inexistente', () => {
     cy.visit('/products/nao-existe', { failOnStatusCode: false });
-    cy.contains('Perdeu o rolê').should('exist');
+    cy.contains('Fora do mapa').should('exist');
   });
 });

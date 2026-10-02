@@ -1,5 +1,6 @@
 export type RemoteOrderModel = {
+  id: string;
   code: string;
-  total_in_cents: number;
-  created_at: string;
+  total: number;
+  createdAt: string;
 };

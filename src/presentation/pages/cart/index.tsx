@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { AccessDeniedError } from '@/domain/errors';
 import { useAccount } from '@/presentation/contexts/account';
 import { useCart } from '@/presentation/contexts/cart';
+import { startPageTransition } from '@/presentation/helpers';
 import { getErrorMessage } from '@/presentation/utils/getErrorMessage';
 import { LOGIN_REDIRECT_URL } from './constants';
 import CartLayout from './layout';
@@ -18,7 +19,7 @@ export function Cart({ placeOrder }: CartProps) {
 
   async function handleCheckout() {
     if (!account) {
-      router.push(LOGIN_REDIRECT_URL);
+      startPageTransition(() => router.push(LOGIN_REDIRECT_URL));
       return;
     }
 
@@ -37,7 +38,7 @@ export function Cart({ placeOrder }: CartProps) {
     } catch (error) {
       if (error instanceof AccessDeniedError) {
         await signOut();
-        router.push(LOGIN_REDIRECT_URL);
+        startPageTransition(() => router.push(LOGIN_REDIRECT_URL));
         return;
       }
       setStatus({ type: 'error', message: getErrorMessage(error) });
