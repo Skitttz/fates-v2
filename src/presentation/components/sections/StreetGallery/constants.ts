@@ -15,7 +15,7 @@ export const STREET_GALLERY_PHOTOS: StreetGalleryPhoto[] = [
   {
     src: RandomImg1,
     alt: 'Adesivo da Fates colado na lateral de um caixote da pista de skate, com um skatista desfocado ao fundo',
-    caption: 'testemunha de toda sessão',
+    caption: 'ao lado da ação',
     place: 'lateral do caixote',
     rotation: '-rotate-3',
   },

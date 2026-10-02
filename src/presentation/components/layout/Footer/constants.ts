@@ -11,4 +11,5 @@ export const FOOTER_COPY = {
   about:
     'A Fates nasce do asfalto, das pistas e dos muros da cidade. Peças pensadas para acompanhar quem não para, em drops curtos e sem reposição.',
   copyright: 'Fates',
+  wordmark: 'FATES',
 };

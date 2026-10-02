@@ -1,4 +1,5 @@
 import { Link } from '@/presentation/components/navigation';
+import { GraffitiTag } from '@/presentation/components/ui';
 
 import { FOOTER_COPY, FOOTER_LINKS } from './constants';
 
@@ -24,12 +25,10 @@ export function Footer() {
           </nav>
         </div>
 
-        <p
-          aria-hidden="true"
-          className="text-outline select-none text-center font-display text-[22vw] leading-[0.8] transition-colors duration-500 hover:text-street-lime md:text-[16vw]"
-        >
-          FATES
-        </p>
+        <GraffitiTag
+          text={FOOTER_COPY.wordmark}
+          className="mx-auto max-w-5xl cursor-crosshair text-zinc-700"
+        />
 
         <p className="text-center text-xs text-zinc-500">
           © {new Date().getFullYear()} {FOOTER_COPY.copyright}

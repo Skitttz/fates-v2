@@ -9,3 +9,4 @@ export * from './Skeleton';
 export * from './SectionHeading';
 export * from './QuantityStepper';
 export * from './ConfirmDialog';
+export * from './GraffitiTag';
