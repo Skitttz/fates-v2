@@ -1,6 +1,6 @@
 import { InvalidCredentialsError, UnexpectedError } from '@/domain/errors';
 import { Authentication } from '@/domain/usecases';
-import { RemoteAccountModel } from '../../models';
+import { RemoteAccountModel, RemoteResponse } from '../../models';
 import { HttpClient, HttpStatusCode } from '../../protocols/http';
 
 export class RemoteAuthentication implements Authentication {
@@ -18,9 +18,9 @@ export class RemoteAuthentication implements Authentication {
 
     switch (httpResponse.statusCode) {
       case HttpStatusCode.ok: {
-        const account = httpResponse.body;
+        const account = httpResponse.body?.data;
         if (!account) throw new UnexpectedError();
-        return { name: account.name, email: account.email, accessToken: account.access_token };
+        return { name: account.user.name, email: account.user.email, accessToken: account.token };
       }
       case HttpStatusCode.unauthorized:
         throw new InvalidCredentialsError();
@@ -31,5 +31,5 @@ export class RemoteAuthentication implements Authentication {
 }
 
 export namespace RemoteAuthentication {
-  export type Model = RemoteAccountModel;
+  export type Model = RemoteResponse<RemoteAccountModel>;
 }

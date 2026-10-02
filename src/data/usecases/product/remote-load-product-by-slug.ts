@@ -1,7 +1,7 @@
 import { NotFoundError, UnexpectedError } from '@/domain/errors';
 import { LoadProductBySlug } from '@/domain/usecases';
 import { adaptRemoteProduct } from '../../helpers';
-import { RemoteProductModel } from '../../models';
+import { RemoteProductModel, RemoteResponse } from '../../models';
 import { HttpClient, HttpStatusCode } from '../../protocols/http';
 
 export class RemoteLoadProductBySlug implements LoadProductBySlug {
@@ -17,9 +17,11 @@ export class RemoteLoadProductBySlug implements LoadProductBySlug {
     });
 
     switch (httpResponse.statusCode) {
-      case HttpStatusCode.ok:
-        if (!httpResponse.body) throw new UnexpectedError();
-        return adaptRemoteProduct(httpResponse.body);
+      case HttpStatusCode.ok: {
+        const product = httpResponse.body?.data;
+        if (!product) throw new UnexpectedError();
+        return adaptRemoteProduct(product, this.url);
+      }
       case HttpStatusCode.notFound:
         throw new NotFoundError();
       default:
@@ -29,5 +31,5 @@ export class RemoteLoadProductBySlug implements LoadProductBySlug {
 }
 
 export namespace RemoteLoadProductBySlug {
-  export type Model = RemoteProductModel;
+  export type Model = RemoteResponse<RemoteProductModel>;
 }
