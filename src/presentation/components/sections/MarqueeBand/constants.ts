@@ -1,10 +1,9 @@
 export const MARQUEE_PRIMARY_ITEMS = [
   'Fates',
   'Drop 01',
-  'Streetwear',
-  'Feito na rua',
-  'Skate or die',
+  'Em movimento com a rua',
+  'Edição limitada',
   'Frete grátis',
 ];
 
-export const MARQUEE_SECONDARY_ITEMS = ['Edição limitada', 'Sem reposição', 'Fates', 'Corre'];
+export const MARQUEE_SECONDARY_ITEMS = ['Sem reposição', 'Drop 01', 'Fates', 'Peças contadas'];

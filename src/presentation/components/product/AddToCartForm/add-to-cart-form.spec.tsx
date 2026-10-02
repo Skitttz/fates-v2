@@ -12,7 +12,7 @@ describe('AddToCartForm', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Adicionar ao carrinho' }));
 
-    expect(screen.getByRole('alert')).toHaveTextContent('Escolhe um tamanho');
+    expect(screen.getByRole('alert')).toHaveTextContent('Escolha um tamanho');
     expect(cart.items).toHaveLength(0);
   });
 
