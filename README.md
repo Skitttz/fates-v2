@@ -19,7 +19,7 @@
 
 ## 📝 Visao Geral
 
-Fates é uma vitrine de streetwear feita com Next.js 14 (App Router) para aplicar Clean Architecture no front-end. Catálogo, login e pedidos vêm da [fates-v2-api](https://github.com/Skitttz/fates-v2-api) (Bun + Elysia + Prisma). Nenhuma compra é real: o pedido é registrado, mas não há pagamento.
+Fates é uma vitrine de streetwear feita com Next.js 15 (App Router) para aplicar Clean Architecture no front-end. Catálogo, login e pedidos vêm da [fates-v2-api](https://github.com/Skitttz/fates-v2-api) (Bun + Elysia + Prisma). Nenhuma compra é real: o pedido é registrado, mas não há pagamento.
 
 Funcionalidades:
 
@@ -88,7 +88,7 @@ Conta demo criada pelo seed da API: **demo@fates.com** / **fates123**
 
 ### Pré-requisitos
 
-- `Node.js` 18.17+
+- `Node.js` 22.12+
 - `npm`
 - A [fates-v2-api](https://github.com/Skitttz/fates-v2-api) rodando (por padrão em `http://localhost:3000`)
 
@@ -174,3 +174,11 @@ cypress/           testes E2E
 ```
 
 Cada componente e página fica numa pasta com `index.tsx`, `types.ts` e, quando houver, `constants.ts`. As páginas seguem o par `index.tsx` (container: dados e estado) + `layout.tsx` (view).
+
+## Segurança
+
+O rate limit é aplicado na [API](https://github.com/Skitttz/fates-v2-api), inclusive para chamadas diretas: login por IP/conta, limite geral e criação de pedidos por usuário. O frontend mostra uma mensagem de espera ao receber HTTP 429. Não há cadastro público na API após a atualização de segurança.
+
+O redirecionamento após login aceita apenas caminhos internos e bloqueia barras invertidas e caracteres de controle. As respostas incluem headers contra interpretação incorreta de conteúdo e incorporação em iframes. Next.js foi atualizado para 15.5.27; `params` e `searchParams` usam o contrato assíncrono dessa versão. As ferramentas de teste e os patches transitivos de PostCSS/brace-expansion também foram atualizados; os overrides podem ser removidos quando as dependências incorporarem esses patches.
+
+Os tokens continuam no localStorage e, portanto, ficam acessíveis a JavaScript da mesma origem. Uma migração para cookies HttpOnly exige mudanças coordenadas na autenticação; a API agora emite tokens com duração de uma hora. A conta demo é pública e não deve guardar dados pessoais. Consulte o README da API para os limites, confiança em proxies e operação com múltiplas instâncias.

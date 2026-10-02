@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { InvalidCredentialsError, UnexpectedError } from '@/domain/errors';
+import { InvalidCredentialsError, UnexpectedError, RateLimitError } from '@/domain/errors';
 import { mockAuthenticationParams } from '@/domain/test';
 import { HttpStatusCode } from '../../protocols/http';
 import { HttpClientSpy } from '../../test';
@@ -60,4 +60,9 @@ describe('RemoteAuthentication', () => {
       await expect(sut.auth(mockAuthenticationParams())).rejects.toThrow(UnexpectedError);
     },
   );
+  it('reports rate limiting on 429', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    httpClientSpy.response = { statusCode: HttpStatusCode.tooManyRequests };
+    await expect(sut.auth(mockAuthenticationParams())).rejects.toThrow(RateLimitError);
+  });
 });
