@@ -1,1 +1,1 @@
-export * from "./next-fetch-config"
+export * from './next-fetch-config';
