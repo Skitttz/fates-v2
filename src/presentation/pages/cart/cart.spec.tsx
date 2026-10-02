@@ -41,7 +41,7 @@ describe('Cart page', () => {
   it('shows an empty state when there are no items', async () => {
     renderWithProviders(<Cart placeOrder={new PlaceOrderSpy()} />);
 
-    expect(await screen.findByText('Seu carrinho tá vazio')).toBeInTheDocument();
+    expect(await screen.findByText('Seu carrinho está vazio')).toBeInTheDocument();
   });
 
   it('lists items and the total', async () => {

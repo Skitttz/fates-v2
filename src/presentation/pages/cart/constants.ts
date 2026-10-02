@@ -9,8 +9,8 @@ export const CART_PAGE = {
 
 export const CART_EMPTY = {
   sticker: 'VAZIO',
-  title: 'Seu carrinho tá vazio',
-  description: 'Bora garantir as peças do drop antes que acabe.',
+  title: 'Seu carrinho está vazio',
+  description: 'As peças do drop 01 são limitadas. Garanta a sua antes que acabe.',
   action: 'Ver drop 01',
 };
 

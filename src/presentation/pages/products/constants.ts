@@ -7,6 +7,6 @@ export const PRODUCTS_PAGE = {
 export const PRODUCTS_EMPTY = {
   sticker: 'VAZIO',
   title: 'Nada por aqui',
-  description: 'Não achamos nenhuma peça com esse filtro. Tenta outra busca ou limpa os filtros.',
+  description: 'Nenhuma peça encontrada com esse filtro. Tente outra busca ou limpe os filtros.',
   action: 'Limpar filtros',
 };

@@ -1,6 +1,6 @@
 import { Link } from '@/presentation/components/navigation';
 
-import { FOOTER_LINKS } from './constants';
+import { FOOTER_COPY, FOOTER_LINKS } from './constants';
 
 export function Footer() {
   return (
@@ -8,11 +8,8 @@ export function Footer() {
       <div className="mx-auto flex max-w-[100em] flex-col gap-10 px-4 py-12 sm:px-8">
         <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
           <div className="max-w-sm space-y-3">
-            <p className="font-marker text-xl text-street-lime">feito na rua, pra rua.</p>
-            <p className="text-sm text-zinc-400">
-              Fates é uma vitrine fictícia de streetwear criada para estudar Clean Architecture com
-              Next.js. Nenhuma compra aqui é real.
-            </p>
+            <p className="font-marker text-xl text-street-lime">{FOOTER_COPY.tagline}</p>
+            <p className="text-sm text-zinc-400">{FOOTER_COPY.about}</p>
           </div>
           <nav aria-label="Rodapé" className="flex gap-8">
             {FOOTER_LINKS.map((link) => (
@@ -35,7 +32,7 @@ export function Footer() {
         </p>
 
         <p className="text-center text-xs text-zinc-500">
-          © {new Date().getFullYear()} Fates. Projeto de estudo.
+          © {new Date().getFullYear()} {FOOTER_COPY.copyright}
         </p>
       </div>
     </footer>

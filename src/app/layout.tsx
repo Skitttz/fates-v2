@@ -12,10 +12,10 @@ const marker = Permanent_Marker({ subsets: ['latin'], weight: '400', variable: '
 
 export const metadata: Metadata = {
   title: {
-    default: 'Fates | Streetwear',
+    default: 'Fates',
     template: '%s | Fates',
   },
-  description: 'Vitrine de streetwear da Fates. Drop 01 disponível.',
+  description: 'Fates. Em movimento com a rua. Drop 01 disponível.',
 };
 
 export default function RootLayout({ children }: IChildren) {
