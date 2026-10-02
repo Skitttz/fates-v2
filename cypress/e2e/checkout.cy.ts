@@ -1,6 +1,6 @@
 describe('Carrinho, login e checkout', () => {
   it('adiciona ao carrinho, faz login e finaliza o pedido', () => {
-    cy.visit('/products/camiseta-basic-fates');
+    cy.visit('/products/camiseta-masculina-fates');
 
     cy.contains('button', 'Adicionar ao carrinho').click();
     cy.contains('Escolhe um tamanho').should('exist');
