@@ -1,2 +1,3 @@
-export const makeApiUrl = (path: string): string =>
-	`${process.env.NEXT_PUBLIC_API_URL}${path}`
+import { getApiBaseUrl } from '../config';
+
+export const makeApiUrl = (path: string): string => `${getApiBaseUrl()}${path}`;

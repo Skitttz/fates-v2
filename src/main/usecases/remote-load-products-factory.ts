@@ -1,11 +1,10 @@
-import { RemoteLoadProducts } from '@/data/usecases'
-import { LoadProducts } from '@/domain/usecases'
-import { makeApiUrl } from '@/main/http'
-import { makeFetchHttpClient } from '../http'
-import { GET_ROUTES_ENUM } from '@/presentation/constants/route'
+import { RemoteLoadProducts } from '@/data/usecases';
+import { LoadProducts } from '@/domain/usecases';
+import { API_ROUTES } from '../config';
+import { makeApiUrl, makeFetchHttpClient } from '../http';
 
 export const makeRemoteLoadProducts = (): LoadProducts =>
-	new RemoteLoadProducts(
-		makeApiUrl(GET_ROUTES_ENUM.PRODUCTS),
-		makeFetchHttpClient({ cache: 'no-store' }),
-	)
+  new RemoteLoadProducts(
+    makeApiUrl(API_ROUTES.PRODUCTS),
+    makeFetchHttpClient<RemoteLoadProducts.Model>({ cache: 'no-store' }),
+  );
