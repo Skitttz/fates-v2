@@ -1,6 +1,6 @@
 import { StaticImageData } from 'next/image';
 
-export type LookbookPhoto = {
+export type StreetGalleryPhoto = {
   src: StaticImageData;
   alt: string;
   caption: string;
