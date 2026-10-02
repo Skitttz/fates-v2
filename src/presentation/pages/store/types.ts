@@ -1,7 +1,11 @@
-import { LoadProducts } from '@/domain/usecases'
+import { ProductModel } from '@/domain/models';
+import { LoadProducts } from '@/domain/usecases';
+
+export type StoreProps = {
+  loadProducts: LoadProducts;
+};
 
 export type StoreLayoutProps = {
-	data?: LoadProducts.Model[] | []
-	loading?: boolean
-	error?: string
-}
+  products: ProductModel[];
+  error?: string;
+};

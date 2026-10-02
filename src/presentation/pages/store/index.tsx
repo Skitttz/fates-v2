@@ -1,10 +1,18 @@
-'use client';
-
-import { useProduct } from '@@hooks/useProduct';
+import { ProductModel } from '@/domain/models';
+import { getErrorMessage } from '@/presentation/utils/getErrorMessage';
+import { FEATURED_LIMIT } from './constants';
 import StoreLayout from './layout';
+import { StoreProps } from './types';
 
-export function Store() {
-  const { data, error, loading } = useProduct();
+export async function Store({ loadProducts }: StoreProps) {
+  let products: ProductModel[] = [];
+  let error: string | undefined;
 
-  return <StoreLayout data={data} error={error} loading={loading} />;
+  try {
+    products = (await loadProducts.load()).slice(0, FEATURED_LIMIT);
+  } catch (err) {
+    error = getErrorMessage(err);
+  }
+
+  return <StoreLayout products={products} error={error} />;
 }

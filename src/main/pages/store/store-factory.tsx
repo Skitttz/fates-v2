@@ -1,5 +1,6 @@
-import { Store } from '@@pages/store';
+import { Store } from '@/presentation/pages/store';
+import { makeRemoteLoadProducts } from '../../usecases';
 
 export function StoreFactory() {
-  return <Store />;
+  return <Store loadProducts={makeRemoteLoadProducts()} />;
 }

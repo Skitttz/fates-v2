@@ -1,8 +1,7 @@
-export enum ROUTES_ENUM {
-	HOME = '/',
-	PRODUCT = '/product',
-}
-
-export enum GET_ROUTES_ENUM{
-	PRODUCTS = "/product"
-}
+export const ROUTES = {
+  HOME: '/',
+  PRODUCTS: '/products',
+  PRODUCT: (slug: string) => `/products/${slug}`,
+  CART: '/cart',
+  LOGIN: '/login',
+} as const;
