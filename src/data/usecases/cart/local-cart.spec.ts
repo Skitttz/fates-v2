@@ -36,10 +36,12 @@ describe('LocalCart', () => {
   it('adds a new item with an id based on product, size and color', async () => {
     const { add, load } = makeSut();
 
-    const items = await add.add(mockAddToCartParams({ productId: 7, size: 'G', color: 'Preto' }));
+    const items = await add.add(
+      mockAddToCartParams({ productId: 'product-7', size: 'G', color: 'Preto' }),
+    );
 
     expect(items).toHaveLength(1);
-    expect(items[0].id).toBe('7:G:Preto');
+    expect(items[0].id).toBe('product-7:G:Preto');
     await expect(load.load()).resolves.toEqual(items);
   });
 

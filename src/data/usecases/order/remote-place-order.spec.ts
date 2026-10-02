@@ -1,44 +1,59 @@
 import { describe, expect, it } from 'vitest';
-import { AccessDeniedError, UnexpectedError } from '@/domain/errors';
+import { AccessDeniedError, InvalidOrderError, UnexpectedError } from '@/domain/errors';
 import { HttpStatusCode } from '../../protocols/http';
 import { HttpClientSpy } from '../../test';
 import { RemotePlaceOrder } from './remote-place-order';
 
-const params = { items: [{ productId: 1, size: 'M', color: 'Preto', quantity: 2 }] };
+const params = { items: [{ productId: 'product-id', size: 'M', color: 'Preto', quantity: 2 }] };
+const remoteOrder = { id: 'order-id', code: 'FTS-1', total: 140, createdAt: '2026-01-01' };
 
 const makeSut = () => {
   const httpClientSpy = new HttpClientSpy<RemotePlaceOrder.Model>();
-  const sut = new RemotePlaceOrder('http://api.test/orders', httpClientSpy);
+  const sut = new RemotePlaceOrder('http://api.test/api/v1/orders', httpClientSpy);
   return { sut, httpClientSpy };
 };
 
 describe('RemotePlaceOrder', () => {
-  it('calls HttpClient with correct values', async () => {
+  it('sends the items using the API contract (clothingId)', async () => {
     const { sut, httpClientSpy } = makeSut();
     httpClientSpy.response = {
-      statusCode: HttpStatusCode.ok,
-      body: { code: 'FTS-1', total_in_cents: 100, created_at: '2026-01-01' },
+      statusCode: HttpStatusCode.created,
+      body: { status: 201, data: remoteOrder },
     };
 
     await sut.place(params);
 
-    expect(httpClientSpy.url).toBe('http://api.test/orders');
+    expect(httpClientSpy.url).toBe('http://api.test/api/v1/orders');
     expect(httpClientSpy.method).toBe('post');
-    expect(httpClientSpy.body).toEqual(params);
+    expect(httpClientSpy.body).toEqual({
+      items: [{ clothingId: 'product-id', size: 'M', color: 'Preto', quantity: 2 }],
+    });
   });
 
-  it('returns an OrderModel on 200', async () => {
+  it('returns an OrderModel on 201', async () => {
     const { sut, httpClientSpy } = makeSut();
     httpClientSpy.response = {
-      statusCode: HttpStatusCode.ok,
-      body: { code: 'FTS-1', total_in_cents: 17980, created_at: '2026-01-01' },
+      statusCode: HttpStatusCode.created,
+      body: { status: 201, data: remoteOrder },
     };
 
     await expect(sut.place(params)).resolves.toEqual({
       code: 'FTS-1',
-      total: 179.8,
+      total: 140,
       createdAt: '2026-01-01',
     });
+  });
+
+  it('throws InvalidOrderError with the API message on 400', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.badRequest,
+      body: { status: 400, error: 'Tamanho XG indisponível' },
+    };
+
+    await expect(sut.place(params)).rejects.toThrow(
+      new InvalidOrderError('Tamanho XG indisponível'),
+    );
   });
 
   it.each([HttpStatusCode.unauthorized, HttpStatusCode.forbidden])(
