@@ -6,19 +6,21 @@ import { ROUTES } from '@/presentation/constants/route';
 import { AccountMenu } from '../AccountMenu';
 import { CartButton } from '../CartButton';
 import { NavLink } from '../NavLink';
+import { StickyHeader } from '../StickyHeader';
 import { NAV_ITEMS } from './constants';
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-40 [view-transition-name:site-header] border-b border-zinc-800 bg-zinc-950/85 backdrop-blur-md">
-      <div className="tape h-1" aria-hidden="true" />
-      <div className="mx-auto flex h-16 max-w-[100em] items-center justify-between gap-4 px-4 sm:px-8">
+    <StickyHeader>
+      <div className="mx-auto flex h-20 max-w-[100em] items-center justify-between gap-4 px-4 transition-[height] duration-300 ease-out group-data-[scrolled=true]:h-14 sm:px-8">
         <Link
           href={ROUTES.HOME}
           aria-label="Fates, página inicial"
           className="transition-transform duration-300 hover:-rotate-3 hover:scale-105"
         >
-          <Image src={logo} width={92} height={42} alt="Fates" priority />
+          <span className="block origin-left transition-transform duration-300 ease-out group-data-[scrolled=true]:scale-[0.82]">
+            <Image src={logo} width={92} height={42} alt="Fates" priority />
+          </span>
         </Link>
 
         <nav aria-label="Principal" className="hidden items-center gap-10 md:flex">
@@ -52,6 +54,6 @@ export function Header() {
           </NavLink>
         ))}
       </nav>
-    </header>
+    </StickyHeader>
   );
 }

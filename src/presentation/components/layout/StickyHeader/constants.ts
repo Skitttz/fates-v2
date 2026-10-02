@@ -1,0 +1,1 @@
+export const STICKY_HEADER_THRESHOLD = 16;
