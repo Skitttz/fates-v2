@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { DEFAULT_API_URL, getApiBaseUrl } from './env';
+import { getApiBaseUrl } from './env';
 
 describe('getApiBaseUrl', () => {
   afterEach(() => {
@@ -13,6 +13,6 @@ describe('getApiBaseUrl', () => {
 
   it('falls back to the local API', () => {
     vi.stubEnv('NEXT_PUBLIC_API_URL', '');
-    expect(getApiBaseUrl()).toBe(DEFAULT_API_URL);
+    expect(getApiBaseUrl()).toBe('http://localhost:3000/api/v1');
   });
 });
