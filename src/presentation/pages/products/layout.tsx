@@ -1,12 +1,9 @@
-import { Link } from '@/presentation/components/navigation';
-import { EmptyState, ErrorState } from '@/presentation/components/feedback';
-import { CategoryFilter, ProductsGrid, SearchForm } from '@/presentation/components/product';
-import { buttonVariants, GlitchText } from '@/presentation/components/ui';
-import { ROUTES } from '@/presentation/constants/route';
-import { PRODUCTS_EMPTY, PRODUCTS_PAGE } from './constants';
+import { CategoryFilter, SearchForm } from '@/presentation/components/product';
+import { GlitchText } from '@/presentation/components/ui';
+import { PRODUCTS_PAGE } from './constants';
 import { ProductsLayoutProps } from './types';
 
-export default function ProductsLayout({ products, error, query, category }: ProductsLayoutProps) {
+export default function ProductsLayout({ query, category, results }: ProductsLayoutProps) {
   return (
     <div className="mx-auto flex max-w-[100em] flex-col gap-10 px-4 py-12 sm:px-8">
       <header className="flex flex-col gap-4">
@@ -24,33 +21,7 @@ export default function ProductsLayout({ products, error, query, category }: Pro
         <CategoryFilter query={query} category={category} />
       </div>
 
-      {error ? (
-        <ErrorState message={error} />
-      ) : products.length === 0 ? (
-        <EmptyState
-          sticker={PRODUCTS_EMPTY.sticker}
-          title={PRODUCTS_EMPTY.title}
-          description={PRODUCTS_EMPTY.description}
-          action={
-            <Link href={ROUTES.PRODUCTS} className={buttonVariants({ variant: 'outline' })}>
-              {PRODUCTS_EMPTY.action}
-            </Link>
-          }
-        />
-      ) : (
-        <section aria-label="Resultados" className="flex flex-col gap-6">
-          <p aria-live="polite" className="text-xs uppercase tracking-[0.25em] text-zinc-500">
-            {products.length} {products.length === 1 ? 'peça encontrada' : 'peças encontradas'}
-            {query && (
-              <>
-                {' '}
-                para <span className="text-street-lime">“{query}”</span>
-              </>
-            )}
-          </p>
-          <ProductsGrid products={products} />
-        </section>
-      )}
+      {results}
     </div>
   );
 }

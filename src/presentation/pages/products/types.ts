@@ -1,4 +1,4 @@
-import { ProductModel } from '@/domain/models';
+import { ReactNode } from 'react';
 import { LoadProducts } from '@/domain/usecases';
 
 export type ProductsFilters = {
@@ -11,6 +11,5 @@ export type ProductsProps = ProductsFilters & {
 };
 
 export type ProductsLayoutProps = ProductsFilters & {
-  products: ProductModel[];
-  error?: string;
+  results: ReactNode;
 };
