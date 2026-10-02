@@ -1,3 +1,102 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": "next/core-web-vitals",
+  "overrides": [
+    {
+      "files": ["src/domain/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/data/*",
+                  "@/infra/*",
+                  "@/main/*",
+                  "@/presentation/*",
+                  "@/validation/*",
+                  "react",
+                  "next",
+                  "next/*"
+                ],
+                "message": "domain não pode depender de outras camadas nem de framework."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/data/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": [
+                  "@/infra/*",
+                  "@/main/*",
+                  "@/presentation/*",
+                  "@/validation/*",
+                  "react",
+                  "next",
+                  "next/*"
+                ],
+                "message": "data só pode depender de domain e dos próprios protocols."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/infra/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/main/*", "@/presentation/*", "@/validation/*"],
+                "message": "infra implementa protocols de data; não conhece main nem presentation."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/validation/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/data/*", "@/infra/*", "@/main/*", "@/presentation/!(protocols)*"],
+                "message": "validation só implementa o protocol Validation de presentation."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "files": ["src/presentation/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "patterns": [
+              {
+                "group": ["@/data/*", "@/infra/*", "@/main/*", "@/validation/*"],
+                "message": "presentation recebe casos de uso por injeção (factories em main)."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
 }
