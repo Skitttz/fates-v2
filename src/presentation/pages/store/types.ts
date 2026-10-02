@@ -1,4 +1,4 @@
-import { ProductModel } from '@/domain/models';
+import { ReactNode } from 'react';
 import { LoadProducts } from '@/domain/usecases';
 
 export type StoreProps = {
@@ -6,6 +6,5 @@ export type StoreProps = {
 };
 
 export type StoreLayoutProps = {
-  products: ProductModel[];
-  error?: string;
+  featuredProducts: ReactNode;
 };

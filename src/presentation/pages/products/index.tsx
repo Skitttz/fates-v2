@@ -1,17 +1,19 @@
-import { ProductModel } from '@/domain/models';
-import { getErrorMessage } from '@/presentation/utils/getErrorMessage';
+import { Suspense } from 'react';
+import { CatalogResults, ProductsGridSkeleton } from '@/presentation/components/product';
 import ProductsLayout from './layout';
 import { ProductsProps } from './types';
 
-export async function Products({ loadProducts, query, category }: ProductsProps) {
-  let products: ProductModel[] = [];
-  let error: string | undefined;
-
-  try {
-    products = await loadProducts.load({ query, category });
-  } catch (err) {
-    error = getErrorMessage(err);
-  }
-
-  return <ProductsLayout products={products} error={error} query={query} category={category} />;
+export function Products({ loadProducts, query, category }: ProductsProps) {
+  return (
+    <ProductsLayout
+      query={query}
+      category={category}
+      results={
+        // a key reinicia o Suspense a cada busca, mostrando o skeleton de novo
+        <Suspense key={`${query ?? ''}|${category ?? ''}`} fallback={<ProductsGridSkeleton />}>
+          <CatalogResults loadProducts={loadProducts} query={query} category={category} />
+        </Suspense>
+      }
+    />
+  );
 }

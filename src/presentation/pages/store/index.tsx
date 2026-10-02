@@ -1,18 +1,17 @@
-import { ProductModel } from '@/domain/models';
-import { getErrorMessage } from '@/presentation/utils/getErrorMessage';
+import { Suspense } from 'react';
+import { FeaturedProducts, ProductsGridSkeleton } from '@/presentation/components/product';
 import { FEATURED_LIMIT } from './constants';
 import StoreLayout from './layout';
 import { StoreProps } from './types';
 
-export async function Store({ loadProducts }: StoreProps) {
-  let products: ProductModel[] = [];
-  let error: string | undefined;
-
-  try {
-    products = (await loadProducts.load()).slice(0, FEATURED_LIMIT);
-  } catch (err) {
-    error = getErrorMessage(err);
-  }
-
-  return <StoreLayout products={products} error={error} />;
+export function Store({ loadProducts }: StoreProps) {
+  return (
+    <StoreLayout
+      featuredProducts={
+        <Suspense fallback={<ProductsGridSkeleton amount={FEATURED_LIMIT} />}>
+          <FeaturedProducts loadProducts={loadProducts} limit={FEATURED_LIMIT} />
+        </Suspense>
+      }
+    />
+  );
 }
