@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { AccessDeniedError, InvalidOrderError, UnexpectedError } from '@/domain/errors';
+import {
+  AccessDeniedError,
+  InvalidOrderError,
+  UnexpectedError,
+  RateLimitError,
+} from '@/domain/errors';
 import { HttpStatusCode } from '../../protocols/http';
 import { HttpClientSpy } from '../../test';
 import { RemotePlaceOrder } from './remote-place-order';
@@ -71,5 +76,10 @@ describe('RemotePlaceOrder', () => {
     httpClientSpy.response = { statusCode: HttpStatusCode.serverError };
 
     await expect(sut.place(params)).rejects.toThrow(UnexpectedError);
+  });
+  it('reports rate limiting on 429', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    httpClientSpy.response = { statusCode: HttpStatusCode.tooManyRequests };
+    await expect(sut.place(params)).rejects.toThrow(RateLimitError);
   });
 });
