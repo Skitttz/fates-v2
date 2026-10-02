@@ -15,7 +15,7 @@ export class AuthorizeHttpClientDecorator<R = unknown> implements HttpClient<R> 
     if (account?.accessToken) {
       data = {
         ...data,
-        headers: { ...data.headers, 'x-access-token': account.accessToken },
+        headers: { ...data.headers, Authorization: `Bearer ${account.accessToken}` },
       };
     }
 
