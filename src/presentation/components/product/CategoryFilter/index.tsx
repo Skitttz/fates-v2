@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { buildProductsHref } from '@/presentation/helpers';
 import { cn } from '@/presentation/utils/cn';
 import { CATEGORY_OPTIONS } from './constants';

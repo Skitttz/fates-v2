@@ -5,9 +5,14 @@ import { HttpStatusCode } from '../../protocols/http';
 import { HttpClientSpy } from '../../test';
 import { RemoteAuthentication } from './remote-authentication';
 
+const remoteAccount = {
+  user: { id: 'user-id', name: 'Demo', email: 'demo@fates.com', role: 'user' },
+  token: 'jwt-token',
+};
+
 const makeSut = () => {
   const httpClientSpy = new HttpClientSpy<RemoteAuthentication.Model>();
-  const sut = new RemoteAuthentication('http://api.test/login', httpClientSpy);
+  const sut = new RemoteAuthentication('http://api.test/api/v1/auth/login', httpClientSpy);
   return { sut, httpClientSpy };
 };
 
@@ -17,12 +22,12 @@ describe('RemoteAuthentication', () => {
     const params = mockAuthenticationParams();
     httpClientSpy.response = {
       statusCode: HttpStatusCode.ok,
-      body: { name: 'Any', email: params.email, access_token: 'token' },
+      body: { status: 200, data: remoteAccount },
     };
 
     await sut.auth(params);
 
-    expect(httpClientSpy.url).toBe('http://api.test/login');
+    expect(httpClientSpy.url).toBe('http://api.test/api/v1/auth/login');
     expect(httpClientSpy.method).toBe('post');
     expect(httpClientSpy.body).toEqual(params);
   });
@@ -31,12 +36,12 @@ describe('RemoteAuthentication', () => {
     const { sut, httpClientSpy } = makeSut();
     httpClientSpy.response = {
       statusCode: HttpStatusCode.ok,
-      body: { name: 'Any', email: 'any@mail.com', access_token: 'token' },
+      body: { status: 200, data: remoteAccount },
     };
 
     const account = await sut.auth(mockAuthenticationParams());
 
-    expect(account).toEqual({ name: 'Any', email: 'any@mail.com', accessToken: 'token' });
+    expect(account).toEqual({ name: 'Demo', email: 'demo@fates.com', accessToken: 'jwt-token' });
   });
 
   it('throws InvalidCredentialsError on 401', async () => {

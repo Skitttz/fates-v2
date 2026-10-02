@@ -4,9 +4,11 @@ import { HttpStatusCode } from '../../protocols/http';
 import { HttpClientSpy, mockRemoteProductModel } from '../../test';
 import { RemoteLoadProducts } from './remote-load-products';
 
-const makeSut = (url = 'http://api.test/products') => {
+const URL = 'http://api.test/api/v1/clothings';
+
+const makeSut = () => {
   const httpClientSpy = new HttpClientSpy<RemoteLoadProducts.Model>();
-  const sut = new RemoteLoadProducts(url, httpClientSpy);
+  const sut = new RemoteLoadProducts(URL, httpClientSpy);
   return { sut, httpClientSpy };
 };
 
@@ -16,7 +18,7 @@ describe('RemoteLoadProducts', () => {
 
     await sut.load();
 
-    expect(httpClientSpy.url).toBe('http://api.test/products');
+    expect(httpClientSpy.url).toBe(URL);
     expect(httpClientSpy.method).toBe('get');
     expect(httpClientSpy.callsCount).toBe(1);
   });
@@ -24,15 +26,18 @@ describe('RemoteLoadProducts', () => {
   it('appends query and category as search params', async () => {
     const { sut, httpClientSpy } = makeSut();
 
-    await sut.load({ query: '  touca ', category: 'acessorios' });
+    await sut.load({ query: '  gorro ', category: 'acessorios' });
 
-    expect(httpClientSpy.url).toBe('http://api.test/products?q=touca&category=acessorios');
+    expect(httpClientSpy.url).toBe(`${URL}?q=gorro&category=acessorios`);
   });
 
-  it('adapts remote products to domain products on 200', async () => {
+  it('unwraps the envelope and adapts products on 200', async () => {
     const { sut, httpClientSpy } = makeSut();
-    const remote = mockRemoteProductModel({ price_in_cents: 12990, tag: null });
-    httpClientSpy.response = { statusCode: HttpStatusCode.ok, body: { results: [remote] } };
+    const remote = mockRemoteProductModel({ tag: null });
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.ok,
+      body: { status: 200, data: [remote] },
+    };
 
     const products = await sut.load();
 
@@ -44,12 +49,24 @@ describe('RemoteLoadProducts', () => {
         description: remote.description,
         category: remote.category,
         material: remote.material,
-        price: 129.9,
+        price: remote.price,
         sizes: remote.sizes,
         colors: remote.colors,
-        images: remote.images,
+        images: ['http://api.test/public/images/clothings/camiseta-masculina-fates.png'],
       },
     ]);
+  });
+
+  it('keeps absolute image urls untouched', async () => {
+    const { sut, httpClientSpy } = makeSut();
+    httpClientSpy.response = {
+      statusCode: HttpStatusCode.ok,
+      body: { status: 200, data: [mockRemoteProductModel({ images: ['https://cdn.test/a.png'] })] },
+    };
+
+    const [product] = await sut.load();
+
+    expect(product.images).toEqual(['https://cdn.test/a.png']);
   });
 
   it('returns an empty list on 204', async () => {

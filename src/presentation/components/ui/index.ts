@@ -8,3 +8,4 @@ export * from './SpinningBadge';
 export * from './Skeleton';
 export * from './SectionHeading';
 export * from './QuantityStepper';
+export * from './ConfirmDialog';

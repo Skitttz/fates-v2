@@ -6,7 +6,7 @@ export const HERO_DEFAULTS = {
   description:
     'Seja a sua própria tendência, crie seu estilo, siga seus instintos e não tenha medo de ser diferente.',
   primaryCta: { label: 'Ver drop 01', href: ROUTES.PRODUCTS },
-  secondaryCta: { label: 'Lookbook', href: '#lookbook' },
+  secondaryCta: { label: 'Pela cidade', href: '#pela-cidade' as const },
 };
 
-export const HERO_BADGE_TEXT = 'Drop 01 • Fates crew • Streetwear • ';
+export const HERO_BADGE_TEXT = 'Drop 01 • Fates • Em movimento • ';

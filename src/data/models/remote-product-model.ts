@@ -1,13 +1,14 @@
 export type RemoteProductModel = {
-  id: number;
+  id: string;
   slug: string;
   name: string;
   description: string;
   category: string;
   material: string;
-  price_in_cents: number;
+  price: number;
   sizes: string[];
   colors: string[];
   images: string[];
-  tag?: string | null;
+  tag: string | null;
+  createdAt: string;
 };

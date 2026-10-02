@@ -1,5 +1,6 @@
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { ROUTES } from '@/presentation/constants/route';
+import { SEARCH_PLACEHOLDER } from './constants';
 import { SearchFormProps } from './types';
 
 export function SearchForm({ query, category }: SearchFormProps) {
@@ -14,7 +15,7 @@ export function SearchForm({ query, category }: SearchFormProps) {
         name="q"
         type="search"
         defaultValue={query}
-        placeholder="Buscar no drop: camiseta, touca, sticker..."
+        placeholder={SEARCH_PLACEHOLDER}
         className="h-12 flex-1 border-2 border-r-0 border-zinc-700 bg-zinc-900 px-4 text-sm placeholder-zinc-500 transition-colors focus:border-street-lime focus:outline-none focus-visible:ring-0"
       />
       <button

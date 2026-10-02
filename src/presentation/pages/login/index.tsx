@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useAccount } from '@/presentation/contexts/account';
+import { startPageTransition } from '@/presentation/helpers';
 import { getErrorMessage } from '@/presentation/utils/getErrorMessage';
 import { INITIAL_LOGIN_STATE, LOGIN_FIELDS } from './constants';
 import LoginLayout from './layout';
@@ -45,7 +46,7 @@ export function Login({ validation, authentication, redirectTo }: LoginProps) {
     try {
       const account = await authentication.auth(values);
       await signIn(account);
-      router.replace(redirectTo);
+      startPageTransition(() => router.replace(redirectTo));
     } catch (error) {
       setMainError(getErrorMessage(error));
       setIsLoading(false);

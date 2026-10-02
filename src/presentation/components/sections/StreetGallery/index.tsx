@@ -1,18 +1,18 @@
 import Image from 'next/image';
 import { Reveal, SectionHeading } from '@/presentation/components/ui';
 import { cn } from '@/presentation/utils/cn';
-import { LOOKBOOK_PHOTOS } from './constants';
+import { STREET_GALLERY_ID, STREET_GALLERY_PHOTOS, STREET_GALLERY_SECTION } from './constants';
 
-export function Lookbook() {
+export function StreetGallery() {
   return (
-    <section id="lookbook" className="scroll-mt-24">
+    <section id={STREET_GALLERY_ID} className="scroll-mt-24">
       <SectionHeading
-        eyebrow="#fatescrew"
-        title="Lookbook"
-        description="A rua é a vitrine. Cola no pico, cola o sticker, cola com a crew."
+        eyebrow={STREET_GALLERY_SECTION.eyebrow}
+        title={STREET_GALLERY_SECTION.title}
+        description={STREET_GALLERY_SECTION.description}
       />
       <div className="grid grid-cols-1 gap-10 px-2 sm:grid-cols-3 sm:gap-6">
-        {LOOKBOOK_PHOTOS.map((photo, index) => (
+        {STREET_GALLERY_PHOTOS.map((photo, index) => (
           <Reveal key={photo.caption} delay={index * 150}>
             <figure
               className={cn(

@@ -74,6 +74,10 @@ const config: Config = {
           '70%': { opacity: '1', transform: 'scale(0.92) rotate(-8deg)' },
           '100%': { opacity: '1', transform: 'scale(1) rotate(-8deg)' },
         },
+        'dialog-in': {
+          from: { opacity: '0', transform: 'scale(0.92) rotate(-2deg)' },
+          to: { opacity: '1', transform: 'scale(1) rotate(0)' },
+        },
         flicker: {
           '0%, 19%, 21%, 23%, 54%, 56%, 100%': { opacity: '1' },
           '20%, 22%, 55%': { opacity: '0.35' },
@@ -92,6 +96,7 @@ const config: Config = {
         'spin-slow': 'spin 14s linear infinite',
         stamp: 'stamp 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both',
         flicker: 'flicker 3s linear infinite',
+        'dialog-in': 'dialog-in 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) both',
       },
     },
   },

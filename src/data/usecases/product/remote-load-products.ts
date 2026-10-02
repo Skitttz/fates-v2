@@ -1,7 +1,7 @@
 import { UnexpectedError } from '@/domain/errors';
 import { LoadProducts } from '@/domain/usecases';
 import { adaptRemoteProduct } from '../../helpers';
-import { RemoteProductModel } from '../../models';
+import { RemoteProductModel, RemoteResponse } from '../../models';
 import { HttpClient, HttpStatusCode } from '../../protocols/http';
 
 export class RemoteLoadProducts implements LoadProducts {
@@ -18,7 +18,9 @@ export class RemoteLoadProducts implements LoadProducts {
 
     switch (httpResponse.statusCode) {
       case HttpStatusCode.ok:
-        return (httpResponse.body?.results ?? []).map(adaptRemoteProduct);
+        return (httpResponse.body?.data ?? []).map((product) =>
+          adaptRemoteProduct(product, this.url),
+        );
       case HttpStatusCode.noContent:
         return [];
       default:
@@ -37,7 +39,5 @@ export class RemoteLoadProducts implements LoadProducts {
 }
 
 export namespace RemoteLoadProducts {
-  export type Model = {
-    results: RemoteProductModel[];
-  };
+  export type Model = RemoteResponse<RemoteProductModel[]>;
 }

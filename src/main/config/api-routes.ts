@@ -1,5 +1,5 @@
 export const API_ROUTES = {
-  PRODUCTS: '/products',
-  LOGIN: '/login',
+  PRODUCTS: '/clothings',
+  LOGIN: '/auth/login',
   ORDERS: '/orders',
 } as const;

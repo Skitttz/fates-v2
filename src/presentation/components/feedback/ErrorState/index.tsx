@@ -1,6 +1,11 @@
+import { ERROR_STATE_DEFAULT_TITLE } from './constants';
 import { ErrorStateProps } from './types';
 
-export function ErrorState({ title = 'Deu ruim no rolê', message, action }: ErrorStateProps) {
+export function ErrorState({
+  title = ERROR_STATE_DEFAULT_TITLE,
+  message,
+  action,
+}: ErrorStateProps) {
   return (
     <div
       role="alert"
