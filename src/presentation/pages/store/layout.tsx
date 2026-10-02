@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { ErrorState } from '@/presentation/components/feedback';
 import { ProductsGrid } from '@/presentation/components/product';
 import { DropBanner, HeroSection, Lookbook, MarqueeBand } from '@/presentation/components/sections';

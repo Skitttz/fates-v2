@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import LaunchImg from '@/presentation/assets/lancamento.jpg';
 import { Reveal } from '@/presentation/components/ui';
 import { ROUTES } from '@/presentation/constants/route';

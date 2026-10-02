@@ -14,8 +14,8 @@ import {
 import { Cart } from '.';
 
 const item: CartItemModel = {
-  id: '1:M:Preto',
-  productId: 1,
+  id: 'product-1:M:Preto',
+  productId: 'product-1',
   slug: 'camiseta',
   name: 'Camiseta Basic Fates',
   image: '/images/products/camiseta.png',
@@ -67,7 +67,7 @@ describe('Cart page', () => {
 
     expect(await screen.findByTestId('order-code')).toHaveTextContent('FTS-TEST');
     expect(placeOrder.params).toEqual({
-      items: [{ productId: 1, size: 'M', color: 'Preto', quantity: 2 }],
+      items: [{ productId: 'product-1', size: 'M', color: 'Preto', quantity: 2 }],
     });
     expect(cart.items).toEqual([]);
   });

@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { ArrowRightStartOnRectangleIcon, UserCircleIcon } from '@heroicons/react/24/solid';
 import { ROUTES } from '@/presentation/constants/route';
 import { useAccount } from '@/presentation/contexts/account';

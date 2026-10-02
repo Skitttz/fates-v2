@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import logo from '@/presentation/assets/logo.svg';
 import { ROUTES } from '@/presentation/constants/route';
@@ -10,7 +10,7 @@ import { NAV_ITEMS } from './constants';
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-40 border-b border-zinc-800 bg-zinc-950/85 backdrop-blur-md">
+    <header className="sticky top-0 z-40 [view-transition-name:site-header] border-b border-zinc-800 bg-zinc-950/85 backdrop-blur-md">
       <div className="tape h-1" aria-hidden="true" />
       <div className="mx-auto flex h-16 max-w-[100em] items-center justify-between gap-4 px-4 sm:px-8">
         <Link

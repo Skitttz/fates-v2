@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 
 import { FOOTER_LINKS } from './constants';
 
@@ -35,7 +35,7 @@ export function Footer() {
         </p>
 
         <p className="text-center text-xs text-zinc-500">
-          © {new Date().getFullYear()} Fates Crew. Projeto de estudo.
+          © {new Date().getFullYear()} Fates. Projeto de estudo.
         </p>
       </div>
     </footer>

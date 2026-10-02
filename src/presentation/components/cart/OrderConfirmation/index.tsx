@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import { Link } from '@/presentation/components/navigation';
 import { buttonVariants } from '@/presentation/components/ui';
 import { ROUTES } from '@/presentation/constants/route';
 import { formatCurrency } from '@/presentation/helpers';
