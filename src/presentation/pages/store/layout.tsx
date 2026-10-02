@@ -1,6 +1,4 @@
 import { Link } from '@/presentation/components/navigation';
-import { ErrorState } from '@/presentation/components/feedback';
-import { ProductsGrid } from '@/presentation/components/product';
 import {
   DropBanner,
   HeroSection,
@@ -12,7 +10,7 @@ import { ROUTES } from '@/presentation/constants/route';
 import { FEATURED_SECTION } from './constants';
 import { StoreLayoutProps } from './types';
 
-export default function StoreLayout({ products, error }: StoreLayoutProps) {
+export default function StoreLayout({ featuredProducts }: StoreLayoutProps) {
   return (
     <div className="w-full">
       <HeroSection />
@@ -34,7 +32,7 @@ export default function StoreLayout({ products, error }: StoreLayoutProps) {
               </Link>
             }
           />
-          {error ? <ErrorState message={error} /> : <ProductsGrid products={products} />}
+          {featuredProducts}
         </section>
 
         <DropBanner />
