@@ -1,9 +1,14 @@
-import { ProductModel } from '../models'
+import { ProductModel } from '../models';
 
 export interface LoadProducts {
-	load: () => Promise<LoadProducts.Model[] | []>
+  load: (params?: LoadProducts.Params) => Promise<LoadProducts.Model[]>;
 }
 
 export namespace LoadProducts {
-	export type Model = ProductModel
+  export type Params = {
+    query?: string;
+    category?: string;
+  };
+
+  export type Model = ProductModel;
 }
