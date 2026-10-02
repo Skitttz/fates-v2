@@ -8,16 +8,12 @@ export const metadata: Metadata = {
 };
 
 type ProductsRouterProps = {
-  searchParams: { q?: string | string[]; category?: string | string[] };
+  searchParams: Promise<{ q?: string | string[]; category?: string | string[] }>;
 };
 
 const firstValue = (value?: string | string[]) => (Array.isArray(value) ? value[0] : value);
 
-export default function ProductsRouter({ searchParams }: ProductsRouterProps) {
-  return (
-    <ProductsFactory
-      query={firstValue(searchParams.q)}
-      category={firstValue(searchParams.category)}
-    />
-  );
+export default async function ProductsRouter({ searchParams }: ProductsRouterProps) {
+  const filters = await searchParams;
+  return <ProductsFactory query={firstValue(filters.q)} category={firstValue(filters.category)} />;
 }

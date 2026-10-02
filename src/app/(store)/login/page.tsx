@@ -7,13 +7,12 @@ export const metadata: Metadata = {
 };
 
 type LoginRouterProps = {
-  searchParams: { redirect?: string | string[] };
+  searchParams: Promise<{ redirect?: string | string[] }>;
 };
 
-export default function LoginRouter({ searchParams }: LoginRouterProps) {
-  const redirect = Array.isArray(searchParams.redirect)
-    ? searchParams.redirect[0]
-    : searchParams.redirect;
+export default async function LoginRouter({ searchParams }: LoginRouterProps) {
+  const query = await searchParams;
+  const redirect = Array.isArray(query.redirect) ? query.redirect[0] : query.redirect;
 
   return <LoginFactory redirectTo={safeRedirect(redirect)} />;
 }
