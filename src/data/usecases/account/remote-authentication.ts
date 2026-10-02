@@ -1,4 +1,4 @@
-import { InvalidCredentialsError, UnexpectedError } from '@/domain/errors';
+import { RateLimitError, InvalidCredentialsError, UnexpectedError } from '@/domain/errors';
 import { Authentication } from '@/domain/usecases';
 import { RemoteAccountModel, RemoteResponse } from '../../models';
 import { HttpClient, HttpStatusCode } from '../../protocols/http';
@@ -24,6 +24,8 @@ export class RemoteAuthentication implements Authentication {
       }
       case HttpStatusCode.unauthorized:
         throw new InvalidCredentialsError();
+      case HttpStatusCode.tooManyRequests:
+        throw new RateLimitError();
       default:
         throw new UnexpectedError();
     }

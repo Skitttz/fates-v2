@@ -1,4 +1,9 @@
-import { AccessDeniedError, InvalidOrderError, UnexpectedError } from '@/domain/errors';
+import {
+  RateLimitError,
+  AccessDeniedError,
+  InvalidOrderError,
+  UnexpectedError,
+} from '@/domain/errors';
 import { PlaceOrder } from '@/domain/usecases';
 import { RemoteOrderModel, RemoteResponse } from '../../models';
 import { HttpClient, HttpStatusCode } from '../../protocols/http';
@@ -35,6 +40,8 @@ export class RemotePlaceOrder implements PlaceOrder {
       case HttpStatusCode.unauthorized:
       case HttpStatusCode.forbidden:
         throw new AccessDeniedError();
+      case HttpStatusCode.tooManyRequests:
+        throw new RateLimitError();
       default:
         throw new UnexpectedError();
     }

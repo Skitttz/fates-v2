@@ -5,7 +5,9 @@
     "types": ["cypress", "node"],
     "strict": true,
     "esModuleInterop": true,
-    "isolatedModules": false
+    "isolatedModules": false,
+    "module": "ESNext",
+    "moduleResolution": "bundler"
   },
   "include": ["**/*.ts"]
 }

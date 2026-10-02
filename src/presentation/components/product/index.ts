@@ -6,3 +6,6 @@ export * from './AddToCartForm';
 export * from './OptionGroup';
 export * from './SearchForm';
 export * from './CategoryFilter';
+export * from './FeaturedProducts';
+export * from './CatalogResults';
+export * from './ProductDetailSkeleton';
