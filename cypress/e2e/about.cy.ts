@@ -16,18 +16,13 @@ describe('Sobre', () => {
     });
   };
 
-  const walkToGlow = (attempts = 40): void => {
-    cy.get('main').then(($main) => {
-      if ($main.text().includes('Fates. Destinos, no plural.')) {
-        cy.get('body').trigger('keyup', { key: 'ArrowRight', code: 'ArrowRight', force: true });
-        return;
-      }
-      if (attempts === 0) throw new Error('Paulo não chegou ao brilho');
-      cy.get('body').trigger('keydown', { key: 'ArrowRight', code: 'ArrowRight', force: true });
-      cy.get('body').trigger('keydown', { key: ' ', code: 'Space', force: true });
-      cy.wait(300);
-      walkToGlow(attempts - 1);
-    });
+  const walkToGlow = (): void => {
+    cy.get('body').trigger('keydown', { key: 'ArrowRight', code: 'ArrowRight', force: true });
+    cy.contains('Opa, um cone!', { timeout: 8000 }).should('exist');
+    cy.get('body').trigger('keydown', { key: ' ', code: 'Space', force: true });
+    cy.get('body').trigger('keyup', { key: ' ', code: 'Space', force: true });
+    cy.contains('Fates. Destinos, no plural.', { timeout: 8000 }).should('exist');
+    cy.get('body').trigger('keyup', { key: 'ArrowRight', code: 'ArrowRight', force: true });
   };
 
   it('joga a história até o final', () => {
@@ -42,6 +37,8 @@ describe('Sobre', () => {
 
     advanceUntil('Onde colar o primeiro?');
     cy.contains('button', 'No poste').click();
+    cy.contains('Alguém parou para olhar').should('exist');
+    cy.contains('button', 'Ver meu destino').click();
 
     cy.contains('E o ursinho nunca mais ficou invisível.').should('exist');
     cy.contains('Quem espera o ônibus agora tem pra onde olhar.').should('exist');
@@ -96,6 +93,7 @@ describe('Sobre', () => {
     pressUntil('Onde colar o primeiro?');
     cy.focused().should('contain', 'No caixote').trigger('keydown', { key: 'ArrowRight' });
     cy.focused().should('contain', 'No poste').click();
+    cy.contains('button', 'Ver meu destino').focus().type('{enter}');
 
     cy.get('section[aria-label="Final da história"]', { timeout: 8000 }).should('have.focus');
     cy.get('img[alt*="poste"]').should('exist');

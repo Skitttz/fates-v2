@@ -1,3 +1,5 @@
+import { StickerPlace } from './story-memory-model';
+
 export type StoryWorld = 'real' | 'dream';
 
 export type StoryTransition = 'cut' | 'fade-to-dream' | 'flash-to-real';
@@ -29,6 +31,7 @@ export type StoryChoiceOptionModel = {
   label: string;
   photo: string;
   outcome: string;
+  consequence?: { title: string; text: string; place: StickerPlace };
 };
 
 export type StoryInteractionModel =

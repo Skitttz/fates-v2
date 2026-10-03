@@ -1,6 +1,32 @@
 import { StoryActorModel, StorySceneModel } from '@/domain/models';
 import { GLOW_ACTOR, GROUND_Y, OLLIE_ACTOR, OLLIE_LIFT } from './constants';
-import { StoryEffect } from './types';
+import { RenderInput, StoryEffect } from './types';
+import { isRolling, JumpPhase, WalkSnapshot } from './walk-runtime';
+
+const JUMP_POSES: Record<Exclude<JumpPhase, 'grounded'>, string> = {
+  crouch: 'agachado',
+  pop: 'ollie-pop',
+  air: 'ollie-ar',
+  falling: 'ollie-descida',
+  landing: 'agachado',
+};
+
+const walkingPose = (state: WalkSnapshot): string => {
+  if (state.jumpPhase !== 'grounded') return JUMP_POSES[state.jumpPhase];
+  if (state.impactMs > 0) return 'agachado';
+  return isRolling(state) ? 'skate-andando' : 'skate';
+};
+
+export function walkActor(actor: StoryActorModel, walk: RenderInput['walk']): StoryActorModel {
+  if (!walk || actor.id !== walk.actor) return actor;
+  const state = walk.state;
+  return {
+    ...actor,
+    x: state.x,
+    y: walk.groundY - Math.round(state.y),
+    pose: walkingPose(state),
+  };
+}
 
 export const OLLIE_TIMELINE = {
   crouch: 0.15,

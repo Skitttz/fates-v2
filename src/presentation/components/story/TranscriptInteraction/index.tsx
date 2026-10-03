@@ -14,7 +14,10 @@ export function TranscriptInteraction({ interaction }: TranscriptInteractionProp
       <p className={styles.note()}>{interaction.prompt}</p>
       <ul className={styles.options()}>
         {interaction.options.map((option) => (
-          <li key={option.id}>{`${option.label}: ${option.outcome}`}</li>
+          <li key={option.id}>
+            {`${option.label}: ${option.outcome}`}
+            {option.consequence && <p>{option.consequence.text}</p>}
+          </li>
         ))}
       </ul>
     </div>

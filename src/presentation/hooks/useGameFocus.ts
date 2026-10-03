@@ -14,7 +14,21 @@ export const GAME_KEYS: readonly string[] = [
 export function useGameFocus(ref: RefObject<HTMLElement>, enabled = true): boolean {
   const [onScreen, setOnScreen] = useState(true);
   const [dismissed, setDismissed] = useState(false);
-  const holding = enabled && onScreen && !dismissed;
+  const [foreground, setForeground] = useState(true);
+  const holding = enabled && onScreen && !dismissed && foreground;
+
+  useEffect(() => {
+    const blur = () => setForeground(false);
+    const focus = () => setForeground(!document.hidden);
+    window.addEventListener('blur', blur);
+    window.addEventListener('focus', focus);
+    document.addEventListener('visibilitychange', focus);
+    return () => {
+      window.removeEventListener('blur', blur);
+      window.removeEventListener('focus', focus);
+      document.removeEventListener('visibilitychange', focus);
+    };
+  }, []);
 
   useEffect(() => {
     const section = ref.current;

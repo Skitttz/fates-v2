@@ -3,6 +3,7 @@ import { StorySceneModel } from '@/domain/models';
 import { SpriteCache } from '../sprites/sprite-cache';
 import { PARTICLE_COLORS } from './particles';
 import { FrameScheduler, StageInput, StoryStage } from './stage';
+import { createWalkRuntime } from './walk-runtime';
 
 const makeContext = () => {
   const fills: { style: string; args: number[] }[] = [];
@@ -65,6 +66,36 @@ const makeStage = (input: StageInput, random = () => 1) => {
 };
 
 describe('StoryStage', () => {
+  it('reads live movement without receiving a React update for each frame', () => {
+    const runtime = createWalkRuntime({ startX: 40, targetX: 220 });
+    const { stage, drawImage, flush } = makeStage({
+      scene: scene(),
+      animated: true,
+      getWalkFrame: () => ({ actor: 'paulo', groundY: 112, state: runtime.getSnapshot() }),
+    });
+    stage.start();
+    flush(0);
+    expect(drawImage).toHaveBeenLastCalledWith(expect.anything(), 33, 88);
+    runtime.setDirection(1);
+    runtime.advance(50);
+    runtime.advance(50);
+    runtime.stop();
+    flush(50);
+    expect(drawImage).toHaveBeenLastCalledWith(expect.anything(), 34, 88);
+  });
+
+  it('advances a destination scene using its scene clock', () => {
+    const { stage, drawImage, flush } = makeStage({
+      scene: scene(),
+      animated: true,
+      getScene: (time) =>
+        scene({ actors: [{ id: 'paulo', x: 40 + time / 100, y: 112, pose: 'skate' }] }),
+    });
+    stage.start();
+    flush(0);
+    flush(1000);
+    expect(drawImage).toHaveBeenLastCalledWith(expect.anything(), 43, 88);
+  });
   it('draws after it starts and keeps a single frame scheduled', () => {
     const { stage, drawImage, flush, pending } = makeStage({ scene: scene(), animated: true });
     expect(pending()).toBe(0);

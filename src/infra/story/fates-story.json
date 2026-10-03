@@ -126,19 +126,34 @@
             "id": "caixote",
             "label": "No caixote",
             "photo": "caixote",
-            "outcome": "Ali, toda sessão começa passando por ele."
+            "outcome": "Ali, toda sessão começa passando por ele.",
+            "consequence": {
+              "title": "Mais uma sessão",
+              "text": "No dia seguinte, outro skatista encontra o adesivo no caixote. Ele chama os amigos: a próxima sessão já tem ponto de encontro.",
+              "place": "caixote"
+            }
           },
           {
             "id": "poste",
             "label": "No poste",
             "photo": "poste",
-            "outcome": "Quem espera o ônibus agora tem pra onde olhar."
+            "outcome": "Quem espera o ônibus agora tem pra onde olhar.",
+            "consequence": {
+              "title": "Alguém parou para olhar",
+              "text": "Esperando o ônibus, uma pessoa repara no ursinho do poste. Tira uma foto e manda para um amigo. A Fates acaba de encontrar outro caminho.",
+              "place": "poste"
+            }
           },
           {
             "id": "moletom",
             "label": "No moletom",
             "photo": "moletom",
-            "outcome": "Esse vai junto, pra onde o Paulo for."
+            "outcome": "Esse vai junto, pra onde o Paulo for.",
+            "consequence": {
+              "title": "A marca vai junto",
+              "text": "Paulo veste o moletom e volta para a rua. Na pista, alguém aponta para o adesivo: “Que marca é essa?” A conversa começa ali.",
+              "place": "moletom"
+            }
           }
         ]
       }

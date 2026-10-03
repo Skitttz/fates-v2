@@ -8,6 +8,8 @@ import { ollieSoundCues, SOUNDS } from '@/presentation/story/sounds';
 import { OllieAnimation } from '@/presentation/story/view';
 import { useProgress } from '../useProgress';
 
+export const OLLIE_CELEBRATION_MS = 800;
+
 type UseOllieAnimationParams = {
   player: SoundPlayer;
   reducedMotion: boolean;
@@ -18,7 +20,8 @@ export function useOllieAnimation({ player, reducedMotion, onFinish }: UseOllieA
   const [ollie, setOllie] = useState<OllieAnimation | null>(null);
   const ollieRef = useRef<OllieAnimation | null>(null);
   const cueRef = useRef(0);
-  const duration = reducedMotion ? 0 : OLLIE_ANIMATION_MS;
+  const animationMs = OLLIE_ANIMATION_MS + (ollie?.result === 'landed' ? OLLIE_CELEBRATION_MS : 0);
+  const duration = reducedMotion ? 0 : animationMs;
 
   const playCues = useCallback(
     (result: OllieResult, progress: number) => {
@@ -32,6 +35,7 @@ export function useOllieAnimation({ player, reducedMotion, onFinish }: UseOllieA
 
   const start = useCallback(
     (result: OllieResult) => {
+      if (ollieRef.current) return;
       ollieRef.current = { result };
       cueRef.current = 0;
       setOllie({ result });

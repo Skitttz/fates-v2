@@ -27,6 +27,7 @@ import {
   useWalkDirection,
   useWalkIntro,
   WALK_INTRO_MS,
+  OLLIE_CELEBRATION_MS,
 } from '.';
 
 const fakePlayer = (): SoundPlayer => ({
@@ -206,6 +207,8 @@ describe('useOllieAnimation', () => {
     act(() => result.current.start('landed'));
     expect(result.current.ollie).toEqual({ result: 'landed' });
     act(() => vi.advanceTimersByTime(OLLIE_ANIMATION_MS + 50));
+    expect(onFinish).not.toHaveBeenCalled();
+    act(() => vi.advanceTimersByTime(OLLIE_CELEBRATION_MS));
 
     expect(played(player)).toEqual(['ollie', 'landing', 'fall']);
     expect(onFinish).toHaveBeenCalledTimes(1);
@@ -351,8 +354,9 @@ describe('useStoryKeyboard', () => {
     expect(fireEvent.keyDown(window, { key: 'ArrowLeft' })).toBe(false);
     fireEvent.keyDown(window, { key: 'ArrowRight' });
     fireEvent.keyUp(window, { key: 'ArrowRight' });
+    fireEvent.keyUp(window, { key: 'ArrowLeft' });
 
-    expect(onDirection.mock.calls).toEqual([[-1], [1], [0]]);
+    expect(onDirection.mock.calls).toEqual([[-1], [1], [-1], [0]]);
   });
 
   it('jumps once per press with space or the up arrow', () => {
@@ -528,12 +532,17 @@ describe('useStoryWalk', () => {
     const { result } = render();
     expect(result.current).toMatchObject({ introVisible: true, rolling: false });
     expect(result.current).not.toHaveProperty('direction');
-    expect(result.current.actorOverrides).toEqual({ paulo: { x: 40, y: 112, pose: 'skate' } });
+    expect(result.current.getWalkFrame()).toMatchObject({
+      actor: 'paulo',
+      groundY: 112,
+      state: { x: 40, y: 0 },
+    });
 
     act(() => result.current.steer(1));
 
+    advanceFrames(50);
     expect(result.current).toMatchObject({ introVisible: false, rolling: true });
-    expect(result.current.actorOverrides?.paulo.pose).toBe('skate-andando');
+    expect(result.current.getWalkFrame()?.state.vx).toBeGreaterThan(0);
   });
 
   it('ignores the jump during the intro and jumps after it', () => {
@@ -566,14 +575,14 @@ describe('useStoryWalk', () => {
   it('stays out of the way without a walk or outside the game', () => {
     const idle = render({ walk: undefined, actor: undefined, walkKey: null });
     expect(idle.result.current).toMatchObject({ introVisible: false, rolling: false });
-    expect(idle.result.current.actorOverrides).toBeUndefined();
+    expect(idle.result.current.getWalkFrame()).toBeUndefined();
 
     const reading = render({ enabled: false });
     act(() => reading.result.current.steer(1));
     advanceFrames(200);
 
     expect(reading.result.current.rolling).toBe(false);
-    expect(reading.result.current.actorOverrides?.paulo.x).toBe(40);
+    expect(reading.result.current.getWalkFrame()?.state.x).toBe(40);
   });
 });
 

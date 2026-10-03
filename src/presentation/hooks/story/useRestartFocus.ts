@@ -13,7 +13,8 @@ export function useRestartFocus(
   useEffect(() => {
     if (!requestedRef.current || !ready) return;
     requestedRef.current = false;
-    containerRef.current?.querySelector<HTMLElement>(selector)?.focus();
+    const container = containerRef.current;
+    (container?.querySelector<HTMLElement>(selector) ?? container)?.focus();
   }, [containerRef, ready, selector, step]);
 
   return useCallback(() => {

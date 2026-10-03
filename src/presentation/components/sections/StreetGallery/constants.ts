@@ -14,6 +14,7 @@ export const STREET_GALLERY_SECTION = {
 export const STREET_GALLERY_PHOTOS: StreetGalleryPhoto[] = [
   {
     src: RandomImg1,
+    id: 'caixote',
     alt: 'Adesivo da Fates colado na lateral de um caixote da pista de skate, com um skatista desfocado ao fundo',
     caption: 'ao lado da ação',
     place: 'lateral do caixote',
@@ -21,6 +22,7 @@ export const STREET_GALLERY_PHOTOS: StreetGalleryPhoto[] = [
   },
   {
     src: RandomImg2,
+    id: 'moletom',
     alt: 'Adesivos da Fates espalhados sobre um tecido verde',
     caption: 'antes de ganhar a rua',
     place: 'adesivos do drop 01',
@@ -28,6 +30,7 @@ export const STREET_GALLERY_PHOTOS: StreetGalleryPhoto[] = [
   },
   {
     src: RandomImg3,
+    id: 'poste',
     alt: 'Adesivos da Fates, entre eles o ursinho de boné, colados num poste amarelo com a pista ao fundo',
     caption: 'todo poste é vitrine',
     place: 'ao lado da pista',

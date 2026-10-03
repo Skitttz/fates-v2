@@ -13,6 +13,7 @@ import {
   useStoryWalk,
 } from '@/presentation/hooks/story';
 import { useGameFocus } from '@/presentation/hooks/useGameFocus';
+import { useStoryDestination } from '@/presentation/hooks/story/useStoryDestination';
 import { usePrefersReducedMotion } from '@/presentation/hooks/usePrefersReducedMotion';
 import { useTypewriter } from '@/presentation/hooks/useTypewriter';
 import { describeBackdrop } from '@/presentation/story/backdrop-descriptions';
@@ -26,8 +27,10 @@ import { ChoicePhotos } from '../ChoicePhotos';
 import { DialogueBox } from '../DialogueBox';
 import { GameCanvas } from '../GameCanvas';
 import { OllieMeter } from '../OllieMeter';
+import { OllieCelebration } from '../OllieCelebration';
 import { StickerStamp } from '../StickerStamp';
 import { StoryEnding } from '../StoryEnding';
+import { StoryAftermath } from '../StoryAftermath';
 import { StoryToolbar } from '../StoryToolbar';
 import { StoryTranscript } from '../StoryTranscript';
 import { TouchControls } from '../TouchControls';
@@ -40,6 +43,7 @@ import { StoryGameProps } from './types';
 export function StoryGame({ story }: StoryGameProps) {
   const { state, moment, actions } = useStoryFlow(story);
   const { scene, line, speaker, walk, choice, ended, inDialogue } = moment;
+  const consequence = useStoryDestination(story, state);
   const [mode, setMode] = useState<StoryMode>('game');
   const sectionRef = useRef<HTMLElement>(null);
   const reducedMotion = usePrefersReducedMotion();
@@ -47,7 +51,7 @@ export function StoryGame({ story }: StoryGameProps) {
   const inGame = mode === 'game';
   const onWalk = Boolean(walk);
   const animated = !reducedMotion;
-  const holdingKeys = useGameFocus(sectionRef, inGame);
+  const holdingKeys = useGameFocus(sectionRef, inGame && !ended && !consequence);
   const typewriter = useTypewriter(line?.text ?? '', reducedMotion);
   const { visibleText, done: typed, complete: completeTyping } = typewriter;
 
@@ -56,7 +60,7 @@ export function StoryGame({ story }: StoryGameProps) {
     walk,
     actor: moment.walkActor,
     walkKey: moment.walkKey,
-    enabled: inGame,
+    enabled: inGame && holdingKeys,
     reducedMotion,
     onArrive: actions.completeWalk,
   });
@@ -91,18 +95,19 @@ export function StoryGame({ story }: StoryGameProps) {
     typing: !typed,
   });
 
-  useStoryKeyboard({
-    active: inGame,
+  const input = useStoryKeyboard({
+    active: inGame && !ended && !consequence,
     holding: holdingKeys,
     walking: onWalk,
     dialogue: inDialogue,
+    sceneKey: scene.id,
     onDirection: steer,
     onJump: walking.jump,
     onAdvance: handleAdvance,
   });
 
-  const step = `${state.phase}:${state.sceneIndex}:${state.lineIndex}`;
-  const focusDialogueNext = useRestartFocus(sectionRef, DIALOGUE_SELECTOR, inDialogue, step);
+  const step = `${mode}:${state.phase}:${state.sceneIndex}:${state.lineIndex}`;
+  const focusDialogueNext = useRestartFocus(sectionRef, DIALOGUE_SELECTOR, inGame, step);
 
   const skip = useCallback(() => {
     const pending = cancelPlacing();
@@ -118,7 +123,10 @@ export function StoryGame({ story }: StoryGameProps) {
     actions.restart();
   }, [actions, cancelOllie, cancelPlacing, focusDialogueNext, steer]);
 
-  const toggleMode = useCallback(() => setMode(nextMode), []);
+  const toggleMode = useCallback(() => {
+    if (mode === 'text') focusDialogueNext();
+    setMode(nextMode);
+  }, [mode, focusDialogueNext]);
   const playMenuSelect = useCallback(() => player.play(SOUNDS.menuSelect), [player]);
 
   const soundToggle = useMemo(() => {
@@ -133,7 +141,9 @@ export function StoryGame({ story }: StoryGameProps) {
 
   const stamp = placing ? <StickerStamp progress={sticker.progress} /> : undefined;
   const introCard = walking.introVisible ? <WalkIntro animated={animated} /> : undefined;
-  const overlay = stamp ?? introCard;
+  const celebration =
+    ollie.ollie?.result === 'landed' && ollie.progress >= 0.7 ? <OllieCelebration /> : undefined;
+  const overlay = stamp ?? celebration ?? introCard;
   const emphasis = walking.introVisible && animated ? GLOW_ACTOR : undefined;
   const effect = storyEffect({
     placing,
@@ -141,14 +151,19 @@ export function StoryGame({ story }: StoryGameProps) {
     ollie: ollie.ollie,
     ollieProgress: ollie.progress,
   });
-  const showStage = inGame && !ended;
+  const showStage = inGame && !ended && !consequence;
   const showEnding = inGame && ended;
   const showOllieMeter = moment.awaitsOllie && !ollie.ollie;
   const openChoice = placing ? undefined : choice;
   const styles = storyGameStyles();
 
   return (
-    <section ref={sectionRef} aria-label={STORY_GAME_LABELS.region} className={styles.root()}>
+    <section
+      ref={sectionRef}
+      tabIndex={-1}
+      aria-label={STORY_GAME_LABELS.region}
+      className={styles.root()}
+    >
       <p role="status" aria-label={STORY_GAME_LABELS.currentLine} className={styles.status()}>
         {lineAnnouncement(mode, line)}
       </p>
@@ -162,17 +177,27 @@ export function StoryGame({ story }: StoryGameProps) {
 
       {!inGame && <StoryTranscript story={story} />}
 
+      {inGame && consequence && (
+        <StoryAftermath
+          consequence={consequence}
+          reducedMotion={reducedMotion}
+          onContinue={actions.endAftermath}
+        />
+      )}
+
       {showEnding && (
         <StoryEnding
           epilogue={story.epilogue}
           outcome={choiceOutcome(story, state)}
           photoId={photoForChoice(story, state.choice)}
           onRestart={restart}
+          ollieLanded={state.ollieResult === 'landed'}
         />
       )}
 
       {showStage && (
         <div className={styles.stage()}>
+          {state.ollieResult === 'landed' && <OllieCelebration compact />}
           <p className={styles.backdrop()} aria-live="polite">
             {describeBackdrop(scene.backdrop)}
           </p>
@@ -181,7 +206,7 @@ export function StoryGame({ story }: StoryGameProps) {
               scene={scene}
               animated={animated}
               speaker={speaker}
-              actorOverrides={walking.actorOverrides}
+              getWalkFrame={walking.getWalkFrame}
               effect={effect}
               overlay={overlay}
               emphasis={emphasis}
@@ -197,7 +222,7 @@ export function StoryGame({ story }: StoryGameProps) {
                 />
               )}
               {showOllieMeter && <OllieMeter onResult={ollie.start} listening={holdingKeys} />}
-              {onWalk && <WalkHint />}
+              {onWalk && <WalkHint bumps={walking.bumps} />}
               {openChoice && (
                 <ChoiceMenu
                   prompt={openChoice.prompt}
@@ -207,7 +232,12 @@ export function StoryGame({ story }: StoryGameProps) {
                 />
               )}
               <div className={styles.touch()}>
-                <TouchControls visible={onWalk} onDirectionChange={steer} onJump={walking.jump} />
+                <TouchControls
+                  visible={onWalk}
+                  active={holdingKeys}
+                  onDirectionChange={input.onDirectionChange}
+                  onJump={walking.jump}
+                />
               </div>
             </div>
           </div>
