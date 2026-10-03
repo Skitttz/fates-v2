@@ -1,7 +1,7 @@
 export const TOUCH_LABELS = {
   left: 'Mover para a esquerda',
   right: 'Mover para a direita',
-  hint: 'Segure para andar',
+  jump: 'Pular',
 };
 
 export const TOUCH_BUTTON_CLASS =
