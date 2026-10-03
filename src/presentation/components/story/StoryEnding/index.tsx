@@ -21,7 +21,7 @@ export function StoryEnding({ epilogue, outcome, photoId, onRestart }: StoryEndi
       ref={sectionRef}
       aria-label={ENDING_LABEL}
       tabIndex={-1}
-      className="flex animate-page-in flex-col gap-6 focus:outline-none"
+      className="flex animate-page-in flex-col gap-6 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
     >
       <div className="relative aspect-video overflow-hidden border-4 border-zinc-50">
         <Image

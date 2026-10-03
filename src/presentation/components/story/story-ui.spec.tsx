@@ -154,6 +154,21 @@ describe('StoryToolbar', () => {
     expect(onToggleMode).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps the active sound toggle still on hover', () => {
+    render(
+      <StoryToolbar
+        mode="game"
+        ended={false}
+        sound={{ enabled: true, onToggle: vi.fn() }}
+        onSkip={vi.fn()}
+        onToggleMode={vi.fn()}
+      />,
+    );
+
+    const toggle = screen.getByRole('button', { name: 'Som: ligado' });
+    expect(toggle.className).not.toMatch(/hover:(?!text-street-lime)/);
+  });
+
   it('hides skip when the story ended and offers the game back in text mode', () => {
     render(<StoryToolbar mode="text" ended onSkip={vi.fn()} onToggleMode={vi.fn()} />);
 
@@ -215,6 +230,14 @@ describe('StoryEnding', () => {
     expect(outcome.compareDocumentPosition(screen.getByText('Any epilogue'))).toBe(
       Node.DOCUMENT_POSITION_FOLLOWING,
     );
+  });
+
+  it('takes the focus without drawing the focus ring around the whole ending', () => {
+    render(<StoryEnding epilogue="Fim." outcome={null} photoId="poste" onRestart={vi.fn()} />);
+
+    const ending = screen.getByRole('region', { name: 'Final da história' });
+    expect(ending).toHaveFocus();
+    expect(ending).toHaveClass('focus-visible:ring-0', 'focus-visible:ring-offset-0');
   });
 
   it('uses the default photo when there is no choice', () => {
