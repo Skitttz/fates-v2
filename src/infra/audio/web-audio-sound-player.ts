@@ -53,10 +53,14 @@ export class WebAudioSoundPlayer implements SoundPlayer {
     if (this.musicId) this.startMusic(this.musicId);
   }
 
+  resume(): void {
+    if (this.enabled) void this.context?.resume();
+  }
+
   play(id: string, { rate = 1, volume = EFFECT_VOLUME }: SoundOptions = {}): void {
-    if (!this.enabled || this.missing.has(id)) return;
+    if (!this.enabled || this.missing.has(id) || !this.audible()) return;
     void this.buffer(id).then((buffer) => {
-      if (!buffer || !this.enabled) return;
+      if (!buffer || !this.enabled || !this.audible()) return;
       const { source } = this.channel(buffer, volume);
       source.playbackRate.value = rate;
       source.onended = () => this.effects.delete(source);
@@ -95,6 +99,10 @@ export class WebAudioSoundPlayer implements SoundPlayer {
   stopMusic(): void {
     if (this.musicId && this.enabled) this.fadeOut(this.musicId);
     this.musicId = null;
+  }
+
+  private audible(): boolean {
+    return this.context?.state === 'running';
   }
 
   private buffer(id: string): Promise<AudioBuffer | null> {

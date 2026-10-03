@@ -216,6 +216,31 @@ describe('WebAudioSoundPlayer', () => {
     expect(sourceOf('ollie')).toHaveLength(1);
   });
 
+  it('resumes a blocked context on demand only while enabled', () => {
+    const sut = makeSut();
+    sut.resume();
+    expect(context.resume).not.toHaveBeenCalled();
+
+    sut.setEnabled(true);
+    context.resume.mockClear();
+    sut.resume();
+
+    expect(context.resume).toHaveBeenCalledTimes(1);
+  });
+
+  it('skips effects while the browser keeps the audio blocked', async () => {
+    context.state = 'suspended';
+    const sut = makeSut();
+    sut.setEnabled(true);
+
+    sut.play('text-blip');
+    sut.playMusic('music-real');
+    await flush();
+
+    expect(sourceOf('text-blip')).toHaveLength(0);
+    expect(sourceOf('music-real')).toHaveLength(1);
+  });
+
   it('stops a loop', async () => {
     const sut = makeSut();
     sut.setEnabled(true);

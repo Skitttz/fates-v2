@@ -20,6 +20,7 @@ const fakePlayer = (): SoundPlayer => ({
   setEnabled: vi.fn(),
   play: vi.fn(),
   preload: vi.fn(),
+  resume: vi.fn(),
   loop: vi.fn(),
   stopLoop: vi.fn(),
   playMusic: vi.fn(),
@@ -142,13 +143,18 @@ describe('StoryGame sound', () => {
     return player;
   };
 
-  it('offers the sound toggle off by default only when there is a provider', async () => {
+  it('starts with the sound on, shows it as active and lets the visitor turn it off', async () => {
     const player = renderWithSound();
+    const toggle = screen.getByRole('button', { name: 'Som: ligado' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Som: desligado' }));
+    await userEvent.click(toggle);
 
-    expect(player.setEnabled).toHaveBeenLastCalledWith(true);
-    expect(screen.getByRole('button', { name: 'Som: ligado' })).toBeInTheDocument();
+    expect(player.setEnabled).toHaveBeenLastCalledWith(false);
+    expect(screen.getByRole('button', { name: 'Som: desligado' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
   });
 
   it('has no sound toggle without a provider', () => {
