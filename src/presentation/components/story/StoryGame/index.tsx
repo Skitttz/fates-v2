@@ -294,15 +294,20 @@ export function StoryGame({ story }: StoryGameProps) {
                     : null
               }
               underlay={
-                placing ? (
-                  <Image
-                    src={resolveStoryPhoto(photoForChoice(story, placing)).src}
-                    alt=""
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 960px"
-                    className="object-cover"
-                  />
-                ) : undefined
+                interaction?.type === 'choice'
+                  ? interaction.options.map((option) => (
+                      <Image
+                        key={option.id}
+                        src={resolveStoryPhoto(option.photo).src}
+                        alt=""
+                        fill
+                        loading="eager"
+                        placeholder="blur"
+                        sizes="(max-width: 1024px) 100vw, 960px"
+                        className={`object-cover ${option.id === placing ? 'opacity-100' : 'opacity-0'}`}
+                      />
+                    ))
+                  : undefined
               }
               transition={
                 state.phase === 'transition' && scene.transitionIn

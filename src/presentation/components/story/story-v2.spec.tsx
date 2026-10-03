@@ -90,6 +90,15 @@ describe('StoryGame v2', () => {
     expect(screen.getByText('Any caixote outcome')).toBeInTheDocument();
   });
 
+  it('loads the photos under the scene as soon as the choice appears', async () => {
+    const { container } = render(<StoryGame story={choiceOnly()} />);
+    await reachChoice();
+
+    const photos = container.querySelectorAll('[aria-hidden="true"] img');
+    expect(photos).toHaveLength(2);
+    photos.forEach((photo) => expect(photo).toHaveAttribute('loading', 'eager'));
+  });
+
   it('skips to the ending during the placing without choosing twice', async () => {
     mockReducedMotion(false);
     useAnimationClock();
@@ -154,6 +163,35 @@ describe('StoryGame sound', () => {
 
     expect(player.play).toHaveBeenCalledWith('menu-select');
     expect(player.play).toHaveBeenCalledWith('sticker-place');
+  });
+
+  it('skips during the ollie without finishing it or playing its sounds later', async () => {
+    mockReducedMotion(false);
+    useAnimationClock();
+    const player = renderWithSound();
+    const step = async (times: number) => {
+      for (let index = 0; index < times; index += 1) {
+        await act(() => vi.advanceTimersByTimeAsync(50));
+      }
+    };
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+      if (screen.queryByRole('button', { name: 'Ollie!' })) break;
+      await step(20);
+      const advance = screen.queryByRole('button', { name: 'Avançar diálogo' });
+      if (advance) await userEvent.click(advance);
+    }
+
+    await userEvent.click(screen.getByRole('button', { name: 'Ollie!' }));
+    await step(4);
+    await userEvent.click(screen.getByRole('button', { name: 'Pular história' }));
+    await step(60);
+
+    expect(screen.getByRole('region', { name: 'Final da história' })).toBeInTheDocument();
+    const played = vi.mocked(player.play).mock.calls.map(([id]) => id);
+    expect(played).toContain('ollie');
+    expect(played).not.toContain('fall');
+    expect(played).not.toContain('landing');
+    expect(played).not.toContain('enter-dream');
   });
 
   it('blips while the text is typed with the narration pitch', async () => {
