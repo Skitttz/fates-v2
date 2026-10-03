@@ -174,8 +174,8 @@ export function StoryGame({ story }: StoryGameProps) {
 
   useEffect(() => {
     if (state.phase !== 'transition') return;
-    const id = transitionSound(scene.transitionIn);
-    if (id) player.play(id);
+    const cue = transitionSound(scene.transitionIn);
+    if (cue) player.play(cue.id, { volume: cue.volume });
   }, [player, scene.transitionIn, state.phase, state.sceneIndex]);
 
   useEffect(() => {

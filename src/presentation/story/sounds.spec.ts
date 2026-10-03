@@ -1,6 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { OLLIE_TIMELINE } from './engine/animations';
-import { blipRate, musicFor, ollieSoundCues, shouldBlip, SOUNDS, transitionSound } from './sounds';
+import {
+  blipRate,
+  EFFECT_SOUND_VOLUME,
+  musicChange,
+  musicFor,
+  ollieSoundCues,
+  shouldBlip,
+  SOUNDS,
+  transitionSound,
+  WAKE_MUSIC,
+  WAKE_UP_VOLUME,
+} from './sounds';
 
 describe('story sounds', () => {
   it('uses one blip pitch per speaker', () => {
@@ -17,9 +28,18 @@ describe('story sounds', () => {
   it('picks the music and the transition sound for each world', () => {
     expect(musicFor('real')).toBe(SOUNDS.musicReal);
     expect(musicFor('dream')).toBe(SOUNDS.musicDream);
-    expect(transitionSound('fade-to-dream')).toBe(SOUNDS.enterDream);
-    expect(transitionSound('flash-to-real')).toBe(SOUNDS.wakeUp);
+    expect(transitionSound('fade-to-dream')).toEqual({
+      id: SOUNDS.enterDream,
+      volume: EFFECT_SOUND_VOLUME,
+    });
+    expect(transitionSound('flash-to-real')).toEqual({ id: SOUNDS.wakeUp, volume: WAKE_UP_VOLUME });
     expect(transitionSound('cut')).toBeNull();
+  });
+
+  it('wakes up from the dream slowly', () => {
+    expect(musicChange('dream', 'real')).toEqual(WAKE_MUSIC);
+    expect(musicChange('real', 'dream')).toBeUndefined();
+    expect(musicChange(null, 'real')).toBeUndefined();
   });
 
   it('follows the ollie timeline', () => {
