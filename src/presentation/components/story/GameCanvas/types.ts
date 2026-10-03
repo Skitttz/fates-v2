@@ -1,7 +1,7 @@
 import { ReactNode } from 'react';
-import { RenderInput } from '@/presentation/story/engine/types';
+import { StageInput } from '@/presentation/story/engine/stage';
 
-export type GameCanvasProps = Omit<RenderInput, 'timeMs' | 'sceneTimeMs' | 'particles'> & {
+export type GameCanvasProps = StageInput & {
   underlay?: ReactNode;
   overlay?: ReactNode;
 };

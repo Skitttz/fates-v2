@@ -5,8 +5,6 @@ export const WALK_PHYSICS = {
   jumpVelocity: 170,
   gravity: 600,
   bodyWidth: 10,
-  bounce: 4,
-  blockedMs: 300,
 };
 
 export const CONE_BOX = { width: 8, height: 12 };
@@ -23,7 +21,7 @@ export type WalkState = {
   vx: number;
   vy: number;
   airborne: boolean;
-  blockedMs: number;
+  blocked: boolean;
 };
 
 const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
@@ -34,7 +32,7 @@ export const createWalkState = (x: number): WalkState => ({
   vx: 0,
   vy: 0,
   airborne: false,
-  blockedMs: 0,
+  blocked: false,
 });
 
 const accelerate = (vx: number, direction: number, seconds: number) => {
@@ -51,9 +49,7 @@ export function stepWalk(
   world: WalkWorld,
 ): WalkState {
   const seconds = dtMs / 1000;
-  const blockedMs = Math.max(0, state.blockedMs - dtMs);
-  const direction = blockedMs > 0 ? 0 : input.direction;
-  let vx = accelerate(state.vx, direction, seconds);
+  let vx = accelerate(state.vx, input.direction, seconds);
   let { y, vy, airborne } = state;
 
   if (input.jump && !airborne) {
@@ -71,15 +67,21 @@ export function stepWalk(
   }
 
   let x = clamp(state.x + vx * seconds, world.min, world.max);
-  let blocked = blockedMs;
+  let blocked = (x === world.min && vx <= 0) || (x === world.max && vx >= 0);
+  if (blocked) vx = 0;
   world.obstacles.forEach((obstacle) => {
     const reach = (WALK_PHYSICS.bodyWidth + obstacle.width) / 2;
-    if (Math.abs(x - obstacle.x) >= reach || y >= obstacle.height) return;
+    if (y >= obstacle.height) return;
+    // Sweep to the near face, then keep contact until moving away or clearing it vertically.
+    const left = obstacle.x - reach;
+    const right = obstacle.x + reach;
+    const crossed = (state.x <= left && x >= left) || (state.x >= right && x <= right);
+    if (!crossed && (x < left || x > right)) return;
     const side = state.x < obstacle.x ? -1 : 1;
-    x = obstacle.x + side * (reach + WALK_PHYSICS.bounce);
+    x = clamp(obstacle.x + side * reach, world.min, world.max);
     vx = 0;
-    blocked = WALK_PHYSICS.blockedMs;
+    blocked = true;
   });
 
-  return { x, y, vx, vy, airborne, blockedMs: blocked };
+  return { x, y, vx, vy, airborne, blocked };
 }

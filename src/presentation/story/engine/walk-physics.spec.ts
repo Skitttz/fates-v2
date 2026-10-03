@@ -54,14 +54,27 @@ describe('stepWalk', () => {
     expect(again.vy).toBeLessThan(takeOff.vy);
   });
 
-  it('bumps back from the cone when walking into it', () => {
+  it('stops at the cone and stays in contact while pushing against it', () => {
     const cone = { x: 84, ...CONE_BOX };
     const blocked = run(createWalkState(60), { direction: 1, jump: false }, 120, {
       ...world,
       obstacles: [cone],
     });
 
-    expect(blocked.x).toBeLessThan(cone.x - (WALK_PHYSICS.bodyWidth + cone.width) / 2);
+    expect(blocked).toMatchObject({
+      x: cone.x - (WALK_PHYSICS.bodyWidth + cone.width) / 2,
+      vx: 0,
+      blocked: true,
+    });
+    expect(
+      run(blocked, { direction: 1, jump: false }, 300, { ...world, obstacles: [cone] }),
+    ).toEqual(blocked);
+    const backingAway = stepWalk(blocked, { direction: -1, jump: false }, 16, {
+      ...world,
+      obstacles: [cone],
+    });
+    expect(backingAway.x).toBeLessThan(blocked.x);
+    expect(backingAway.blocked).toBe(false);
   });
 
   it('clears the cone with a jump at full speed', () => {
@@ -70,7 +83,15 @@ describe('stepWalk', () => {
     const running = run(createWalkState(30), { direction: 1, jump: false }, 40, coneWorld);
     const jumped = run(running, { direction: 1, jump: true }, 80, coneWorld);
 
-    expect(running.x).toBeLessThan(cone.x - (WALK_PHYSICS.bodyWidth + cone.width) / 2);
+    expect(running.x).toBeLessThanOrEqual(cone.x - (WALK_PHYSICS.bodyWidth + cone.width) / 2);
     expect(jumped.x).toBeGreaterThan(cone.x + (WALK_PHYSICS.bodyWidth + cone.width) / 2);
+  });
+
+  it('stops at the left and right world boundaries', () => {
+    for (const direction of [-1, 1] as const) {
+      const x = direction === -1 ? world.min : world.max;
+      const stopped = run(createWalkState(x), { direction, jump: false }, 120);
+      expect(stopped).toMatchObject({ x, vx: 0, blocked: true });
+    }
   });
 });

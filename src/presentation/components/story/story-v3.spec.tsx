@@ -1,12 +1,12 @@
 import '@/presentation/test/mock-next-navigation';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockStoryModel } from '@/domain/test';
 import { SoundProvider } from '@/presentation/contexts/sound';
-import { WALK_INTRO_MS } from '@/presentation/hooks/story';
 import { SoundPlayer } from '@/presentation/protocols';
 import { WALK_SOUND_VOLUME } from '@/presentation/story/sounds';
+import { WALK_INTRO_MS } from '@/presentation/hooks/story';
 import { StoryGame } from '.';
 
 const mockReducedMotion = (matches: boolean) =>
@@ -136,7 +136,9 @@ describe('StoryGame v3', () => {
 
     fireEvent.keyDown(window, { key: ' ', code: 'Space' });
     fireEvent.keyDown(window, { key: ' ', code: 'Space', repeat: true });
-    await act(() => new Promise((resolve) => setTimeout(resolve, 60)));
+    await waitFor(() =>
+      expect(player.play).toHaveBeenCalledWith('ollie', { volume: WALK_SOUND_VOLUME }),
+    );
 
     const jumps = vi.mocked(player.play).mock.calls.filter(([id]) => id === 'ollie');
     expect(jumps).toHaveLength(1);
@@ -149,14 +151,34 @@ describe('StoryGame v3', () => {
     expect(screen.getByRole('button', { name: 'Pular' })).toBeInTheDocument();
   });
 
-  it('stops walking when the window loses focus', () => {
+  it('stops walking when the window loses focus', async () => {
     const player = renderWithSound();
     fireEvent.keyDown(window, { key: 'ArrowRight' });
-    expect(player.loop).toHaveBeenCalledWith('skate-roll');
+    await waitFor(() => expect(player.loop).toHaveBeenCalledWith('skate-roll'));
 
     fireEvent.blur(window);
 
+    await waitFor(() => expect(player.stopLoop).toHaveBeenCalledWith('skate-roll'));
+  });
+
+  it('keeps the rolling sound stopped while holding against a cone and resumes when backing away', async () => {
+    useAnimationClock();
+    const player = renderWithSound();
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    await act(() => vi.advanceTimersByTimeAsync(100));
+    expect(player.loop).toHaveBeenCalledWith('skate-roll');
+    await act(() => vi.advanceTimersByTimeAsync(1400));
     expect(player.stopLoop).toHaveBeenCalledWith('skate-roll');
+    const starts = vi.mocked(player.loop).mock.calls.length;
+    const stops = vi.mocked(player.stopLoop).mock.calls.length;
+    await act(() => vi.advanceTimersByTimeAsync(5000));
+    expect(player.loop).toHaveBeenCalledTimes(starts);
+    expect(player.stopLoop).toHaveBeenCalledTimes(stops);
+    expect(vi.mocked(player.play).mock.calls.filter(([id]) => id === 'fall')).toHaveLength(1);
+    fireEvent.keyUp(window, { key: 'ArrowRight' });
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    await act(() => vi.advanceTimersByTimeAsync(150));
+    expect(player.loop).toHaveBeenCalledTimes(starts + 1);
   });
 
   it('leaves space to the page after a click outside during the walk', () => {

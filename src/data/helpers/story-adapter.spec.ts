@@ -117,3 +117,21 @@ describe('adaptStory entrances and obstacles', () => {
     expect(() => adaptStory(withScene(patch))).toThrow(UnexpectedError);
   });
 });
+
+describe('choice consequence validation', () => {
+  it('keeps a valid consequence and rejects an unknown destination', () => {
+    const raw = JSON.parse(JSON.stringify(mockStoryModel()));
+    const option = raw.scenes[2].interaction.options[0];
+    option.consequence = {
+      title: 'Outro começo',
+      text: 'Uma pessoa encontra o adesivo.',
+      place: 'caixote',
+    };
+    const interaction = adaptStory(raw).scenes[2].interaction;
+    expect(interaction?.type === 'choice' && interaction.options[0].consequence).toEqual(
+      option.consequence,
+    );
+    option.consequence.place = 'lua';
+    expect(() => adaptStory(raw)).toThrow(UnexpectedError);
+  });
+});

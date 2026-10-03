@@ -3,4 +3,5 @@ export interface StoryEndingProps {
   outcome: string | null;
   photoId: string | null;
   onRestart: () => void;
+  ollieLanded?: boolean;
 }

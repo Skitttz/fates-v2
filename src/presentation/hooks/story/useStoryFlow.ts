@@ -22,6 +22,7 @@ export function useStoryFlow(story: StoryModel) {
         dispatch({ type: 'COMPLETE_INTERACTION', ollieResult }),
       finishPlacing: (choice: string) => dispatch({ type: 'COMPLETE_INTERACTION', choice }),
       endTransition: () => dispatch({ type: 'TRANSITION_END' }),
+      endAftermath: () => dispatch({ type: 'AFTERMATH_END' }),
       skip: (choice?: string) => dispatch({ type: 'SKIP', choice }),
       restart: () => dispatch({ type: 'RESTART' }),
     }),

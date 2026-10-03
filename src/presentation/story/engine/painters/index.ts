@@ -23,7 +23,9 @@ const bodyPainter = (actor: StoryActorModel, input: RenderInput): ActorPainter =
 
 export const paintersFor = (actor: StoryActorModel, input: RenderInput): ActorPainter[] => {
   const body = bodyPainter(actor, input);
-  return actor.id === GLOW_ACTOR ? [PAINTERS.glow, body] : [body];
+  const glowing =
+    actor.id === GLOW_ACTOR && (actor.pose === 'brilhando' || actor.pose === SPINNING_POSE);
+  return glowing ? [PAINTERS.glow, body] : [body];
 };
 
 export { GlowPainter, MaterializePainter, SpinPainter, SpritePainter };

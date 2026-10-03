@@ -37,3 +37,24 @@ describe('Fates story assets', () => {
     );
   });
 });
+
+describe('choice aftermath assets', () => {
+  it('can render every destination from arrival to the last frame', async () => {
+    const { aftermathScene } = await import('@/presentation/story/engine/aftermath');
+    const story = await makeLocalLoadStory().load();
+    story.scenes.forEach((scene) => {
+      if (scene.interaction?.type !== 'choice') return;
+      scene.interaction.options.forEach((option) => {
+        expect(option.consequence).toBeDefined();
+        [0, 0.5, 1].forEach((progress) => {
+          aftermathScene(option.consequence!.place, progress).actors.forEach((actor) => {
+            expect(
+              SPRITE_SHEETS[actor.id]?.[actor.pose],
+              `${actor.id}:${actor.pose}`,
+            ).toBeDefined();
+          });
+        });
+      });
+    });
+  });
+});

@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { IChildren } from '@/core/types';
 import { AccountProvider } from '@/presentation/contexts/account';
 import { CartProvider } from '@/presentation/contexts/cart';
+import { StoryMemoryProvider } from '@/presentation/contexts/story-memory';
+import { makeLocalStoryMemory } from '../usecases/local-story-memory-factory';
 import {
   makeLocalAddToCart,
   makeLocalClearCart,
@@ -15,6 +17,7 @@ import {
 } from '../usecases';
 
 const makeUsecases = () => ({
+  storyMemory: makeLocalStoryMemory(),
   account: {
     loadCurrentAccount: makeLocalLoadCurrentAccount(),
     saveCurrentAccount: makeLocalSaveCurrentAccount(),
@@ -33,7 +36,11 @@ export function AppProvidersFactory({ children }: IChildren) {
 
   return (
     <AccountProvider {...usecases.account}>
-      <CartProvider {...usecases.cart}>{children}</CartProvider>
+      <CartProvider {...usecases.cart}>
+        <StoryMemoryProvider loadMemory={usecases.storyMemory} saveMemory={usecases.storyMemory}>
+          {children}
+        </StoryMemoryProvider>
+      </CartProvider>
     </AccountProvider>
   );
 }

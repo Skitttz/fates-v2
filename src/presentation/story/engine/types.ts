@@ -4,6 +4,7 @@ import {
   StorySceneModel,
   StoryTransition,
 } from '@/domain/models';
+import { WalkSnapshot } from './walk-runtime';
 
 export type OllieEffect = { type: 'ollie'; progress: number; result: StoryOllieResult };
 
@@ -34,4 +35,5 @@ export type RenderInput = {
   effect?: StoryEffect | null;
   transition?: SceneTransitionState | null;
   particles?: readonly Particle[];
+  walk?: { actor: string; groundY: number; state: WalkSnapshot };
 };

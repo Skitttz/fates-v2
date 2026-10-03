@@ -11,6 +11,7 @@ import {
   ollieBoard,
   PLACING_TIMELINE,
   shakeOffset,
+  walkActor,
 } from './animations';
 import { drawBackdrop } from './backdrops';
 import {
@@ -30,7 +31,7 @@ const isActor = (actor: StoryActorModel | null): actor is StoryActorModel => act
 const resolveActors = (input: RenderInput, sprites: SpriteCache): StoryActorModel[] => {
   const { scene, actorOverrides = {}, effect, speaker = null, sceneTimeMs, animated } = input;
   const actors = [...scene.actors, ...obstacleActors(scene)].map((base) =>
-    ollieActor({ ...base, ...actorOverrides[base.id] }, effect),
+    ollieActor(walkActor({ ...base, ...actorOverrides[base.id] }, input.walk), effect),
   );
   const extras = actors
     .flatMap((actor) => [ollieBoard(actor, effect), landingGlow(actor, effect)])
@@ -107,6 +108,14 @@ export function renderScene(
   context.translate(shake.x, shake.y);
   const focusX = actors.find(({ id }) => id === OLLIE_ACTOR)?.x ?? CANVAS_WIDTH / 2;
   drawBackdrop(context, scene.backdrop, timeMs, animated, focusX);
+  if (input.walk) {
+    const { state, groundY } = input.walk;
+    const width = Math.round(12 - Math.min(state.y / 5, 5));
+    context.fillStyle = '#111111';
+    context.globalAlpha = 0.22 - Math.min(state.y / 250, 0.1);
+    context.fillRect(Math.round(state.x - width / 2), groundY, width, 2);
+    context.globalAlpha = 1;
+  }
   const brush = { context, input, sprites };
   actors.forEach((actor) =>
     paintersFor(actor, input).forEach((painter) => painter.paint(brush, actor)),

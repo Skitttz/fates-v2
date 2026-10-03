@@ -16,6 +16,8 @@ const GLOWING = {
 };
 
 export const ADESIVO: SpriteSheet = {
+  padrao: { ...GLOWING, frames: [frame('N')], fps: 0 },
+  colado: { ...GLOWING, frames: [['NNNNNN', 'NkwkwN', 'NNNNNN']], fps: 0 },
   brilhando: GLOWING,
   girando: GLOWING,
 };

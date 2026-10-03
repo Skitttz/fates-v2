@@ -86,6 +86,7 @@ const onBoard = (rows: SpriteFrame, wheels: string): SpriteFrame => [
 ];
 
 export const PAULO: SpriteSheet = {
+  moletom: { ...sprite([BODY]), palette: { ...PALETTE, w: '#166534' } },
   parado: sprite([BODY]),
   skate: sprite([onBoard(BODY, WHEELS[0]), onBoard(BODY, WHEELS[1])], 6),
   'skate-andando': sprite(
@@ -98,6 +99,7 @@ export const PAULO: SpriteSheet = {
   agachado: sprite([onBoard(CROUCH, WHEELS[0])]),
   'ollie-pop': sprite([[...pad(BODY, 1), ...TILTED_BOARD]]),
   'ollie-ar': sprite([onBoard(TUCK, WHEELS[0])]),
+  'ollie-descida': sprite([onBoard(KNEEL, WHEELS[0])]),
   'deitado-costas': sprite([rotateCounterClockwise(BODY)]),
   sentado: sprite([SITTING]),
   levantando: { ...sprite([SITTING, KNEEL, BODY], 4), loop: false },

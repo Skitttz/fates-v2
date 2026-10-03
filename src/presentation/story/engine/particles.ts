@@ -4,6 +4,7 @@ import {
   PLACING_TIMELINE,
   SPINNING_POSE,
   STICKER_RISE,
+  walkActor,
 } from './animations';
 import { CANVAS_WIDTH, GLOW_ACTOR, GROUND_Y, OLLIE_ACTOR, STAMP_CENTER } from './constants';
 import { Particle, RenderInput, StoryEffect } from './types';
@@ -40,7 +41,7 @@ const crossed = (previous: number, current: number, at: number) => previous < at
 
 const actorAt = (input: RenderInput, id: string) => {
   const actor = input.scene.actors.find((candidate) => candidate.id === id);
-  return actor ? { ...actor, ...input.actorOverrides?.[id] } : null;
+  return actor ? walkActor({ ...actor, ...input.actorOverrides?.[id] }, input.walk) : null;
 };
 
 export function emitParticles(
@@ -55,6 +56,15 @@ export function emitParticles(
   const paulo = actorAt(input, OLLIE_ACTOR);
   const sticker = actorAt(input, GLOW_ACTOR);
 
+  if (paulo && input.walk && previous?.walk && input.scene.id === previous.scene.id) {
+    if (
+      input.walk.state.bumps > previous.walk.state.bumps ||
+      (!input.walk.state.airborne && previous.walk.state.airborne)
+    ) {
+      spawned.push(...burst(paulo.x, GROUND_Y - 1, LANDING_DUST, PARTICLE_COLORS.dust, random));
+    }
+  }
+
   if (input.scene.world === 'dream' && random() < dtMs / MOTE_EVERY_MS) {
     spawned.push(
       particle(random() * CANVAS_WIDTH, GROUND_Y, 0, -0.008, 4000, PARTICLE_COLORS.mote),
@@ -62,7 +72,17 @@ export function emitParticles(
   }
 
   if (paulo?.pose === 'skate-andando' && random() < dtMs / DUST_EVERY_MS) {
-    spawned.push(particle(paulo.x - 6, GROUND_Y - 1, -0.02, -0.01, 400, PARTICLE_COLORS.dust));
+    const facing = input.walk?.state.facing ?? 1;
+    spawned.push(
+      particle(
+        paulo.x - 6 * facing,
+        GROUND_Y - 1,
+        -0.02 * facing,
+        -0.01,
+        400,
+        PARTICLE_COLORS.dust,
+      ),
+    );
   }
 
   if (

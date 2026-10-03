@@ -1,4 +1,5 @@
 import { UnexpectedError } from '@/domain/errors';
+import { STICKER_PLACES } from '@/domain/models/story-memory-model';
 import {
   StoryActorEntrance,
   StoryActorModel,
@@ -70,11 +71,21 @@ const adaptLine = (value: unknown): StoryLineModel => {
 
 const adaptOption = (value: unknown): StoryChoiceOptionModel => {
   const option = asRecord(value);
+  const consequence = option.consequence === undefined ? null : asRecord(option.consequence);
   return {
     id: asText(option.id),
     label: asText(option.label),
     photo: asText(option.photo),
     outcome: asText(option.outcome),
+    ...(consequence
+      ? {
+          consequence: {
+            title: asText(consequence.title),
+            text: asText(consequence.text),
+            place: asOneOf(consequence.place, STICKER_PLACES),
+          },
+        }
+      : {}),
   };
 };
 

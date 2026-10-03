@@ -1,5 +1,5 @@
 import '@/presentation/test/mock-next-navigation';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockStoryModel } from '@/domain/test';
@@ -185,10 +185,10 @@ describe('StoryGame sound', () => {
     expect(player.loop).not.toHaveBeenCalledWith('skate-roll');
 
     fireEvent.keyDown(window, { key: 'ArrowRight' });
-    expect(player.loop).toHaveBeenCalledWith('skate-roll');
+    await waitFor(() => expect(player.loop).toHaveBeenCalledWith('skate-roll'));
 
     fireEvent.keyUp(window, { key: 'ArrowRight' });
-    expect(player.stopLoop).toHaveBeenCalledWith('skate-roll');
+    await waitFor(() => expect(player.stopLoop).toHaveBeenCalledWith('skate-roll'));
   });
 
   it('plays the menu sound on arrows and the stamp sound on choose', async () => {

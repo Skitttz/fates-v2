@@ -1,24 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { mockStoryModel } from '@/domain/test';
 import { StoryState } from './engine/story-reducer';
-import {
-  lineAnnouncement,
-  nextMode,
-  sceneTransition,
-  storyEffect,
-  storyMoment,
-  walkOverrides,
-  walkPose,
-} from './view';
+import { lineAnnouncement, nextMode, sceneTransition, storyEffect, storyMoment } from './view';
 
 describe('story view', () => {
-  it('picks the walking pose from the motion and the direction', () => {
-    expect(walkPose({ airborne: true, rising: true }, 1)).toBe('ollie-pop');
-    expect(walkPose({ airborne: true, rising: false }, 0)).toBe('ollie-ar');
-    expect(walkPose({ airborne: false, rising: false }, 0)).toBe('skate');
-    expect(walkPose({ airborne: false, rising: false }, -1)).toBe('skate-andando');
-  });
-
   it('prefers the placing effect over the ollie and returns null without any', () => {
     const ollie = { result: 'landed' as const };
 
@@ -44,17 +29,6 @@ describe('story view', () => {
     });
     expect(sceneTransition('dialogue', scene, 0.5)).toBeNull();
     expect(sceneTransition('transition', { ...scene, transitionIn: undefined }, 0.5)).toBeNull();
-  });
-
-  it('overrides the walking actor position and pose only during a walk', () => {
-    const walk = { type: 'walk-to' as const, actor: 'paulo', targetX: 150 };
-    const actor = { id: 'paulo', x: 40, y: 112, pose: 'skate' };
-    const walking = { x: 60.4, y: 9.6, airborne: true, rising: false };
-
-    expect(walkOverrides(walk, actor, walking, 1)).toEqual({
-      paulo: { x: 60.4, y: 102, pose: 'ollie-ar' },
-    });
-    expect(walkOverrides(undefined, undefined, walking, 1)).toBeUndefined();
   });
 
   it('announces the current line only in game mode', () => {

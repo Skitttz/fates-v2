@@ -6,9 +6,16 @@ import { Link } from '@/presentation/components/navigation';
 import { resolveStoryPhoto, STORY_PHOTO_SIZES } from '@/presentation/story/photos';
 import { ENDING_ACTIONS, ENDING_LABEL } from './constants';
 import { storyEndingStyles } from './styles';
+import { OllieCelebration } from '../OllieCelebration';
 import { StoryEndingProps } from './types';
 
-export function StoryEnding({ epilogue, outcome, photoId, onRestart }: StoryEndingProps) {
+export function StoryEnding({
+  epilogue,
+  outcome,
+  photoId,
+  onRestart,
+  ollieLanded = false,
+}: StoryEndingProps) {
   const photo = resolveStoryPhoto(photoId);
   const sectionRef = useRef<HTMLElement>(null);
   const styles = storyEndingStyles();
@@ -30,6 +37,7 @@ export function StoryEnding({ epilogue, outcome, photoId, onRestart }: StoryEndi
         />
       </div>
       {outcome && <p className={styles.outcome()}>{outcome}</p>}
+      {ollieLanded && <OllieCelebration compact />}
       <p className={styles.epilogue()}>{epilogue}</p>
       <div className={styles.actions()}>
         <Link href={ENDING_ACTIONS.drop.href} className={styles.drop()}>

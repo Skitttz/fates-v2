@@ -1,6 +1,6 @@
 import { StoryLineModel, StoryModel, StoryOllieResult, StorySceneModel } from '@/domain/models';
 
-export type StoryPhase = 'dialogue' | 'interaction' | 'transition' | 'ending';
+export type StoryPhase = 'dialogue' | 'interaction' | 'transition' | 'aftermath' | 'ending';
 
 export type OllieResult = StoryOllieResult;
 
@@ -16,6 +16,7 @@ export type StoryAction =
   | { type: 'NEXT_LINE' }
   | { type: 'COMPLETE_INTERACTION'; choice?: string; ollieResult?: OllieResult }
   | { type: 'TRANSITION_END' }
+  | { type: 'AFTERMATH_END' }
   | { type: 'SKIP'; choice?: string }
   | { type: 'RESTART' };
 
@@ -74,6 +75,14 @@ export const createStoryReducer =
 
       case 'COMPLETE_INTERACTION':
         if (state.phase !== 'interaction') return state;
+        if (
+          scene.interaction?.type === 'choice' &&
+          scene.interaction.options.some(
+            (option) => option.id === action.choice && option.consequence,
+          )
+        ) {
+          return { ...state, phase: 'aftermath', choice: action.choice ?? state.choice };
+        }
         return enterScene(
           story,
           {
@@ -89,6 +98,9 @@ export const createStoryReducer =
         const phase = scenePhase(scene, state);
         return phase ? { ...state, phase } : enterScene(story, state, state.sceneIndex + 1);
       }
+
+      case 'AFTERMATH_END':
+        return state.phase === 'aftermath' ? enterScene(story, state, state.sceneIndex + 1) : state;
 
       case 'SKIP':
         return toEnding(story, { ...state, choice: action.choice ?? state.choice });
@@ -113,11 +125,15 @@ export const choiceOutcome = (
   story: StoryModel,
   state: Pick<StoryState, 'choice'>,
 ): string | null => {
-  if (!state.choice) return null;
+  return choiceOption(story, state.choice)?.outcome ?? null;
+};
+
+export const choiceOption = (story: StoryModel, choice: string | null) => {
+  if (!choice) return null;
   for (const scene of story.scenes) {
     if (scene.interaction?.type !== 'choice') continue;
-    const option = scene.interaction.options.find(({ id }) => id === state.choice);
-    if (option) return option.outcome;
+    const option = scene.interaction.options.find(({ id }) => id === choice);
+    if (option) return option;
   }
   return null;
 };

@@ -1,117 +1,99 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  CONE_BOX,
-  createWalkState,
-  stepWalk,
-  WalkState,
-} from '@/presentation/story/engine/walk-physics';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { createWalkRuntime, isRolling, WalkConfig } from '@/presentation/story/engine/walk-runtime';
 
-export const WALK_MAX_STEP_MS = 50;
-export const WALK_ARRIVAL_DISTANCE = 4;
-export const WALK_BOUNDS = { min: 8, max: 232 };
-
+export {
+  WALK_MAX_STEP_MS,
+  WALK_ARRIVAL_DISTANCE,
+  WALK_BOUNDS,
+} from '@/presentation/story/engine/walk-runtime';
 export type WalkDirection = -1 | 0 | 1;
 
-type UseWalkParams = {
+type UseWalkParams = WalkConfig & {
   active: boolean;
-  startX: number;
-  targetX: number;
   direction: WalkDirection;
-  obstacles?: readonly { x: number }[];
+  resetKey?: unknown;
   onArrive: () => void;
   onJump?: () => void;
   onLand?: () => void;
+  onBump?: () => void;
 };
-
-export type WalkView = {
-  x: number;
-  y: number;
-  airborne: boolean;
-  rising: boolean;
-  jump: () => void;
-};
-
-const view = (state: WalkState) => ({
-  x: state.x,
-  y: state.y,
-  airborne: state.airborne,
-  rising: state.vy > 0,
-});
 
 export function useWalk({
   active,
   startX,
   targetX,
-  direction,
   obstacles = [],
+  direction,
+  resetKey,
   onArrive,
   onJump,
   onLand,
-}: UseWalkParams): WalkView {
+  onBump,
+}: UseWalkParams) {
   const obstaclesKey = obstacles.map(({ x }) => x).join(',');
-  const runKey = [active, startX, targetX, obstaclesKey].join(':');
-  const [run, setRun] = useState(() => ({ key: runKey, view: view(createWalkState(startX)) }));
-  const directionRef = useRef(direction);
-  const jumpRef = useRef(false);
-  const callbacksRef = useRef({ onArrive, onJump, onLand });
-
-  if (run.key !== runKey) setRun({ key: runKey, view: view(createWalkState(startX)) });
-
-  useEffect(() => {
-    directionRef.current = direction;
-  }, [direction]);
-
-  useEffect(() => {
-    callbacksRef.current = { onArrive, onJump, onLand };
-  }, [onArrive, onJump, onLand]);
-
-  const jump = useCallback(() => {
-    jumpRef.current = true;
-  }, []);
+  const runtime = useMemo(
+    () =>
+      createWalkRuntime({
+        startX,
+        targetX,
+        obstacles: obstaclesKey ? obstaclesKey.split(',').map((x) => ({ x: Number(x) })) : [],
+      }),
+    // A replay is a new simulation even when its geometry is identical.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [startX, targetX, obstaclesKey, resetKey],
+  );
+  const callbacks = useRef({ onArrive, onJump, onLand, onBump });
+  const [feedback, setFeedback] = useState({ rolling: false, bumps: 0 });
+  const feedbackRef = useRef(feedback);
 
   useEffect(() => {
-    let state = createWalkState(startX);
-    jumpRef.current = false;
-    if (!active) return;
+    callbacks.current = { onArrive, onJump, onLand, onBump };
+  }, [onArrive, onJump, onLand, onBump]);
+  useEffect(() => {
+    runtime.setDirection(active ? direction : 0);
+  }, [active, direction, runtime]);
 
-    const world = {
-      ...WALK_BOUNDS,
-      obstacles: obstaclesKey
-        ? obstaclesKey.split(',').map((x) => ({ x: Number(x), ...CONE_BOX }))
-        : [],
+  useEffect(() => {
+    const publish = () => {
+      const state = runtime.getSnapshot();
+      const rolling = active && isRolling(state);
+      if (feedbackRef.current.rolling === rolling && feedbackRef.current.bumps === state.bumps)
+        return;
+      feedbackRef.current = { rolling, bumps: state.bumps };
+      setFeedback(feedbackRef.current);
     };
-    const target = Math.min(WALK_BOUNDS.max, Math.max(WALK_BOUNDS.min, targetX));
+    if (!active) {
+      runtime.stop();
+      publish();
+      return;
+    }
     let frame = 0;
     let last: number | null = null;
-
     const step = (now: number) => {
-      const delta = last === null ? 0 : Math.min(Math.max(now - last, 0), WALK_MAX_STEP_MS);
+      const events = runtime.advance(last === null ? 0 : now - last);
       last = now;
-      const wantsJump = jumpRef.current;
-      jumpRef.current = false;
-      const next = stepWalk(
-        state,
-        { direction: directionRef.current, jump: wantsJump },
-        delta,
-        world,
-      );
-      if (!state.airborne && next.airborne) callbacksRef.current.onJump?.();
-      if (state.airborne && !next.airborne) callbacksRef.current.onLand?.();
-      state = next;
-      setRun({ key: runKey, view: view(state) });
-
-      if (Math.abs(state.x - target) <= WALK_ARRIVAL_DISTANCE) {
-        callbacksRef.current.onArrive();
-        return;
-      }
-      frame = requestAnimationFrame(step);
+      publish();
+      events.forEach((event) => {
+        if (event === 'jump') callbacks.current.onJump?.();
+        if (event === 'land') callbacks.current.onLand?.();
+        if (event === 'bump') callbacks.current.onBump?.();
+        if (event === 'arrive') callbacks.current.onArrive();
+      });
+      if (!events.includes('arrive')) frame = requestAnimationFrame(step);
     };
-
+    publish();
     frame = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(frame);
-  }, [active, startX, targetX, obstaclesKey, runKey]);
+    return () => {
+      cancelAnimationFrame(frame);
+      runtime.stop();
+    };
+  }, [active, runtime]);
 
-  return { ...run.view, jump };
+  const jump = useCallback(() => {
+    // The controller gates input. A touch that restores focus can queue the next step.
+    runtime.jump();
+  }, [runtime]);
+  return { ...feedback, getSnapshot: runtime.getSnapshot, jump };
 }

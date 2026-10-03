@@ -4,7 +4,10 @@ import { emitParticles, Random, updateParticles } from './particles';
 import { renderScene } from './renderer';
 import { Particle, RenderInput } from './types';
 
-export type StageInput = Omit<RenderInput, 'timeMs' | 'sceneTimeMs' | 'particles'>;
+export type StageInput = Omit<RenderInput, 'timeMs' | 'sceneTimeMs' | 'particles'> & {
+  getWalkFrame?: () => RenderInput['walk'];
+  getScene?: (sceneTimeMs: number) => RenderInput['scene'];
+};
 
 export type FrameScheduler = {
   request: (callback: FrameRequestCallback) => number;
@@ -66,7 +69,13 @@ export class StoryStage {
   private readonly draw = (now: number): void => {
     this.frame = null;
     const { sceneTimeMs, dtMs } = this.clock.tick(now, this.input.scene.id);
-    const input: RenderInput = { ...this.input, timeMs: now, sceneTimeMs };
+    const input: RenderInput = {
+      ...this.input,
+      scene: this.input.getScene?.(sceneTimeMs) ?? this.input.scene,
+      walk: this.input.getWalkFrame?.() ?? this.input.walk,
+      timeMs: now,
+      sceneTimeMs,
+    };
     this.particles = this.nextParticles(input, dtMs);
     renderScene(this.context, { ...input, particles: this.particles }, this.sprites);
     this.previous = input;

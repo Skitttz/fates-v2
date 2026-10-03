@@ -1,9 +1,15 @@
+'use client';
+
 import Image from 'next/image';
-import { Reveal, SectionHeading } from '@/presentation/components/ui';
+import { Reveal, SectionHeading, Sticker } from '@/presentation/components/ui';
+import { useStoryMemory } from '@/presentation/contexts/story-memory';
+import { DESTINATION_LABELS } from '@/presentation/story/destinations';
 import { cn } from '@/presentation/utils/cn';
 import { STREET_GALLERY_ID, STREET_GALLERY_PHOTOS, STREET_GALLERY_SECTION } from './constants';
 
 export function StreetGallery() {
+  const { memory } = useStoryMemory();
+  const chosen = memory?.storyId === 'como-tudo-comecou' ? memory.place : null;
   return (
     <section id={STREET_GALLERY_ID} className="scroll-mt-24">
       <SectionHeading
@@ -11,6 +17,11 @@ export function StreetGallery() {
         title={STREET_GALLERY_SECTION.title}
         description={STREET_GALLERY_SECTION.description}
       />
+      {chosen && (
+        <p className="mb-8 border-l-4 border-street-lime pl-4 font-pixel text-lg text-street-lime">
+          {DESTINATION_LABELS[chosen]} Seu caminho continua por aqui.
+        </p>
+      )}
       <div className="grid grid-cols-1 gap-12 px-2 sm:grid-cols-3 sm:gap-8 lg:gap-14 xl:gap-20 2xl:px-10">
         {STREET_GALLERY_PHOTOS.map((photo, index) => (
           <Reveal key={photo.caption} delay={index * 150}>
@@ -18,6 +29,7 @@ export function StreetGallery() {
               className={cn(
                 'group relative bg-zinc-50 p-3 pb-20 shadow-brutal-lime transition-transform duration-500 ease-out hover:z-10 hover:-translate-y-2 hover:rotate-0 hover:scale-[1.03]',
                 photo.rotation,
+                chosen === photo.id && 'ring-4 ring-street-lime',
               )}
             >
               <div className="relative aspect-[4/5] overflow-hidden">
@@ -27,9 +39,17 @@ export function StreetGallery() {
                   fill
                   placeholder="blur"
                   sizes="(max-width: 640px) 100vw, 33vw"
-                  className="object-cover grayscale transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0"
+                  className={cn(
+                    'object-cover transition-all duration-500 group-hover:scale-105 group-hover:grayscale-0',
+                    chosen !== photo.id && 'grayscale',
+                  )}
                 />
               </div>
+              {chosen === photo.id && (
+                <div className="absolute -right-2 -top-4 z-10">
+                  <Sticker label="Você deixou sua marca" className="bg-street-lime" />
+                </div>
+              )}
               <figcaption className="absolute bottom-3 left-4 right-4 flex flex-col gap-1">
                 <span className="font-marker text-xl leading-tight text-black">
                   {photo.caption}

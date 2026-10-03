@@ -85,7 +85,7 @@ describe('useWalk', () => {
     await flushFrame(WALK_MAX_STEP_MS);
     await flushFrame(WALK_MAX_STEP_MS * 2);
 
-    expect(result.current.x).toBeGreaterThanOrEqual(100);
+    expect(result.current.getSnapshot().x).toBeGreaterThanOrEqual(100);
     expect(onArrive).toHaveBeenCalledTimes(1);
   });
 
@@ -97,8 +97,8 @@ describe('useWalk', () => {
     await flushFrame(0);
     await flushFrame(5000);
 
-    expect(result.current.x).toBeGreaterThan(20);
-    expect(result.current.x).toBeLessThan(22);
+    expect(result.current.getSnapshot().x).toBeGreaterThan(20);
+    expect(result.current.getSnapshot().x).toBeLessThan(22);
   });
 
   it('stays still without direction', async () => {
@@ -108,7 +108,7 @@ describe('useWalk', () => {
 
     await flushFrame(16);
 
-    expect(result.current.x).toBe(20);
+    expect(result.current.getSnapshot().x).toBe(20);
   });
 
   it('jumps once and reports the take off and the landing', async () => {
@@ -132,7 +132,7 @@ describe('useWalk', () => {
 
     expect(onJump).toHaveBeenCalledTimes(1);
     expect(onLand).toHaveBeenCalledTimes(1);
-    expect(result.current.airborne).toBe(false);
+    expect(result.current.getSnapshot().airborne).toBe(false);
   });
 });
 
@@ -233,17 +233,17 @@ describe('useProgress restart', () => {
 });
 
 describe('useWalk restart', () => {
-  it('never commits the previous position after it stops', async () => {
+  it('never commits the previous position when a different walk starts', async () => {
     const committed: number[] = [];
     const { rerender } = renderHook(
-      ({ active }) => {
-        const walk = useWalk({ active, startX: 20, targetX: 200, direction: 1, onArrive: vi.fn() });
+      ({ startX }) => {
+        const walk = useWalk({ active: true, startX, targetX: 200, direction: 1, onArrive: vi.fn() });
         useLayoutEffect(() => {
-          committed.push(walk.x);
+          committed.push(walk.getSnapshot().x);
         });
         return walk;
       },
-      { initialProps: { active: true } },
+      { initialProps: { startX: 20 } },
     );
     await flushFrame(0);
     await flushFrame(WALK_MAX_STEP_MS);
@@ -251,10 +251,10 @@ describe('useWalk restart', () => {
     expect(committed.at(-1)).toBeGreaterThan(20);
 
     committed.length = 0;
-    rerender({ active: false });
+    rerender({ startX: 60 });
 
     expect(committed.length).toBeGreaterThan(0);
-    expect(committed.every((value) => value === 20)).toBe(true);
+    expect(committed.every((value) => value === 60)).toBe(true);
   });
 });
 
