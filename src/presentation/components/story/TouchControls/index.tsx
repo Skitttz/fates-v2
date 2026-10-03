@@ -1,6 +1,6 @@
 'use client';
 
-import { MouseEvent } from 'react';
+import { memo, MouseEvent } from 'react';
 import { ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon } from '@heroicons/react/24/solid';
 import { WalkDirection } from '@/presentation/hooks/useWalk';
 import { TOUCH_LABELS } from './constants';
@@ -9,7 +9,11 @@ import { TouchControlsProps } from './types';
 
 const preventContextMenu = (event: MouseEvent) => event.preventDefault();
 
-export function TouchControls({ visible, onDirectionChange, onJump }: TouchControlsProps) {
+export const TouchControls = memo(function TouchControls({
+  visible,
+  onDirectionChange,
+  onJump,
+}: TouchControlsProps) {
   if (!visible) return null;
 
   const styles = touchControlsStyles();
@@ -51,4 +55,4 @@ export function TouchControls({ visible, onDirectionChange, onJump }: TouchContr
       </button>
     </div>
   );
-}
+});

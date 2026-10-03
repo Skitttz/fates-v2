@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { mockStoryModel } from '@/domain/test';
+import { StoryState } from './engine/story-reducer';
 import {
   lineAnnouncement,
   nextMode,
   sceneTransition,
   storyEffect,
+  storyMoment,
   walkOverrides,
   walkPose,
 } from './view';
@@ -65,5 +67,49 @@ describe('story view', () => {
   it('toggles between game and text', () => {
     expect(nextMode('game')).toBe('text');
     expect(nextMode('text')).toBe('game');
+  });
+
+  it('describes the current moment of the story', () => {
+    const story = mockStoryModel();
+    const at = (patch: Partial<StoryState>): StoryState => ({
+      sceneIndex: 0,
+      lineIndex: 0,
+      phase: 'interaction',
+      choice: null,
+      ollieResult: null,
+      ...patch,
+    });
+
+    const dialogue = storyMoment(story, at({ phase: 'dialogue', lineIndex: 1 }));
+    expect(dialogue).toMatchObject({
+      scene: story.scenes[0],
+      line: { text: 'Any line' },
+      speaker: 'paulo',
+      inDialogue: true,
+      ended: false,
+      awaitsOllie: false,
+      walkKey: null,
+    });
+
+    expect(storyMoment(story, at({}))).toMatchObject({ awaitsOllie: true, line: null });
+
+    const walking = storyMoment(story, at({ sceneIndex: 1 }));
+    expect(walking.walk).toBe(story.scenes[1].interaction);
+    expect(walking.walkActor).toBe(story.scenes[1].actors[0]);
+    expect(walking.walkKey).toBe('1');
+
+    const choosing = storyMoment(story, at({ sceneIndex: 2 }));
+    expect(choosing.choice).toBe(story.scenes[2].interaction);
+    expect(choosing.walk).toBeUndefined();
+
+    expect(storyMoment(story, at({ sceneIndex: 2, phase: 'transition' }))).toMatchObject({
+      inTransition: true,
+      choice: undefined,
+    });
+    expect(storyMoment(story, at({ sceneIndex: 2, phase: 'ending' }))).toMatchObject({
+      ended: true,
+      choice: undefined,
+      speaker: null,
+    });
   });
 });

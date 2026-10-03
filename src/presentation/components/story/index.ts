@@ -8,6 +8,8 @@ export * from './StoryTranscript';
 export * from './StoryEnding';
 export * from './StickerStamp';
 export * from './WalkIntro';
+export * from './WalkHint';
+export * from './ChoicePhotos';
 export type { StoryMode } from './StoryToolbar/types';
 export * from './GameCanvas';
 export * from './StoryGame';

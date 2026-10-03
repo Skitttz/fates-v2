@@ -4,9 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockStoryModel } from '@/domain/test';
 import { SoundProvider } from '@/presentation/contexts/sound';
+import { WALK_INTRO_MS } from '@/presentation/hooks/story';
 import { SoundPlayer } from '@/presentation/protocols';
 import { WALK_SOUND_VOLUME } from '@/presentation/story/sounds';
-import { WALK_INTRO_MS } from './StoryGame/constants';
 import { StoryGame } from '.';
 
 const mockReducedMotion = (matches: boolean) =>

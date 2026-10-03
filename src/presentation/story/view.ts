@@ -2,9 +2,16 @@ import {
   StoryActorModel,
   StoryInteractionModel,
   StoryLineModel,
+  StoryModel,
   StorySceneModel,
 } from '@/domain/models';
-import { OllieResult, StoryPhase } from './engine/story-reducer';
+import {
+  getCurrentLine,
+  getCurrentScene,
+  OllieResult,
+  StoryPhase,
+  StoryState,
+} from './engine/story-reducer';
 import { SceneTransitionState, StoryEffect } from './engine/types';
 import { getSpeakerName } from './speakers';
 
@@ -24,6 +31,30 @@ type EffectParams = {
   ollie: OllieAnimation | null;
   ollieProgress: number;
 };
+
+export const storyMoment = (story: StoryModel, state: StoryState) => {
+  const scene = getCurrentScene(story, state);
+  const line = getCurrentLine(story, state);
+  const interaction = state.phase === 'interaction' ? scene.interaction : undefined;
+  const walk = interaction?.type === 'walk-to' ? interaction : undefined;
+  const choice = interaction?.type === 'choice' ? interaction : undefined;
+
+  return {
+    scene,
+    line,
+    walk,
+    choice,
+    walkActor: walk ? scene.actors.find(({ id }) => id === walk.actor) : undefined,
+    walkKey: walk ? String(state.sceneIndex) : null,
+    speaker: line?.speaker ?? null,
+    awaitsOllie: interaction?.type === 'ollie',
+    inDialogue: state.phase === 'dialogue',
+    inTransition: state.phase === 'transition',
+    ended: state.phase === 'ending',
+  };
+};
+
+export type StoryMoment = ReturnType<typeof storyMoment>;
 
 export const walkPose = (motion: WalkMotion, direction: number): string => {
   if (motion.airborne) return motion.rising ? 'ollie-pop' : 'ollie-ar';

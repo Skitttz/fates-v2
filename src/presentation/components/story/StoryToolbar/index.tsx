@@ -1,10 +1,17 @@
+import { memo } from 'react';
 import { SpeakerWaveIcon, SpeakerXMarkIcon } from '@heroicons/react/24/outline';
 import { buttonVariants } from '@/presentation/components/ui';
 import { TOOLBAR_LABELS } from './constants';
 import { storyToolbarStyles } from './styles';
 import { StoryToolbarProps } from './types';
 
-export function StoryToolbar({ mode, ended, sound, onSkip, onToggleMode }: StoryToolbarProps) {
+export const StoryToolbar = memo(function StoryToolbar({
+  mode,
+  ended,
+  sound,
+  onSkip,
+  onToggleMode,
+}: StoryToolbarProps) {
   const soundOn = Boolean(sound?.enabled);
   const styles = storyToolbarStyles({ soundOn });
   const SoundIcon = soundOn ? SpeakerWaveIcon : SpeakerXMarkIcon;
@@ -38,4 +45,4 @@ export function StoryToolbar({ mode, ended, sound, onSkip, onToggleMode }: Story
       )}
     </div>
   );
-}
+});
