@@ -3,3 +3,4 @@ export * from './cart-item-model';
 export * from './account-model';
 export * from './authentication-params';
 export * from './order-model';
+export * from './story-model';
