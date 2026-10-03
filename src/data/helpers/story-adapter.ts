@@ -1,11 +1,13 @@
 import { UnexpectedError } from '@/domain/errors';
 import {
+  StoryActorEntrance,
   StoryActorModel,
   StoryChoiceOptionModel,
   StoryCondition,
   StoryInteractionModel,
   StoryLineModel,
   StoryModel,
+  StoryObstacleModel,
   StoryOllieResult,
   StorySceneModel,
   StoryTransition,
@@ -15,6 +17,7 @@ import {
 const WORLDS: readonly StoryWorld[] = ['real', 'dream'];
 const TRANSITIONS: readonly StoryTransition[] = ['cut', 'fade-to-dream', 'flash-to-real'];
 const OLLIE_RESULTS: readonly StoryOllieResult[] = ['landed', 'missed'];
+const ENTRANCES: readonly StoryActorEntrance[] = ['materialize'];
 
 const invalid = (): never => {
   throw new UnexpectedError();
@@ -43,7 +46,13 @@ const adaptActor = (value: unknown): StoryActorModel => {
     x: asNumber(actor.x),
     y: asNumber(actor.y),
     pose: asText(actor.pose),
+    ...(actor.entrance !== undefined ? { entrance: asOneOf(actor.entrance, ENTRANCES) } : {}),
   };
+};
+
+const adaptObstacle = (value: unknown): StoryObstacleModel => {
+  const obstacle = asRecord(value);
+  return { id: asText(obstacle.id), x: asNumber(obstacle.x) };
 };
 
 const adaptCondition = (value: unknown): StoryCondition => ({
@@ -80,6 +89,9 @@ const adaptInteraction = (value: unknown): StoryInteractionModel => {
         type: 'walk-to',
         actor: asText(interaction.actor),
         targetX: asNumber(interaction.targetX),
+        ...(interaction.obstacles !== undefined
+          ? { obstacles: asList(interaction.obstacles).map(adaptObstacle) }
+          : {}),
       };
     case 'choice': {
       const options = asList(interaction.options).map(adaptOption);

@@ -3,3 +3,4 @@ export * from './safe-redirect';
 export * from './product-image';
 export * from './build-products-href';
 export * from './view-transition';
+export * from './prevent-default';

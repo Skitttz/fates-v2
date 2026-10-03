@@ -182,3 +182,11 @@ describe('choiceOutcome', () => {
     expect(choiceOutcome(story, { choice: 'lua' })).toBeNull();
   });
 });
+
+describe('skip with a pending choice', () => {
+  it('keeps the pending choice when skipping', () => {
+    const ended = reducer(createInitialState(story), { type: 'SKIP', choice: 'poste' });
+
+    expect(ended).toMatchObject({ phase: 'ending', choice: 'poste' });
+  });
+});

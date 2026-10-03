@@ -90,6 +90,7 @@
     {
       "files": ["src/presentation/**"],
       "rules": {
+        "no-nested-ternary": "error",
         "no-restricted-imports": [
           "error",
           {
@@ -101,6 +102,16 @@
             ]
           }
         ]
+      }
+    },
+    {
+      "files": [
+        "src/presentation/story/**",
+        "src/presentation/hooks/**",
+        "src/presentation/components/story/**"
+      ],
+      "rules": {
+        "max-depth": ["error", 3]
       }
     }
   ]

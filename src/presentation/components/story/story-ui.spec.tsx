@@ -125,7 +125,7 @@ describe('OllieMeter', () => {
 describe('TouchControls', () => {
   it('reports the direction while pressed', () => {
     const onDirectionChange = vi.fn();
-    render(<TouchControls visible onDirectionChange={onDirectionChange} />);
+    render(<TouchControls visible onDirectionChange={onDirectionChange} onJump={vi.fn()} />);
     const right = screen.getByRole('button', { name: 'Mover para a direita' });
 
     fireEvent.pointerDown(right);
@@ -135,7 +135,9 @@ describe('TouchControls', () => {
   });
 
   it('renders nothing when hidden', () => {
-    const { container } = render(<TouchControls visible={false} onDirectionChange={vi.fn()} />);
+    const { container } = render(
+      <TouchControls visible={false} onDirectionChange={vi.fn()} onJump={vi.fn()} />,
+    );
 
     expect(container).toBeEmptyDOMElement();
   });

@@ -168,6 +168,28 @@ describe('WebAudioSoundPlayer', () => {
     expect(sourceOf('music-dream')[0].start).toHaveBeenCalled();
   });
 
+  it('fades the old music out and starts the new one later and slower when asked', async () => {
+    const sut = makeSut();
+    sut.setEnabled(true);
+    sut.playMusic('music-dream');
+    await flush();
+    const dreamGain = context.gains.at(-1)!;
+
+    sut.playMusic('music-real', { fadeOutSeconds: 2, delaySeconds: 1.5, fadeInSeconds: 2.5 });
+    await flush();
+
+    expect(dreamGain.gain.linearRampToValueAtTime).toHaveBeenLastCalledWith(
+      0,
+      context.currentTime + 2,
+    );
+    const [real] = sourceOf('music-real');
+    expect(real.start).toHaveBeenCalledWith(context.currentTime + 1.5);
+    expect(context.gains.at(-1)!.gain.linearRampToValueAtTime).toHaveBeenLastCalledWith(
+      MUSIC_VOLUME,
+      context.currentTime + 1.5 + 2.5,
+    );
+  });
+
   it('does not start a music that was replaced while it was loading', async () => {
     const sut = makeSut();
     sut.setEnabled(true);

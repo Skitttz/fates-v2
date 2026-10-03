@@ -1,5 +1,5 @@
-import { StoryActorModel } from '@/domain/models';
-import { GLOW_ACTOR, OLLIE_ACTOR, OLLIE_LIFT } from './constants';
+import { StoryActorModel, StorySceneModel } from '@/domain/models';
+import { GLOW_ACTOR, GROUND_Y, OLLIE_ACTOR, OLLIE_LIFT } from './constants';
 import { StoryEffect } from './types';
 
 export const OLLIE_TIMELINE = {
@@ -7,7 +7,8 @@ export const OLLIE_TIMELINE = {
   pop: 0.3,
   air: 0.7,
   glow: 0.85,
-  landedFall: 0.95,
+  landedSlip: 0.82,
+  landedFall: 0.93,
   missedSlip: 0.45,
   shakeEnd: 0.64,
 };
@@ -22,6 +23,9 @@ export const STICKER_RISE = 12;
 export const STICKER_RISE_MS = 600;
 export const SPIN_PERIOD_MS = 900;
 export const PLACING_TIMELINE = { stampEnd: 0.25, holdEnd: 0.5 };
+
+export const ENTRANCE_MS = 1200;
+export const GLOW_PERIOD_MS = { normal: 300, emphasized: 180 };
 
 const NO_OFFSET = { x: 0, y: 0 };
 
@@ -50,7 +54,10 @@ export function ollieActor(actor: StoryActorModel, effect?: StoryEffect | null):
     return { ...actor, pose: 'sentado' };
   }
   if (effect.result === 'landed' && progress >= OLLIE_TIMELINE.landedFall) {
-    return { ...actor, pose: 'deitado' };
+    return { ...actor, pose: 'deitado-costas' };
+  }
+  if (effect.result === 'landed' && progress >= OLLIE_TIMELINE.landedSlip) {
+    return { ...actor, pose: 'sentado' };
   }
   return { ...actor, pose: olliePose(progress), y: actor.y - ollieLift(progress) };
 }
@@ -60,12 +67,13 @@ export function ollieBoard(
   effect?: StoryEffect | null,
 ): StoryActorModel | null {
   const progress = ollieProgress(actor, effect);
-  if (progress === null || effect?.type !== 'ollie' || effect.result !== 'missed') return null;
-  if (progress < OLLIE_TIMELINE.missedSlip) return null;
+  if (progress === null || effect?.type !== 'ollie') return null;
+  const slip = effect.result === 'missed' ? OLLIE_TIMELINE.missedSlip : OLLIE_TIMELINE.landedSlip;
+  if (progress < slip) return null;
   return {
     id: BOARD_ACTOR,
     pose: 'rolando',
-    x: actor.x + (progress - OLLIE_TIMELINE.missedSlip) * BOARD_ROLL_DISTANCE,
+    x: actor.x + (progress - slip) * BOARD_ROLL_DISTANCE,
     y: actor.y,
   };
 }
@@ -147,3 +155,25 @@ const blockNoise = (column: number, row: number) =>
 
 export const isBlockDissolved = (column: number, row: number, progress: number): boolean =>
   progress > 0 && blockNoise(column, row) < progress;
+
+export const entranceProgress = (
+  actor: StoryActorModel,
+  sceneTimeMs: number,
+  animated: boolean,
+): number => (actor.entrance && animated ? clamp01(sceneTimeMs / ENTRANCE_MS) : 1);
+
+export const glowPulse = (timeMs: number, animated: boolean, emphasized: boolean): number => {
+  if (!animated) return 1;
+  const period = emphasized ? GLOW_PERIOD_MS.emphasized : GLOW_PERIOD_MS.normal;
+  return (Math.sin(timeMs / period) + 1) / 2;
+};
+
+export const obstacleActors = (scene: StorySceneModel): StoryActorModel[] =>
+  scene.interaction?.type === 'walk-to'
+    ? (scene.interaction.obstacles ?? []).map(({ id, x }) => ({
+        id,
+        x,
+        y: GROUND_Y,
+        pose: 'padrao',
+      }))
+    : [];

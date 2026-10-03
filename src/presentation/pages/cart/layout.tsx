@@ -18,6 +18,8 @@ export default function CartLayout({
   onCheckout,
 }: CartLayoutProps) {
   const isProcessing = status.type === 'processing';
+  const idleLabel = isAuthenticated ? CART_PAGE.checkout : CART_PAGE.loginToCheckout;
+  const checkoutLabel = isProcessing ? CART_PAGE.processing : idleLabel;
 
   const renderContent = () => {
     if (status.type === 'done') return <OrderConfirmation order={status.order} />;
@@ -62,11 +64,7 @@ export default function CartLayout({
         <div>
           <CartSummary subtotal={subtotal} totalItems={totalItems}>
             <Button size="lg" onClick={onCheckout} disabled={isProcessing} className="w-full">
-              {isProcessing
-                ? CART_PAGE.processing
-                : isAuthenticated
-                  ? CART_PAGE.checkout
-                  : CART_PAGE.loginToCheckout}
+              {checkoutLabel}
             </Button>
             {status.type === 'error' && (
               <p role="alert" className="text-sm text-street-orange">

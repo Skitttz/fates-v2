@@ -1,5 +1,5 @@
 import '@/presentation/test/mock-next-navigation';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockStoryModel } from '@/domain/test';
@@ -53,6 +53,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
@@ -116,7 +117,7 @@ describe('StoryGame v2', () => {
     expect(stamp.closest('[aria-hidden="true"]')).not.toBeNull();
   });
 
-  it('skips to the ending during the placing without choosing twice', async () => {
+  it('keeps the chosen place when skipping during the placing', async () => {
     mockReducedMotion(false);
     useAnimationClock();
     render(<StoryGame story={choiceOnly()} />);
@@ -128,7 +129,7 @@ describe('StoryGame v2', () => {
     await act(() => vi.advanceTimersByTimeAsync(PLACING_MS + 100));
 
     expect(screen.getByRole('region', { name: 'Final da história' })).toBeInTheDocument();
-    expect(screen.queryByText('Any caixote outcome')).not.toBeInTheDocument();
+    expect(screen.getByText('Any caixote outcome')).toBeInTheDocument();
   });
 });
 
@@ -165,7 +166,7 @@ describe('StoryGame sound', () => {
 
   it('plays the music of the current world and the ollie without rolling while paulo stands', async () => {
     const player = renderWithSound();
-    expect(player.playMusic).toHaveBeenLastCalledWith('music-real');
+    expect(player.playMusic).toHaveBeenLastCalledWith('music-real', undefined);
 
     await toChoice();
     await toChoice();

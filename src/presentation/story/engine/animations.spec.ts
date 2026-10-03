@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { StoryActorModel } from '@/domain/models';
+import { StoryActorModel, StorySceneModel } from '@/domain/models';
 import {
   bobOffset,
+  ENTRANCE_MS,
+  entranceProgress,
+  glowPulse,
+  obstacleActors,
   dissolveProgress,
   isBlockDissolved,
   landingGlow,
@@ -30,7 +34,8 @@ describe('ollie timeline', () => {
     [0.2, 'landed', 'ollie-pop'],
     [0.5, 'landed', 'ollie-ar'],
     [0.8, 'landed', 'agachado'],
-    [0.97, 'landed', 'deitado'],
+    [0.85, 'landed', 'sentado'],
+    [0.97, 'landed', 'deitado-costas'],
     [0.2, 'missed', 'ollie-pop'],
     [0.4, 'missed', 'ollie-ar'],
     [0.5, 'missed', 'sentado'],
@@ -50,7 +55,7 @@ describe('ollie timeline', () => {
     expect(ollieActor(paulo, { type: 'placing', progress: 0.5 })).toBe(paulo);
   });
 
-  it('rolls the board away only after a missed ollie', () => {
+  it('rolls the board away once paulo slips', () => {
     expect(ollieBoard(paulo, ollie(0.4, 'missed'))).toBeNull();
     expect(ollieBoard(paulo, ollie(0.6, 'missed'))).toMatchObject({
       id: 'prancha',
@@ -60,7 +65,8 @@ describe('ollie timeline', () => {
     expect(ollieBoard(paulo, ollie(0.9, 'missed'))!.x).toBeGreaterThan(
       ollieBoard(paulo, ollie(0.6, 'missed'))!.x,
     );
-    expect(ollieBoard(paulo, ollie(0.9, 'landed'))).toBeNull();
+    expect(ollieBoard(paulo, ollie(0.8, 'landed'))).toBeNull();
+    expect(ollieBoard(paulo, ollie(0.9, 'landed'))).toMatchObject({ id: 'prancha', y: 112 });
   });
 
   it('shows the glow ahead of paulo after a landed ollie', () => {
@@ -140,5 +146,55 @@ describe('placing', () => {
     const half = blocks.filter(([column, row]) => isBlockDissolved(column, row, 0.5)).length;
     expect(half).toBeGreaterThan(blocks.length * 0.3);
     expect(half).toBeLessThan(blocks.length * 0.7);
+  });
+});
+
+describe('entrance and obstacles', () => {
+  const urso: StoryActorModel = {
+    id: 'urso',
+    x: 176,
+    y: 100,
+    pose: 'parado',
+    entrance: 'materialize',
+  };
+
+  it('materializes an actor over the entrance time only with motion', () => {
+    expect(entranceProgress(urso, 0, true)).toBe(0);
+    expect(entranceProgress(urso, ENTRANCE_MS / 2, true)).toBeCloseTo(0.5);
+    expect(entranceProgress(urso, ENTRANCE_MS * 2, true)).toBe(1);
+    expect(entranceProgress(urso, 0, false)).toBe(1);
+    expect(entranceProgress({ ...urso, entrance: undefined }, 0, true)).toBe(1);
+  });
+
+  it('turns walk obstacles into actors on the ground', () => {
+    const walkScene: StorySceneModel = {
+      id: 's',
+      world: 'dream',
+      backdrop: 'sonho',
+      actors: [],
+      lines: [],
+      interaction: {
+        type: 'walk-to',
+        actor: 'paulo',
+        targetX: 132,
+        obstacles: [{ id: 'cone', x: 84 }],
+      },
+    };
+
+    expect(obstacleActors(walkScene)).toEqual([{ id: 'cone', x: 84, y: 112, pose: 'padrao' }]);
+    expect(obstacleActors({ ...walkScene, interaction: undefined })).toEqual([]);
+  });
+});
+
+describe('glowPulse', () => {
+  it('stays full without motion', () => {
+    expect(glowPulse(0, false, false)).toBe(1);
+    expect(glowPulse(1234, false, true)).toBe(1);
+  });
+
+  it('pulses faster when emphasized', () => {
+    expect(glowPulse(0, true, false)).toBeCloseTo(0.5);
+    expect(glowPulse(300 * (Math.PI / 2), true, false)).toBeCloseTo(1);
+    expect(glowPulse(180 * (Math.PI / 2), true, true)).toBeCloseTo(1);
   });
 });

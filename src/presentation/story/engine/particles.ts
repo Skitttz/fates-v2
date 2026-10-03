@@ -1,4 +1,10 @@
-import { OLLIE_TIMELINE, PLACING_TIMELINE, SPINNING_POSE, STICKER_RISE } from './animations';
+import {
+  entranceProgress,
+  OLLIE_TIMELINE,
+  PLACING_TIMELINE,
+  SPINNING_POSE,
+  STICKER_RISE,
+} from './animations';
 import { CANVAS_WIDTH, GLOW_ACTOR, GROUND_Y, OLLIE_ACTOR, STAMP_CENTER } from './constants';
 import { Particle, RenderInput, StoryEffect } from './types';
 
@@ -9,6 +15,7 @@ export const PARTICLE_COLORS = { mote: '#c4b5fd', dust: '#a1a1aa', spark: '#c4f8
 const MOTE_EVERY_MS = 350;
 const DUST_EVERY_MS = 60;
 const SPARK_EVERY_MS = 140;
+const ENTRANCE_SPARK_EVERY_MS = 70;
 const LANDING_DUST = 6;
 const STAMP_SPARKS = 16;
 
@@ -80,6 +87,20 @@ export function emitParticles(
       ...burst(STAMP_CENTER.x, STAMP_CENTER.y, STAMP_SPARKS, PARTICLE_COLORS.spark, random),
     );
   }
+
+  input.scene.actors.forEach((actor) => {
+    const appear = entranceProgress(actor, input.sceneTimeMs, input.animated);
+    if (appear <= 0 || appear >= 1 || random() >= dtMs / ENTRANCE_SPARK_EVERY_MS) return;
+    spawned.push(
+      ...burst(
+        actor.x + (random() - 0.5) * 16,
+        actor.y - random() * 16,
+        1,
+        PARTICLE_COLORS.mote,
+        random,
+      ),
+    );
+  });
 
   return spawned;
 }

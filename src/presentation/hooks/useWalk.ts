@@ -1,8 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  CONE_BOX,
+  createWalkState,
+  stepWalk,
+  WalkState,
+} from '@/presentation/story/engine/walk-physics';
 
-export const WALK_SPEED = 60;
 export const WALK_MAX_STEP_MS = 50;
 export const WALK_ARRIVAL_DISTANCE = 4;
 export const WALK_BOUNDS = { min: 8, max: 232 };
@@ -14,42 +19,91 @@ type UseWalkParams = {
   startX: number;
   targetX: number;
   direction: WalkDirection;
+  obstacles?: readonly { x: number }[];
   onArrive: () => void;
+  onJump?: () => void;
+  onLand?: () => void;
 };
 
-export function useWalk({ active, startX, targetX, direction, onArrive }: UseWalkParams): number {
-  const [x, setX] = useState(startX);
+export type WalkView = {
+  x: number;
+  y: number;
+  airborne: boolean;
+  rising: boolean;
+  jump: () => void;
+};
+
+const view = (state: WalkState) => ({
+  x: state.x,
+  y: state.y,
+  airborne: state.airborne,
+  rising: state.vy > 0,
+});
+
+export function useWalk({
+  active,
+  startX,
+  targetX,
+  direction,
+  obstacles = [],
+  onArrive,
+  onJump,
+  onLand,
+}: UseWalkParams): WalkView {
+  const obstaclesKey = obstacles.map(({ x }) => x).join(',');
+  const runKey = [active, startX, targetX, obstaclesKey].join(':');
+  const [run, setRun] = useState(() => ({ key: runKey, view: view(createWalkState(startX)) }));
   const directionRef = useRef(direction);
-  const onArriveRef = useRef(onArrive);
+  const jumpRef = useRef(false);
+  const callbacksRef = useRef({ onArrive, onJump, onLand });
+
+  if (run.key !== runKey) setRun({ key: runKey, view: view(createWalkState(startX)) });
 
   useEffect(() => {
     directionRef.current = direction;
   }, [direction]);
 
   useEffect(() => {
-    onArriveRef.current = onArrive;
-  }, [onArrive]);
+    callbacksRef.current = { onArrive, onJump, onLand };
+  }, [onArrive, onJump, onLand]);
+
+  const jump = useCallback(() => {
+    jumpRef.current = true;
+  }, []);
 
   useEffect(() => {
-    setX(startX);
+    let state = createWalkState(startX);
+    jumpRef.current = false;
     if (!active) return;
 
-    let frame = 0;
-    let last = performance.now();
-    let current = startX;
+    const world = {
+      ...WALK_BOUNDS,
+      obstacles: obstaclesKey
+        ? obstaclesKey.split(',').map((x) => ({ x: Number(x), ...CONE_BOX }))
+        : [],
+    };
     const target = Math.min(WALK_BOUNDS.max, Math.max(WALK_BOUNDS.min, targetX));
+    let frame = 0;
+    let last: number | null = null;
 
     const step = (now: number) => {
-      const delta = Math.min(Math.max(now - last, 0), WALK_MAX_STEP_MS);
+      const delta = last === null ? 0 : Math.min(Math.max(now - last, 0), WALK_MAX_STEP_MS);
       last = now;
-      current = Math.min(
-        WALK_BOUNDS.max,
-        Math.max(WALK_BOUNDS.min, current + directionRef.current * WALK_SPEED * (delta / 1000)),
+      const wantsJump = jumpRef.current;
+      jumpRef.current = false;
+      const next = stepWalk(
+        state,
+        { direction: directionRef.current, jump: wantsJump },
+        delta,
+        world,
       );
-      setX(current);
+      if (!state.airborne && next.airborne) callbacksRef.current.onJump?.();
+      if (state.airborne && !next.airborne) callbacksRef.current.onLand?.();
+      state = next;
+      setRun({ key: runKey, view: view(state) });
 
-      if (Math.abs(current - target) <= WALK_ARRIVAL_DISTANCE) {
-        onArriveRef.current();
+      if (Math.abs(state.x - target) <= WALK_ARRIVAL_DISTANCE) {
+        callbacksRef.current.onArrive();
         return;
       }
       frame = requestAnimationFrame(step);
@@ -57,7 +111,7 @@ export function useWalk({ active, startX, targetX, direction, onArrive }: UseWal
 
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
-  }, [active, startX, targetX]);
+  }, [active, startX, targetX, obstaclesKey, runKey]);
 
-  return x;
+  return { ...run.view, jump };
 }

@@ -1,5 +1,5 @@
 import { StoryActorModel } from '@/domain/models';
-import { getSpriteFrame, SpriteCache, spriteKey } from '../sprites/sprite-cache';
+import { SpriteCache, spriteKey } from '../sprites/sprite-cache';
 import {
   bobOffset,
   dissolveProgress,
@@ -7,24 +7,21 @@ import {
   landingGlow,
   lookPose,
   ollieActor,
+  obstacleActors,
   ollieBoard,
   PLACING_TIMELINE,
   shakeOffset,
-  SPINNING_POSE,
-  stickerMotion,
 } from './animations';
 import { drawBackdrop } from './backdrops';
 import {
   CANVAS_HEIGHT,
   CANVAS_WIDTH,
-  DESATURATED_IN_DREAM,
   FADE_COLOR,
   FLASH_COLOR,
-  GLOW_ACTOR,
-  GLOW_COLOR,
   OLLIE_ACTOR,
   TRANSITION_BLOCK,
 } from './constants';
+import { paintersFor } from './painters';
 import { drawParticles } from './particles';
 import { PlacingEffect, RenderInput, SceneTransitionState } from './types';
 
@@ -32,7 +29,7 @@ const isActor = (actor: StoryActorModel | null): actor is StoryActorModel => act
 
 const resolveActors = (input: RenderInput, sprites: SpriteCache): StoryActorModel[] => {
   const { scene, actorOverrides = {}, effect, speaker = null, sceneTimeMs, animated } = input;
-  const actors = scene.actors.map((base) =>
+  const actors = [...scene.actors, ...obstacleActors(scene)].map((base) =>
     ollieActor({ ...base, ...actorOverrides[base.id] }, effect),
   );
   const extras = actors
@@ -44,58 +41,6 @@ const resolveActors = (input: RenderInput, sprites: SpriteCache): StoryActorMode
     pose: lookPose(actor, actors, (pose) => sprites.has(spriteKey(actor.id, pose))),
     y: actor.y - bobOffset(actor.id, speaker, sceneTimeMs, animated),
   }));
-};
-
-const drawGlow = (
-  context: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  timeMs: number,
-  animated: boolean,
-) => {
-  const pulse = animated ? (Math.sin(timeMs / 300) + 1) / 2 : 1;
-  context.globalAlpha = 0.25 + pulse * 0.35;
-  context.fillStyle = GLOW_COLOR;
-  context.beginPath();
-  context.arc(x, y - 3, 10 + pulse * 4, 0, Math.PI * 2);
-  context.fill();
-  context.globalAlpha = 1;
-};
-
-const drawActor = (
-  context: CanvasRenderingContext2D,
-  actor: StoryActorModel,
-  input: RenderInput,
-  sprites: SpriteCache,
-) => {
-  const motion =
-    actor.pose === SPINNING_POSE ? stickerMotion(input.sceneTimeMs, input.animated) : null;
-  const lift = motion?.lift ?? 0;
-  if (actor.id === GLOW_ACTOR) {
-    drawGlow(context, actor.x, actor.y - lift, input.timeMs, input.animated);
-  }
-
-  const frame = getSpriteFrame(sprites, actor.id, actor.pose, input.sceneTimeMs);
-  if (!frame) return;
-
-  const desaturate = input.scene.world === 'dream' && DESATURATED_IN_DREAM.includes(actor.id);
-  if (desaturate) context.filter = 'grayscale(1)';
-
-  if (motion) {
-    context.save();
-    context.translate(Math.round(actor.x), Math.round(actor.y - lift - frame.height / 2));
-    context.scale(motion.scaleX, 1);
-    context.drawImage(frame, -frame.width / 2, -frame.height / 2);
-    context.restore();
-  } else {
-    context.drawImage(
-      frame,
-      Math.round(actor.x - frame.width / 2),
-      Math.round(actor.y - frame.height),
-    );
-  }
-
-  if (desaturate) context.filter = 'none';
 };
 
 const drawTransition = (context: CanvasRenderingContext2D, transition: SceneTransitionState) => {
@@ -162,7 +107,10 @@ export function renderScene(
   context.translate(shake.x, shake.y);
   const focusX = actors.find(({ id }) => id === OLLIE_ACTOR)?.x ?? CANVAS_WIDTH / 2;
   drawBackdrop(context, scene.backdrop, timeMs, animated, focusX);
-  actors.forEach((actor) => drawActor(context, actor, input, sprites));
+  const brush = { context, input, sprites };
+  actors.forEach((actor) =>
+    paintersFor(actor, input).forEach((painter) => painter.paint(brush, actor)),
+  );
   drawParticles(context, particles);
   if (effect?.type === 'placing') drawStampFlash(context, effect);
   context.restore();
