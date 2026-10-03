@@ -56,6 +56,55 @@ describe('ChoiceMenu', () => {
     expect(screen.getByRole('group', { name: 'Onde colar?' })).toBeInTheDocument();
     expect(onChoose).toHaveBeenCalledWith('poste');
   });
+
+  const OPTIONS = [
+    { id: 'caixote', label: 'No caixote' },
+    { id: 'poste', label: 'No poste' },
+    { id: 'moletom', label: 'No moletom' },
+  ];
+
+  it('moves the focus with the arrows, wraps around and supports Home and End', async () => {
+    const onMove = vi.fn();
+    render(<ChoiceMenu prompt="Onde?" options={OPTIONS} onChoose={vi.fn()} onMove={onMove} />);
+    const button = (name: string) => screen.getByRole('button', { name });
+
+    expect(button('No caixote')).toHaveFocus();
+    await userEvent.keyboard('{ArrowRight}');
+    expect(button('No poste')).toHaveFocus();
+    await userEvent.keyboard('{ArrowDown}');
+    expect(button('No moletom')).toHaveFocus();
+    await userEvent.keyboard('{ArrowRight}');
+    expect(button('No caixote')).toHaveFocus();
+    await userEvent.keyboard('{ArrowLeft}');
+    expect(button('No moletom')).toHaveFocus();
+    await userEvent.keyboard('{ArrowUp}');
+    expect(button('No poste')).toHaveFocus();
+    await userEvent.keyboard('{Home}');
+    expect(button('No caixote')).toHaveFocus();
+    await userEvent.keyboard('{End}');
+    expect(button('No moletom')).toHaveFocus();
+    expect(onMove).toHaveBeenCalledTimes(7);
+  });
+
+  it('confirms the focused option with Enter and keeps a single tab stop', async () => {
+    const onChoose = vi.fn();
+    render(<ChoiceMenu prompt="Onde?" options={OPTIONS} onChoose={onChoose} />);
+
+    await userEvent.keyboard('{ArrowRight}{Enter}');
+
+    expect(onChoose).toHaveBeenCalledWith('poste');
+    expect(screen.getByRole('button', { name: 'No poste' })).toHaveAttribute('tabindex', '0');
+    expect(screen.getByRole('button', { name: 'No caixote' })).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('does not report a move when Home is pressed on the first option', async () => {
+    const onMove = vi.fn();
+    render(<ChoiceMenu prompt="Onde?" options={OPTIONS} onChoose={vi.fn()} onMove={onMove} />);
+
+    await userEvent.keyboard('{Home}');
+
+    expect(onMove).not.toHaveBeenCalled();
+  });
 });
 
 describe('OllieMeter', () => {

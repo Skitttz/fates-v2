@@ -7,4 +7,5 @@ export interface ChoiceMenuProps {
   prompt: string;
   options: ChoiceMenuOption[];
   onChoose: (id: string) => void;
+  onMove?: () => void;
 }
