@@ -75,7 +75,7 @@ export function StoryGame({ story }: StoryGameProps) {
     dispatch({ type: 'COMPLETE_INTERACTION' });
   }, [player]);
 
-  const walkX = useWalk({
+  const walking = useWalk({
     active: Boolean(walk && walkActor),
     startX: walkActor?.x ?? 0,
     targetX: walk?.targetX ?? 0,
@@ -296,7 +296,10 @@ export function StoryGame({ story }: StoryGameProps) {
               actorOverrides={
                 walk
                   ? {
-                      [walk.actor]: { x: walkX, pose: direction === 0 ? 'skate' : 'skate-andando' },
+                      [walk.actor]: {
+                        x: walking.x,
+                        pose: direction === 0 ? 'skate' : 'skate-andando',
+                      },
                     }
                   : undefined
               }
