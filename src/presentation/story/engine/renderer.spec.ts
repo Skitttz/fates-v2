@@ -193,6 +193,35 @@ describe('renderScene', () => {
     expect(end.fills.filter(isBlock)).toHaveLength(0);
   });
 
+  it('moves the dream city layers with paulo only when motion is allowed', () => {
+    const nearCity = (fills: { style: string; args: number[] }[]) =>
+      fills.find(({ style }) => style === '#ddd6e8')?.args[0];
+    const dream = (x: number, animated: boolean) =>
+      render({
+        scene: scene({
+          world: 'dream',
+          backdrop: 'sonho',
+          actors: [{ id: 'paulo', x, y: 112, pose: 'skate' }],
+        }),
+        timeMs: 0,
+        animated,
+      }).fills;
+
+    expect(nearCity(dream(40, true))).not.toBe(nearCity(dream(200, true)));
+    expect(nearCity(dream(40, false))).toBe(nearCity(dream(200, false)));
+  });
+
+  it('draws the particles it receives', () => {
+    const { fills } = render({
+      scene: scene(),
+      timeMs: 0,
+      animated: true,
+      particles: [{ x: 5, y: 6, vx: 0, vy: 0, life: 1, maxLife: 1, color: '#abcdef' }],
+    });
+
+    expect(fills).toContainEqual({ style: '#abcdef', args: [5, 6, 1, 1] });
+  });
+
   it('desaturates paulo in the dream and resets the filter', () => {
     const { context } = render({
       scene: scene({ world: 'dream', backdrop: 'sonho' }),

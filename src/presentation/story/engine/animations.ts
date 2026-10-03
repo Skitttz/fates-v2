@@ -21,6 +21,7 @@ export const SPINNING_POSE = 'girando';
 export const STICKER_RISE = 12;
 export const STICKER_RISE_MS = 600;
 export const SPIN_PERIOD_MS = 900;
+export const PLACING_TIMELINE = { stampEnd: 0.25, holdEnd: 0.5 };
 
 const NO_OFFSET = { x: 0, y: 0 };
 

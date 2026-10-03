@@ -4,7 +4,9 @@ import { useEffect, useRef, useState } from 'react';
 import { computeCanvasScale } from '@/presentation/story/engine/canvas-scale';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '@/presentation/story/engine/constants';
 import { createFrameClock } from '@/presentation/story/engine/frame-clock';
+import { emitParticles, updateParticles } from '@/presentation/story/engine/particles';
 import { renderScene } from '@/presentation/story/engine/renderer';
+import { Particle, RenderInput } from '@/presentation/story/engine/types';
 import { SPRITE_SHEETS } from '@/presentation/story/sprites';
 import { createBrowserCanvas, createSpriteCache } from '@/presentation/story/sprites/sprite-cache';
 import { GameCanvasProps } from './types';
@@ -39,14 +41,24 @@ export function GameCanvas(props: GameCanvasProps) {
 
     const sprites = createSpriteCache(SPRITE_SHEETS, createBrowserCanvas);
     const clock = createFrameClock();
+    let particles: Particle[] = [];
+    let previous: RenderInput | null = null;
     let frame = 0;
     let onScreen = true;
     let pageVisible = !document.hidden;
 
     const draw = (now: number) => {
       const current = propsRef.current;
-      const { sceneTimeMs } = clock.tick(now, current.scene.id);
-      renderScene(context, { ...current, timeMs: now, sceneTimeMs }, sprites);
+      const { sceneTimeMs, dtMs } = clock.tick(now, current.scene.id);
+      const input: RenderInput = { ...current, timeMs: now, sceneTimeMs };
+      particles = current.animated
+        ? updateParticles(
+            [...particles, ...emitParticles(input, previous, dtMs, Math.random)],
+            dtMs,
+          )
+        : [];
+      renderScene(context, { ...input, particles }, sprites);
+      previous = input;
       frame = requestAnimationFrame(draw);
     };
 

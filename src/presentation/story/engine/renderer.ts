@@ -19,8 +19,10 @@ import {
   FLASH_COLOR,
   GLOW_ACTOR,
   GLOW_COLOR,
+  OLLIE_ACTOR,
   TRANSITION_BLOCK,
 } from './constants';
+import { drawParticles } from './particles';
 import { RenderInput, SceneTransitionState } from './types';
 
 const isActor = (actor: StoryActorModel | null): actor is StoryActorModel => actor !== null;
@@ -126,7 +128,7 @@ export function renderScene(
   input: RenderInput,
   sprites: SpriteCache,
 ): void {
-  const { scene, timeMs, animated, effect, transition } = input;
+  const { scene, timeMs, animated, effect, transition, particles = [] } = input;
   const actors = resolveActors(input, sprites);
   const shake = shakeOffset(effect, animated, timeMs);
 
@@ -134,8 +136,10 @@ export function renderScene(
   context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   context.save();
   context.translate(shake.x, shake.y);
-  drawBackdrop(context, scene.backdrop, timeMs, animated);
+  const focusX = actors.find(({ id }) => id === OLLIE_ACTOR)?.x ?? CANVAS_WIDTH / 2;
+  drawBackdrop(context, scene.backdrop, timeMs, animated, focusX);
   actors.forEach((actor) => drawActor(context, actor, input, sprites));
+  drawParticles(context, particles);
   context.restore();
 
   if (transition) drawTransition(context, transition);
