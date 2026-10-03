@@ -46,3 +46,35 @@ describe('adaptStory walk validation', () => {
     expect(() => adaptStory(raw)).toThrow(UnexpectedError);
   });
 });
+
+describe('adaptStory conditions and outcomes', () => {
+  it('keeps line conditions and choice outcomes', () => {
+    const story = mockStoryModel();
+    const raw = JSON.parse(JSON.stringify(story));
+    raw.scenes[0].lines[0].when = { ollie: 'landed' };
+
+    const adapted = adaptStory(raw);
+
+    expect(adapted.scenes[0].lines[0].when).toEqual({ ollie: 'landed' });
+    expect(adapted.scenes[0].lines[1]).not.toHaveProperty('when');
+    const choice = adapted.scenes[2].interaction;
+    expect(choice?.type === 'choice' && choice.options[0].outcome).toBe('Any caixote outcome');
+  });
+
+  it.each([
+    ['an unknown ollie condition', { ollie: 'flip' }],
+    ['a condition that is not an object', 'landed'],
+  ])('rejects %s', (_, when) => {
+    const raw = JSON.parse(JSON.stringify(mockStoryModel()));
+    raw.scenes[0].lines[0].when = when;
+
+    expect(() => adaptStory(raw)).toThrow(UnexpectedError);
+  });
+
+  it('rejects a choice option without outcome', () => {
+    const raw = JSON.parse(JSON.stringify(mockStoryModel()));
+    delete raw.scenes[2].interaction.options[0].outcome;
+
+    expect(() => adaptStory(raw)).toThrow(UnexpectedError);
+  });
+});

@@ -9,15 +9,21 @@ export type StoryActorModel = {
   pose: string;
 };
 
+export type StoryOllieResult = 'landed' | 'missed';
+
+export type StoryCondition = { ollie: StoryOllieResult };
+
 export type StoryLineModel = {
   speaker: string | null;
   text: string;
+  when?: StoryCondition;
 };
 
 export type StoryChoiceOptionModel = {
   id: string;
   label: string;
   photo: string;
+  outcome: string;
 };
 
 export type StoryInteractionModel =
