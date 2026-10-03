@@ -40,6 +40,7 @@ import { DialogueBox } from '../DialogueBox';
 import { DIALOGUE_LABELS } from '../DialogueBox/constants';
 import { GameCanvas } from '../GameCanvas';
 import { OllieMeter } from '../OllieMeter';
+import { StickerStamp } from '../StickerStamp';
 import { StoryEnding } from '../StoryEnding';
 import { StoryToolbar } from '../StoryToolbar';
 import { StoryMode } from '../StoryToolbar/types';
@@ -306,6 +307,7 @@ export function StoryGame({ story }: StoryGameProps) {
                     ? { type: 'ollie', progress: ollieProgress, result: ollie.result }
                     : null
               }
+              overlay={placing ? <StickerStamp progress={placingProgress} /> : undefined}
               underlay={
                 interaction?.type === 'choice'
                   ? interaction.options.map((option) => (

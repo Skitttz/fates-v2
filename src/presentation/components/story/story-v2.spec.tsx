@@ -100,6 +100,21 @@ describe('StoryGame v2', () => {
     photos.forEach((photo) => expect(photo).toHaveAttribute('loading', 'eager'));
   });
 
+  it('stamps the fates logo over the scene while placing', async () => {
+    mockReducedMotion(false);
+    useAnimationClock();
+    render(<StoryGame story={choiceOnly()} />);
+    await act(() => vi.advanceTimersByTimeAsync(2000));
+    await reachChoice();
+    expect(screen.queryByTestId('sticker-stamp')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Caixote' }));
+
+    const stamp = screen.getByTestId('sticker-stamp');
+    expect(stamp.querySelector('img')).toBeInTheDocument();
+    expect(stamp.closest('[aria-hidden="true"]')).not.toBeNull();
+  });
+
   it('skips to the ending during the placing without choosing twice', async () => {
     mockReducedMotion(false);
     useAnimationClock();

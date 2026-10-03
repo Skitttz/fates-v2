@@ -11,7 +11,7 @@ import { SPRITE_SHEETS } from '@/presentation/story/sprites';
 import { createBrowserCanvas, createSpriteCache } from '@/presentation/story/sprites/sprite-cache';
 import { GameCanvasProps } from './types';
 
-export function GameCanvas({ underlay, ...props }: GameCanvasProps) {
+export function GameCanvas({ underlay, overlay, ...props }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const propsRef = useRef(props);
@@ -105,6 +105,11 @@ export function GameCanvas({ underlay, ...props }: GameCanvasProps) {
           aria-hidden="true"
           className="relative block h-auto w-full [image-rendering:pixelated]"
         />
+        {overlay && (
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+            {overlay}
+          </div>
+        )}
       </div>
     </div>
   );

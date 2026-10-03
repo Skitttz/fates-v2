@@ -11,7 +11,6 @@ import {
   PLACING_TIMELINE,
   shakeOffset,
   SPINNING_POSE,
-  stampScale,
   stickerMotion,
 } from './animations';
 import { drawBackdrop } from './backdrops';
@@ -24,7 +23,6 @@ import {
   GLOW_ACTOR,
   GLOW_COLOR,
   OLLIE_ACTOR,
-  STAMP_CENTER,
   TRANSITION_BLOCK,
 } from './constants';
 import { drawParticles } from './particles';
@@ -128,24 +126,7 @@ const drawTransition = (context: CanvasRenderingContext2D, transition: SceneTran
   }
 };
 
-const drawStamp = (
-  context: CanvasRenderingContext2D,
-  effect: PlacingEffect,
-  sprites: SpriteCache,
-) => {
-  const frame = getSpriteFrame(sprites, GLOW_ACTOR, 'brilhando', 0);
-  if (!frame) return;
-  const scale = stampScale(effect.progress);
-  const width = frame.width * scale;
-  const height = frame.height * scale;
-  context.drawImage(
-    frame,
-    Math.round(STAMP_CENTER.x - width / 2),
-    Math.round(STAMP_CENTER.y - height / 2),
-    width,
-    height,
-  );
-
+const drawStampFlash = (context: CanvasRenderingContext2D, effect: PlacingEffect) => {
   const { stampEnd, holdEnd } = PLACING_TIMELINE;
   if (effect.progress < stampEnd || effect.progress >= holdEnd) return;
   context.globalAlpha = 0.4 * (1 - (effect.progress - stampEnd) / (holdEnd - stampEnd));
@@ -183,7 +164,7 @@ export function renderScene(
   drawBackdrop(context, scene.backdrop, timeMs, animated, focusX);
   actors.forEach((actor) => drawActor(context, actor, input, sprites));
   drawParticles(context, particles);
-  if (effect?.type === 'placing') drawStamp(context, effect, sprites);
+  if (effect?.type === 'placing') drawStampFlash(context, effect);
   context.restore();
 
   if (effect?.type === 'placing') drawDissolve(context, effect);
