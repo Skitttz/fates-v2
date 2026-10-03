@@ -199,6 +199,23 @@ describe('WebAudioSoundPlayer', () => {
     expect(context.suspend).toHaveBeenCalled();
   });
 
+  it('preloads the given sounds only once the sound is enabled', async () => {
+    const sut = makeSut();
+
+    sut.preload(['ollie', 'fall']);
+    await flush();
+    expect(fetchSound).not.toHaveBeenCalled();
+
+    sut.setEnabled(true);
+    await flush();
+    expect(fetchSound).toHaveBeenCalledTimes(2);
+
+    sut.play('ollie');
+    await flush();
+    expect(fetchSound).toHaveBeenCalledTimes(2);
+    expect(sourceOf('ollie')).toHaveLength(1);
+  });
+
   it('stops a loop', async () => {
     const sut = makeSut();
     sut.setEnabled(true);

@@ -8,6 +8,7 @@ import { useProgress } from '@/presentation/hooks/useProgress';
 import { useTypewriter } from '@/presentation/hooks/useTypewriter';
 import { useWalk, WalkDirection } from '@/presentation/hooks/useWalk';
 import { describeBackdrop } from '@/presentation/story/backdrop-descriptions';
+import { PLACING_TIMELINE } from '@/presentation/story/engine/animations';
 import {
   OLLIE_ANIMATION_MS,
   PLACING_MS,
@@ -26,6 +27,7 @@ import { photoForChoice, resolveStoryPhoto } from '@/presentation/story/photos';
 import {
   BLIP_VOLUME,
   blipRate,
+  EFFECT_SOUNDS,
   musicFor,
   ollieSoundCues,
   shouldBlip,
@@ -123,9 +125,9 @@ export function StoryGame({ story }: StoryGameProps) {
       if (placingRef.current) return;
       placingRef.current = choice;
       setPlacing(choice);
-      player.play(SOUNDS.stickerPlace);
+      if (reducedMotion) player.play(SOUNDS.stickerPlace);
     },
-    [player],
+    [player, reducedMotion],
   );
 
   const transitionProgress = useProgress(
@@ -145,6 +147,21 @@ export function StoryGame({ story }: StoryGameProps) {
     ((Boolean(walk) && direction !== 0) ||
       (scene.interaction?.type === 'ollie' && !ollie && state.ollieResult === null));
   const ollieCueRef = useRef(0);
+  const stampedRef = useRef(false);
+
+  useEffect(() => {
+    player.preload(EFFECT_SOUNDS);
+  }, [player]);
+
+  useEffect(() => {
+    if (!placing) {
+      stampedRef.current = false;
+      return;
+    }
+    if (stampedRef.current || placingProgress < PLACING_TIMELINE.stampEnd) return;
+    stampedRef.current = true;
+    if (!reducedMotion) player.play(SOUNDS.stickerPlace);
+  }, [placing, placingProgress, player, reducedMotion]);
 
   useEffect(() => {
     player.playMusic(musicFor(world));

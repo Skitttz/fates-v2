@@ -17,6 +17,12 @@ export const SOUNDS = {
   menuSelect: 'menu-select',
 } as const;
 
+const MUSICS: readonly string[] = [SOUNDS.musicReal, SOUNDS.musicDream];
+
+export const EFFECT_SOUNDS: readonly string[] = Object.values(SOUNDS).filter(
+  (id) => !MUSICS.includes(id),
+);
+
 export const BLIP_EVERY_CHARS = 2;
 export const BLIP_VOLUME = 0.35;
 const BLIP_RATES: Readonly<Record<string, number>> = { paulo: 1, urso: 1.25 };

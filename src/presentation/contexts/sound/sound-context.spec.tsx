@@ -7,6 +7,7 @@ import { SoundProvider, useSound } from '.';
 const fakePlayer = (): SoundPlayer => ({
   setEnabled: vi.fn(),
   play: vi.fn(),
+  preload: vi.fn(),
   loop: vi.fn(),
   stopLoop: vi.fn(),
   playMusic: vi.fn(),

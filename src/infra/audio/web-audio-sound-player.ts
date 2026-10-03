@@ -4,7 +4,7 @@ export type ResolveSoundUrl = (id: string) => string;
 export type CreateAudioContext = () => AudioContext;
 export type FetchSound = (url: string) => Promise<ArrayBuffer>;
 
-export const MUSIC_VOLUME = 0.5;
+export const MUSIC_VOLUME = 0.25;
 export const EFFECT_VOLUME = 0.8;
 export const CROSSFADE_SECONDS = 0.6;
 
@@ -22,6 +22,7 @@ export class WebAudioSoundPlayer implements SoundPlayer {
   private enabled = false;
   private musicId: string | null = null;
   private readonly loops = new Set<string>();
+  private readonly preloads = new Set<string>();
   private readonly missing = new Set<string>();
   private readonly buffers = new Map<string, Promise<AudioBuffer | null>>();
   private readonly sustained = new Map<string, Channel>();
@@ -47,6 +48,7 @@ export class WebAudioSoundPlayer implements SoundPlayer {
     this.context ??= this.createContext();
     void this.context.resume();
     this.missing.clear();
+    this.preloads.forEach((id) => void this.buffer(id));
     this.loops.forEach((id) => this.startLoop(id));
     if (this.musicId) this.startMusic(this.musicId);
   }
@@ -60,6 +62,13 @@ export class WebAudioSoundPlayer implements SoundPlayer {
       source.onended = () => this.effects.delete(source);
       this.effects.add(source);
       source.start();
+    });
+  }
+
+  preload(ids: readonly string[]): void {
+    ids.forEach((id) => {
+      this.preloads.add(id);
+      if (this.enabled) void this.buffer(id);
     });
   }
 

@@ -19,6 +19,7 @@ const mockReducedMotion = (matches: boolean) =>
 const fakePlayer = (): SoundPlayer => ({
   setEnabled: vi.fn(),
   play: vi.fn(),
+  preload: vi.fn(),
   loop: vi.fn(),
   stopLoop: vi.fn(),
   playMusic: vi.fn(),
@@ -192,6 +193,32 @@ describe('StoryGame sound', () => {
     expect(played).not.toContain('fall');
     expect(played).not.toContain('landing');
     expect(played).not.toContain('enter-dream');
+  });
+
+  it('preloads the effects but not the musics', () => {
+    const player = renderWithSound();
+
+    const [ids] = vi.mocked(player.preload).mock.calls[0];
+    expect(ids).toEqual(expect.arrayContaining(['ollie', 'landing', 'fall', 'sticker-place']));
+    expect(ids).not.toContain('music-real');
+    expect(ids).not.toContain('music-dream');
+  });
+
+  it('plays the stamp sound when the sticker hits the scene, not on the click', async () => {
+    mockReducedMotion(false);
+    useAnimationClock();
+    const player = renderWithSound(choiceOnly());
+    await act(() => vi.advanceTimersByTimeAsync(2000));
+    await reachChoice();
+    const stamps = () => vi.mocked(player.play).mock.calls.filter(([id]) => id === 'sticker-place');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Caixote' }));
+    expect(stamps()).toHaveLength(0);
+
+    for (let index = 0; index < 12; index += 1) {
+      await act(() => vi.advanceTimersByTimeAsync(50));
+    }
+    expect(stamps()).toHaveLength(1);
   });
 
   it('blips while the text is typed with the narration pitch', async () => {
