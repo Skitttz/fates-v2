@@ -20,8 +20,8 @@ export function AccountMenu() {
         href={ROUTES.LOGIN}
         className="group flex items-center gap-2 text-sm text-zinc-300 transition-colors hover:text-street-lime"
       >
-        <span className="hidden sm:inline">{ACCOUNT_MENU.signIn}</span>
         <UserCircleIcon className="size-6 transition-transform group-hover:rotate-12" />
+        <span className="hidden sm:inline">{ACCOUNT_MENU.signIn}</span>
       </Link>
     );
   }
