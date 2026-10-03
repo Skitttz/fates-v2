@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 import { useProgress } from './useProgress';
 import { TYPEWRITER_CHAR_MS, useTypewriter } from './useTypewriter';
-import { WALK_MAX_STEP_MS, WALK_SPEED, useWalk } from './useWalk';
+import { WALK_MAX_STEP_MS, useWalk } from './useWalk';
 
 const frames: FrameRequestCallback[] = [];
 const flushFrame = (time: number) =>
@@ -84,7 +84,7 @@ describe('useWalk', () => {
     await flushFrame(WALK_MAX_STEP_MS);
     await flushFrame(WALK_MAX_STEP_MS * 2);
 
-    expect(result.current).toBeGreaterThan(100);
+    expect(result.current.x).toBeGreaterThanOrEqual(100);
     expect(onArrive).toHaveBeenCalledTimes(1);
   });
 
@@ -93,9 +93,11 @@ describe('useWalk', () => {
       useWalk({ active: true, startX: 20, targetX: 200, direction: 1, onArrive: vi.fn() }),
     );
 
+    await flushFrame(0);
     await flushFrame(5000);
 
-    expect(result.current).toBeCloseTo(20 + (WALK_SPEED * WALK_MAX_STEP_MS) / 1000, 5);
+    expect(result.current.x).toBeGreaterThan(20);
+    expect(result.current.x).toBeLessThan(22);
   });
 
   it('stays still without direction', async () => {
@@ -105,7 +107,31 @@ describe('useWalk', () => {
 
     await flushFrame(16);
 
-    expect(result.current).toBe(20);
+    expect(result.current.x).toBe(20);
+  });
+
+  it('jumps once and reports the take off and the landing', async () => {
+    const onJump = vi.fn();
+    const onLand = vi.fn();
+    const { result } = renderHook(() =>
+      useWalk({
+        active: true,
+        startX: 20,
+        targetX: 200,
+        direction: 0,
+        onArrive: vi.fn(),
+        onJump,
+        onLand,
+      }),
+    );
+
+    act(() => result.current.jump());
+    act(() => result.current.jump());
+    for (let time = 0; time <= 1200; time += 16) await flushFrame(time);
+
+    expect(onJump).toHaveBeenCalledTimes(1);
+    expect(onLand).toHaveBeenCalledTimes(1);
+    expect(result.current.airborne).toBe(false);
   });
 });
 

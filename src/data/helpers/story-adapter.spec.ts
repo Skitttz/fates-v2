@@ -78,3 +78,42 @@ describe('adaptStory conditions and outcomes', () => {
     expect(() => adaptStory(raw)).toThrow(UnexpectedError);
   });
 });
+
+describe('adaptStory entrances and obstacles', () => {
+  type RawStory = {
+    scenes: { actors: Record<string, unknown>[]; interaction: Record<string, unknown> }[];
+  };
+  const withScene = (patch: (raw: RawStory) => void) => {
+    const raw = JSON.parse(JSON.stringify(mockStoryModel())) as RawStory;
+    patch(raw);
+    return raw;
+  };
+
+  it('keeps actor entrances and walk obstacles', () => {
+    const raw = withScene((story) => {
+      story.scenes[0].actors[0].entrance = 'materialize';
+      story.scenes[1].interaction.obstacles = [{ id: 'cone', x: 84 }];
+    });
+
+    const adapted = adaptStory(raw);
+
+    expect(adapted.scenes[0].actors[0].entrance).toBe('materialize');
+    const walk = adapted.scenes[1].interaction;
+    expect(walk?.type === 'walk-to' && walk.obstacles).toEqual([{ id: 'cone', x: 84 }]);
+    expect(adapted.scenes[1].actors[0]).not.toHaveProperty('entrance');
+  });
+
+  it.each([
+    ['an unknown entrance', (story: RawStory) => (story.scenes[0].actors[0].entrance = 'fly')],
+    [
+      'an obstacle without position',
+      (story: RawStory) => (story.scenes[1].interaction.obstacles = [{ id: 'cone' }]),
+    ],
+    [
+      'obstacles that are not a list',
+      (story: RawStory) => (story.scenes[1].interaction.obstacles = 'cone'),
+    ],
+  ])('rejects %s', (_, patch) => {
+    expect(() => adaptStory(withScene(patch))).toThrow(UnexpectedError);
+  });
+});

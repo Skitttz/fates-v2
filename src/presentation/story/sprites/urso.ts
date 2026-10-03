@@ -2,44 +2,74 @@ import { SpriteDefinition, SpriteFrame, SpritePalette, SpriteSheet } from './typ
 
 const PALETTE: SpritePalette = {
   k: '#111111',
-  u: '#7c3aed',
-  v: '#5b21b6',
-  c: '#d6c3a1',
-  f: '#ff4fa3',
-  w: '#f4f4f5',
-  e: '#dc2626',
-  t: '#5ce1e6',
+  p: '#f472b6',
+  P: '#db2777',
+  l: '#c084fc',
+  c: '#e8c9a0',
+  f: '#ec4899',
+  w: '#ffffff',
+  r: '#dc2626',
+  t: '#ef4444',
 };
 
 const HEAD_TOP: SpriteFrame = [
-  '...kkkkkkkk...',
-  '..kccffccccck.',
-  '.kccccccccccck',
-  '.kuuuuuuuuuuk.',
+  '.kkk.kkkkkkk.kkk',
+  'klllkccfffcckllk',
+  'klPkccccccccckPk',
+  '.kpkkkkkkkkkkpk.',
+  '.kppppppppppppk.',
+  '.kppkppppppkppk.',
 ];
 
 const EYES = {
-  frente: '.kuwewuuuwewuk',
-  esquerda: '.kuewwuuuewwuk',
-  direita: '.kuwweuuuwweuk',
-  fechados: '.kukkkuuukkkuk',
+  frente: '.kpwrwppppwrwpk.',
+  esquerda: '.kprwwpppprwwpk.',
+  direita: '.kpwwrppppwwrpk.',
+  fechados: '.kpkkkppppkkkpk.',
 };
 
-const MOUTH: Readonly<Record<'neutra' | 'sorriso', SpriteFrame>> = {
-  neutra: ['.kuuuuuuuuuuk.', '.kuuuuukuuuuuk', '..kuuuuuuuuk..'],
-  sorriso: ['.kuuuuuuuuuuk.', '.kuuukuuukuuuk', '..kuuukkkuuk..'],
-};
+const BODY: SpriteFrame = [
+  '...kkppppppkk...',
+  '..kPppppppppPk..',
+  '..kPppppppppPk..',
+  '..kppppppppppk..',
+  '..kppk....kppk..',
+  '..kkkk....kkkk..',
+];
 
 const BLINK_HOLD_FRAMES = 11;
 const BLINK_FPS = 4;
+const TEAR_FPS = 3;
 
-const BODY: SpriteFrame = [
-  '.kuuuuuuuuuuk.',
-  'kuuvuuuuuuvuuk',
-  'kuuvuuuuuuvuuk',
-  '.kuuuuuuuuuuk.',
-  '.kuuk.kk.kuuk.',
-  '.kkkk....kkkk.',
+type Mouth = 'triste' | 'sorriso';
+
+type Tears = [string, string, string, string];
+
+const DRY: Tears = ['p', 'p', 'p', 'p'];
+const TEARS_A: Tears = ['t', 't', 't', 'p'];
+const TEARS_B: Tears = ['p', 't', 't', 't'];
+
+const lowerFace = (mouth: Mouth, [first, second, third, chin]: Tears): SpriteFrame => {
+  const rows =
+    mouth === 'triste'
+      ? [
+          `.kpp${first}pppppp${first}ppk.`,
+          `.kpp${second}pkkkkp${second}ppk.`,
+          `.kpp${third}kwppwk${third}ppk.`,
+        ]
+      : [
+          `.kpp${first}pppppp${first}ppk.`,
+          `.kpp${second}kppppk${second}ppk.`,
+          `.kpp${third}pkwwkp${third}ppk.`,
+        ];
+  return [...rows, `..kp${chin}pppppp${chin}pk..`];
+};
+
+const frame = (eyes: string, mouth: Mouth, tears: Tears = DRY): SpriteFrame => [
+  ...HEAD_TOP,
+  eyes,
+  ...lowerFace(mouth, tears),
+  ...BODY,
 ];
 
 const sprite = (frames: SpriteFrame[], fps = 0): SpriteDefinition => ({
@@ -48,23 +78,16 @@ const sprite = (frames: SpriteFrame[], fps = 0): SpriteDefinition => ({
   fps,
 });
 
-const face = (eyes: string, rows: SpriteFrame): SpriteFrame => [
-  ...HEAD_TOP,
-  eyes,
-  ...rows,
-  ...BODY,
-];
-
-const blinking = (eyes: string, mouth: SpriteFrame): SpriteDefinition =>
+const blinking = (eyes: string, mouth: Mouth): SpriteDefinition =>
   sprite(
     [
-      ...Array.from({ length: BLINK_HOLD_FRAMES }, () => face(eyes, mouth)),
-      face(EYES.fechados, mouth),
+      ...Array.from({ length: BLINK_HOLD_FRAMES }, () => frame(eyes, mouth)),
+      frame(EYES.fechados, mouth),
     ],
     BLINK_FPS,
   );
 
-const withLooks = (name: string, mouth: SpriteFrame): SpriteSheet => ({
+const withLooks = (name: string, mouth: Mouth): SpriteSheet => ({
   [name]: blinking(EYES.frente, mouth),
   [`${name}-esquerda`]: blinking(EYES.esquerda, mouth),
   [`${name}-direita`]: blinking(EYES.direita, mouth),
@@ -72,12 +95,9 @@ const withLooks = (name: string, mouth: SpriteFrame): SpriteSheet => ({
 
 export const URSO: SpriteSheet = {
   chorando: sprite(
-    [
-      face(EYES.frente, ['.kuutuuuuutuuk', '.kuutuukuutuuk', '..kuuuuuuuuk..']),
-      face(EYES.frente, ['.kuuuuuuuuuuk.', '.kuutuukuutuuk', '..kutuuuutuk..']),
-    ],
-    3,
+    [frame(EYES.frente, 'triste', TEARS_A), frame(EYES.frente, 'triste', TEARS_B)],
+    TEAR_FPS,
   ),
-  ...withLooks('parado', MOUTH.neutra),
-  ...withLooks('sorrindo', MOUTH.sorriso),
+  ...withLooks('parado', 'triste'),
+  ...withLooks('sorrindo', 'sorriso'),
 };

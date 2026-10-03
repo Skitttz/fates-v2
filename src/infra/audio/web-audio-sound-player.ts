@@ -1,4 +1,4 @@
-import { SoundOptions, SoundPlayer } from '@/presentation/protocols';
+import { MusicOptions, SoundOptions, SoundPlayer } from '@/presentation/protocols';
 
 export type ResolveSoundUrl = (id: string) => string;
 export type CreateAudioContext = () => AudioContext;
@@ -50,7 +50,7 @@ export class WebAudioSoundPlayer implements SoundPlayer {
     this.missing.clear();
     this.preloads.forEach((id) => void this.buffer(id));
     this.loops.forEach((id) => this.startLoop(id));
-    if (this.musicId) this.startMusic(this.musicId);
+    if (this.musicId) this.startMusic(this.musicId, CROSSFADE_SECONDS, 0);
   }
 
   resume(): void {
@@ -87,17 +87,17 @@ export class WebAudioSoundPlayer implements SoundPlayer {
     this.sustained.delete(id);
   }
 
-  playMusic(id: string): void {
+  playMusic(id: string, options: MusicOptions = {}): void {
     if (this.musicId === id) return;
     const previous = this.musicId;
     this.musicId = id;
     if (!this.enabled) return;
-    if (previous) this.fadeOut(previous);
-    this.startMusic(id);
+    if (previous) this.fadeOut(previous, options.fadeOutSeconds ?? CROSSFADE_SECONDS);
+    this.startMusic(id, options.fadeInSeconds ?? CROSSFADE_SECONDS, options.delaySeconds ?? 0);
   }
 
   stopMusic(): void {
-    if (this.musicId && this.enabled) this.fadeOut(this.musicId);
+    if (this.musicId && this.enabled) this.fadeOut(this.musicId, CROSSFADE_SECONDS);
     this.musicId = null;
   }
 
@@ -141,27 +141,27 @@ export class WebAudioSoundPlayer implements SoundPlayer {
     });
   }
 
-  private startMusic(id: string): void {
+  private startMusic(id: string, fadeInSeconds: number, delaySeconds: number): void {
     void this.buffer(id).then((buffer) => {
       if (!buffer || !this.enabled || this.musicId !== id || this.sustained.has(id)) return;
       const channel = this.channel(buffer, 0);
-      const now = (this.context as AudioContext).currentTime;
+      const start = (this.context as AudioContext).currentTime + delaySeconds;
       channel.source.loop = true;
-      channel.gain.gain.setValueAtTime(0, now);
-      channel.gain.gain.linearRampToValueAtTime(MUSIC_VOLUME, now + CROSSFADE_SECONDS);
+      channel.gain.gain.setValueAtTime(0, start);
+      channel.gain.gain.linearRampToValueAtTime(MUSIC_VOLUME, start + fadeInSeconds);
       this.sustained.set(id, channel);
-      channel.source.start();
+      channel.source.start(start);
     });
   }
 
-  private fadeOut(id: string): void {
+  private fadeOut(id: string, seconds: number): void {
     const channel = this.sustained.get(id);
     if (!channel || !this.context) return;
     const now = this.context.currentTime;
     channel.gain.gain.cancelScheduledValues(now);
     channel.gain.gain.setValueAtTime(channel.gain.gain.value, now);
-    channel.gain.gain.linearRampToValueAtTime(0, now + CROSSFADE_SECONDS);
-    channel.source.stop(now + CROSSFADE_SECONDS);
+    channel.gain.gain.linearRampToValueAtTime(0, now + seconds);
+    channel.source.stop(now + seconds);
     this.sustained.delete(id);
   }
 }

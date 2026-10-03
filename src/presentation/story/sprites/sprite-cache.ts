@@ -69,13 +69,15 @@ export function getSpriteFrame(
   cache: SpriteCache,
   actor: string,
   pose: string,
-  timeMs: number,
+  timeMs: number | 'settled',
 ): HTMLCanvasElement | null {
   const entry = cache.get(spriteKey(actor, pose));
   if (!entry) return null;
+  const last = entry.frames.length - 1;
+  if (timeMs === 'settled') return entry.loop ? entry.frames[0] : entry.frames[last];
   if (entry.fps <= 0 || entry.frames.length === 1) return entry.frames[0];
   const index = Math.floor((Math.max(timeMs, 0) / 1000) * entry.fps);
   return entry.loop
     ? entry.frames[index % entry.frames.length]
-    : entry.frames[Math.min(index, entry.frames.length - 1)];
+    : entry.frames[Math.min(index, last)];
 }

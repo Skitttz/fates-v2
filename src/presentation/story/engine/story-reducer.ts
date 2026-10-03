@@ -16,7 +16,7 @@ export type StoryAction =
   | { type: 'NEXT_LINE' }
   | { type: 'COMPLETE_INTERACTION'; choice?: string; ollieResult?: OllieResult }
   | { type: 'TRANSITION_END' }
-  | { type: 'SKIP' }
+  | { type: 'SKIP'; choice?: string }
   | { type: 'RESTART' };
 
 export const visibleLines = (
@@ -91,7 +91,7 @@ export const createStoryReducer =
       }
 
       case 'SKIP':
-        return toEnding(story, state);
+        return toEnding(story, { ...state, choice: action.choice ?? state.choice });
 
       case 'RESTART':
         return createInitialState(story);

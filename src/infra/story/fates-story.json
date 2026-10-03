@@ -18,7 +18,7 @@
       "world": "dream",
       "backdrop": "sonho",
       "transitionIn": "fade-to-dream",
-      "actors": [{ "id": "paulo", "x": 72, "y": 112, "pose": "deitado" }],
+      "actors": [{ "id": "paulo", "x": 72, "y": 112, "pose": "deitado-costas" }],
       "lines": [
         { "speaker": null, "text": "…" },
         { "speaker": "paulo", "text": "Onde… eu tô?" }
@@ -31,7 +31,7 @@
       "actors": [
         { "id": "paulo", "x": 72, "y": 112, "pose": "parado" },
         { "id": "caixote", "x": 176, "y": 112, "pose": "padrao" },
-        { "id": "urso", "x": 176, "y": 100, "pose": "chorando" }
+        { "id": "urso", "x": 176, "y": 100, "pose": "chorando", "entrance": "materialize" }
       ],
       "lines": [
         { "speaker": "paulo", "text": "Ei… tá tudo bem?" },
@@ -73,7 +73,12 @@
         { "id": "urso", "x": 200, "y": 100, "pose": "parado" }
       ],
       "lines": [],
-      "interaction": { "type": "walk-to", "actor": "paulo", "targetX": 132 }
+      "interaction": {
+        "type": "walk-to",
+        "actor": "paulo",
+        "targetX": 132,
+        "obstacles": [{ "id": "cone", "x": 84 }]
+      }
     },
     {
       "id": "adesivo",

@@ -62,6 +62,19 @@ describe('emitParticles', () => {
   });
 });
 
+describe('emitParticles entrance', () => {
+  it('sparkles around an actor while it materializes', () => {
+    const urso = { id: 'urso', x: 176, y: 100, pose: 'parado', entrance: 'materialize' as const };
+    const during = input({ scene: scene({ actors: [urso] }), sceneTimeMs: 600 });
+    const after = input({ scene: scene({ actors: [urso] }), sceneTimeMs: 5000 });
+    const motes = (particles: { color: string }[]) =>
+      particles.filter(({ color }) => color === PARTICLE_COLORS.mote);
+
+    expect(motes(emitParticles(during, null, 16, always)).length).toBeGreaterThan(0);
+    expect(motes(emitParticles(after, null, 16, always))).toHaveLength(0);
+  });
+});
+
 describe('updateParticles', () => {
   it('moves particles and drops the expired ones', () => {
     const particles = [

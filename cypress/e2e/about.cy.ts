@@ -16,6 +16,20 @@ describe('Sobre', () => {
     });
   };
 
+  const walkToGlow = (attempts = 40): void => {
+    cy.get('main').then(($main) => {
+      if ($main.text().includes('Fates. Destinos, no plural.')) {
+        cy.get('body').trigger('keyup', { key: 'ArrowRight', code: 'ArrowRight', force: true });
+        return;
+      }
+      if (attempts === 0) throw new Error('Paulo não chegou ao brilho');
+      cy.get('body').trigger('keydown', { key: 'ArrowRight', code: 'ArrowRight', force: true });
+      cy.get('body').trigger('keydown', { key: ' ', code: 'Space', force: true });
+      cy.wait(300);
+      walkToGlow(attempts - 1);
+    });
+  };
+
   it('joga a história até o final', () => {
     cy.visit('/about');
     cy.contains('Aracaju. Fim de tarde.').should('exist');
@@ -24,9 +38,7 @@ describe('Sobre', () => {
     cy.contains('button', 'Ollie!').click();
 
     advanceUntil('Leve o Paulo até o brilho.');
-    cy.get('body').trigger('keydown', { key: 'ArrowRight', code: 'ArrowRight', force: true });
-    cy.contains('Fates. Destinos, no plural.', { timeout: 15000 }).should('exist');
-    cy.get('body').trigger('keyup', { key: 'ArrowRight', code: 'ArrowRight', force: true });
+    walkToGlow();
 
     advanceUntil('Onde colar o primeiro?');
     cy.contains('button', 'No poste').click();
@@ -79,9 +91,7 @@ describe('Sobre', () => {
     cy.get('body').type(' ');
 
     pressUntil('Leve o Paulo até o brilho.');
-    cy.get('body').trigger('keydown', { key: 'ArrowRight', code: 'ArrowRight', force: true });
-    cy.contains('Fates. Destinos, no plural.', { timeout: 15000 }).should('exist');
-    cy.get('body').trigger('keyup', { key: 'ArrowRight', code: 'ArrowRight', force: true });
+    walkToGlow();
 
     pressUntil('Onde colar o primeiro?');
     cy.focused().should('contain', 'No caixote').trigger('keydown', { key: 'ArrowRight' });
@@ -101,5 +111,33 @@ describe('Sobre', () => {
     cy.visit('/about');
     cy.contains('button', 'Ler como texto').click();
     cy.contains('Eu guardei uma coisa pra quem me encontrasse.').should('exist');
+  });
+
+  it('segura o espaço no jogo durante a caminhada e devolve ao clicar fora', () => {
+    cy.visit('/about');
+    advanceUntil('Ollie!');
+    cy.contains('button', 'Ollie!').click();
+    advanceUntil('Leve o Paulo até o brilho.');
+    cy.window().then((win) => {
+      const event = new win.KeyboardEvent('keydown', {
+        key: ' ',
+        code: 'Space',
+        bubbles: true,
+        cancelable: true,
+      });
+      win.document.body.dispatchEvent(event);
+      expect(event.defaultPrevented).to.equal(true);
+    });
+    cy.get('footer').click({ force: true });
+    cy.window().then((win) => {
+      const event = new win.KeyboardEvent('keydown', {
+        key: ' ',
+        code: 'Space',
+        bubbles: true,
+        cancelable: true,
+      });
+      win.document.body.dispatchEvent(event);
+      expect(event.defaultPrevented).to.equal(false);
+    });
   });
 });

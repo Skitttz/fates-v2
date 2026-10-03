@@ -1,5 +1,6 @@
 import { ADESIVO } from './adesivo';
 import { CAIXOTE } from './caixote';
+import { CONE } from './cone';
 import { PAULO } from './paulo';
 import { PRANCHA } from './prancha';
 import { SpriteSheet } from './types';
@@ -11,4 +12,5 @@ export const SPRITE_SHEETS: Readonly<Record<string, SpriteSheet>> = {
   caixote: CAIXOTE,
   adesivo: ADESIVO,
   prancha: PRANCHA,
+  cone: CONE,
 };

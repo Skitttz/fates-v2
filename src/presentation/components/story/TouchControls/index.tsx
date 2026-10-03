@@ -1,12 +1,12 @@
 'use client';
 
 import { MouseEvent } from 'react';
-import { ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/solid';
+import { ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon } from '@heroicons/react/24/solid';
 import { WalkDirection } from '@/presentation/hooks/useWalk';
 import { TOUCH_BUTTON_CLASS, TOUCH_LABELS } from './constants';
 import { TouchControlsProps } from './types';
 
-export function TouchControls({ visible, onDirectionChange }: TouchControlsProps) {
+export function TouchControls({ visible, onDirectionChange, onJump }: TouchControlsProps) {
   if (!visible) return null;
 
   const handlers = (direction: WalkDirection) => ({
@@ -27,7 +27,15 @@ export function TouchControls({ visible, onDirectionChange }: TouchControlsProps
       >
         <ArrowLeftIcon className="size-7" />
       </button>
-      <span className="font-pixel text-sm text-zinc-400">{TOUCH_LABELS.hint}</span>
+      <button
+        type="button"
+        aria-label={TOUCH_LABELS.jump}
+        className={TOUCH_BUTTON_CLASS}
+        onPointerDown={onJump}
+        onContextMenu={(event: MouseEvent) => event.preventDefault()}
+      >
+        <ArrowUpIcon className="size-7" />
+      </button>
       <button
         type="button"
         aria-label={TOUCH_LABELS.right}

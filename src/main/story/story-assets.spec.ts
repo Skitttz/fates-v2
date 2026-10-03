@@ -24,8 +24,16 @@ describe('Fates story assets', () => {
       }
     });
     expect(SPRITE_SHEETS.prancha?.rolando).toBeDefined();
-    ['agachado', 'ollie-pop', 'ollie-ar', 'skate-andando', 'sentado', 'deitado'].forEach((pose) => {
-      expect(SPRITE_SHEETS.paulo[pose], pose).toBeDefined();
+    story.scenes.forEach((scene) => {
+      if (scene.interaction?.type !== 'walk-to') return;
+      scene.interaction.obstacles?.forEach((obstacle) => {
+        expect(SPRITE_SHEETS[obstacle.id]?.padrao, obstacle.id).toBeDefined();
+      });
     });
+    ['agachado', 'ollie-pop', 'ollie-ar', 'skate-andando', 'sentado', 'deitado-costas'].forEach(
+      (pose) => {
+        expect(SPRITE_SHEETS.paulo[pose], pose).toBeDefined();
+      },
+    );
   });
 });

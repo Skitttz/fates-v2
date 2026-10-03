@@ -29,6 +29,7 @@ export type RenderInput = {
   sceneTimeMs: number;
   animated: boolean;
   speaker?: string | null;
+  emphasis?: string;
   actorOverrides?: Readonly<Record<string, Partial<StoryActorModel>>>;
   effect?: StoryEffect | null;
   transition?: SceneTransitionState | null;

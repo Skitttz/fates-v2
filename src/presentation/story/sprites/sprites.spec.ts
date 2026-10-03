@@ -60,6 +60,38 @@ describe('sprites', () => {
     });
   });
 
+  it('lays paulo on his back with the head to the left', () => {
+    const frame = SPRITE_SHEETS.paulo['deitado-costas'].frames[0];
+    const standing = SPRITE_SHEETS.paulo.parado.frames[0];
+
+    expect(frame).toHaveLength(standing[0].length);
+    expect(frame[0]).toHaveLength(standing.length);
+    expect(SPRITE_SHEETS.paulo).not.toHaveProperty('deitado');
+    expect(frame.map((row) => row[0]).join('')).toContain('k');
+  });
+
+  it('draws the bear from the sticker: pink face, cap, crying red eyes', () => {
+    const { palette, frames } = SPRITE_SHEETS.urso.chorando;
+    const pixels = frames[0].join('');
+
+    expect(Object.values(palette)).toEqual(
+      expect.arrayContaining(['#f472b6', '#e8c9a0', '#dc2626', '#ef4444', '#c084fc']),
+    );
+    ['p', 'c', 'r', 't', 'l'].forEach((key) => expect(pixels).toContain(key));
+    expect(frames[0]).not.toEqual(frames[1]);
+  });
+
+  it('settles sprites when there is no animation', () => {
+    const cache = createSpriteCache(SPRITE_SHEETS, fakeCanvas);
+    const standUp = cache.get('paulo:levantando')?.frames ?? [];
+    const skate = cache.get('paulo:skate')?.frames ?? [];
+
+    expect(getSpriteFrame(cache, 'paulo', 'levantando', 'settled')).toBe(
+      standUp[standUp.length - 1],
+    );
+    expect(getSpriteFrame(cache, 'paulo', 'skate', 'settled')).toBe(skate[0]);
+  });
+
   it('returns null for unknown actors or poses', () => {
     const cache = createSpriteCache(SPRITE_SHEETS, fakeCanvas);
 
