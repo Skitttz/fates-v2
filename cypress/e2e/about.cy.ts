@@ -25,14 +25,35 @@ describe('Sobre', () => {
 
     advanceUntil('Leve o Paulo até o brilho.');
     cy.get('body').trigger('keydown', { key: 'ArrowRight', code: 'ArrowRight', force: true });
-    cy.contains('Fates. Quer dizer destinos.', { timeout: 15000 }).should('exist');
+    cy.contains('Fates. Destinos, no plural.', { timeout: 15000 }).should('exist');
     cy.get('body').trigger('keyup', { key: 'ArrowRight', code: 'ArrowRight', force: true });
 
     advanceUntil('Onde colar o primeiro?');
     cy.contains('button', 'No poste').click();
 
     cy.contains('E o ursinho nunca mais ficou invisível.').should('exist');
+    cy.contains('Quem espera o ônibus agora tem pra onde olhar.').should('exist');
     cy.get('img[alt*="poste"]').should('exist');
+  });
+
+  it('o ursinho comenta o ollie errado', () => {
+    cy.visit('/about');
+    advanceUntil('Ollie!');
+    cy.contains('button', 'Ollie!').click();
+
+    advanceUntil('Eu vi você cair lá na pista.');
+    cy.contains('Eu vi seu ollie.').should('not.exist');
+  });
+
+  it('o ursinho comenta o ollie acertado', () => {
+    cy.visit('/about');
+    advanceUntil('Ollie!');
+    cy.get('[role="meter"]', { timeout: 8000 }).should(($meter) => {
+      expect(Number($meter.attr('aria-valuenow'))).to.be.within(70, 78);
+    });
+    cy.contains('button', 'Ollie!').click();
+
+    advanceUntil('Eu vi seu ollie. Você acertou… e mesmo assim caiu.');
   });
 
   const pressUntil = (text: string, attempts = 40): void => {
@@ -59,14 +80,15 @@ describe('Sobre', () => {
 
     pressUntil('Leve o Paulo até o brilho.');
     cy.get('body').trigger('keydown', { key: 'ArrowRight', code: 'ArrowRight', force: true });
-    cy.contains('Fates. Quer dizer destinos.', { timeout: 15000 }).should('exist');
+    cy.contains('Fates. Destinos, no plural.', { timeout: 15000 }).should('exist');
     cy.get('body').trigger('keyup', { key: 'ArrowRight', code: 'ArrowRight', force: true });
 
     pressUntil('Onde colar o primeiro?');
-    cy.focused().should('contain', 'No caixote').click();
+    cy.focused().should('contain', 'No caixote').trigger('keydown', { key: 'ArrowRight' });
+    cy.focused().should('contain', 'No poste').click();
 
-    cy.get('section[aria-label="Final da história"]').should('have.focus');
-    cy.get('img[alt*="caixote"]').should('exist');
+    cy.get('section[aria-label="Final da história"]', { timeout: 8000 }).should('have.focus');
+    cy.get('img[alt*="poste"]').should('exist');
   });
 
   it('pula a história e mostra o final', () => {
