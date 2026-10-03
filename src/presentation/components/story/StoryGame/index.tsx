@@ -24,7 +24,12 @@ import { StoryToolbar } from '../StoryToolbar';
 import { StoryMode } from '../StoryToolbar/types';
 import { StoryTranscript } from '../StoryTranscript';
 import { TouchControls } from '../TouchControls';
-import { INTERACTIVE_SELECTOR, STORY_GAME_LABELS } from './constants';
+import {
+  GAME_LAYOUT_CLASS,
+  GAME_PANEL_CLASS,
+  INTERACTIVE_SELECTOR,
+  STORY_GAME_LABELS,
+} from './constants';
 import { OllieAnimation, StoryGameProps } from './types';
 
 export function StoryGame({ story }: StoryGameProps) {
@@ -144,49 +149,53 @@ export function StoryGame({ story }: StoryGameProps) {
       )}
 
       {mode === 'game' && !ended && (
-        <div className="relative flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
           <p className="sr-only" aria-live="polite">
             {describeBackdrop(scene.backdrop)}
           </p>
-          <GameCanvas
-            scene={scene}
-            animated={!reducedMotion}
-            actorOverrides={walk ? { [walk.actor]: { x: walkX, pose: 'skate' } } : undefined}
-            effect={ollie ? { type: 'ollie', progress: ollieProgress, result: ollie.result } : null}
-            transition={
-              state.phase === 'transition' && scene.transitionIn
-                ? { kind: scene.transitionIn, progress: transitionProgress }
-                : null
-            }
-          />
-          <div className="flex flex-col gap-3 landscape:md:absolute landscape:md:inset-x-4 landscape:md:bottom-4">
-            {line && (
-              <DialogueBox
-                speaker={line.speaker}
-                text={line.text}
-                visibleText={typewriter.visibleText}
-                onActivate={handleAdvance}
-              />
-            )}
-            {interaction?.type === 'ollie' && !ollie && <OllieMeter onResult={startOllie} />}
-            {walk && (
-              <div className="border-4 border-zinc-50 bg-black p-4 font-pixel text-base text-zinc-50">
-                <p>{STORY_GAME_LABELS.walkHint}</p>
-                <p className="hidden text-sm text-zinc-400 [@media(pointer:fine)]:block">
-                  {STORY_GAME_LABELS.walkKeysHint}
-                </p>
+          <div className={GAME_LAYOUT_CLASS}>
+            <GameCanvas
+              scene={scene}
+              animated={!reducedMotion}
+              actorOverrides={walk ? { [walk.actor]: { x: walkX, pose: 'skate' } } : undefined}
+              effect={
+                ollie ? { type: 'ollie', progress: ollieProgress, result: ollie.result } : null
+              }
+              transition={
+                state.phase === 'transition' && scene.transitionIn
+                  ? { kind: scene.transitionIn, progress: transitionProgress }
+                  : null
+              }
+            />
+            <div className={GAME_PANEL_CLASS}>
+              {line && (
+                <DialogueBox
+                  speaker={line.speaker}
+                  text={line.text}
+                  visibleText={typewriter.visibleText}
+                  onActivate={handleAdvance}
+                />
+              )}
+              {interaction?.type === 'ollie' && !ollie && <OllieMeter onResult={startOllie} />}
+              {walk && (
+                <div className="border-4 border-zinc-50 bg-black p-4 font-pixel text-base text-zinc-50">
+                  <p>{STORY_GAME_LABELS.walkHint}</p>
+                  <p className="hidden text-sm text-zinc-400 [@media(pointer:fine)]:block">
+                    {STORY_GAME_LABELS.walkKeysHint}
+                  </p>
+                </div>
+              )}
+              {interaction?.type === 'choice' && (
+                <ChoiceMenu
+                  prompt={interaction.prompt}
+                  options={interaction.options}
+                  onChoose={(choice) => dispatch({ type: 'COMPLETE_INTERACTION', choice })}
+                />
+              )}
+              <div className="[@media(pointer:fine)]:hidden">
+                <TouchControls visible={Boolean(walk)} onDirectionChange={setDirection} />
               </div>
-            )}
-            {interaction?.type === 'choice' && (
-              <ChoiceMenu
-                prompt={interaction.prompt}
-                options={interaction.options}
-                onChoose={(choice) => dispatch({ type: 'COMPLETE_INTERACTION', choice })}
-              />
-            )}
-          </div>
-          <div className="[@media(pointer:fine)]:hidden">
-            <TouchControls visible={Boolean(walk)} onDirectionChange={setDirection} />
+            </div>
           </div>
         </div>
       )}

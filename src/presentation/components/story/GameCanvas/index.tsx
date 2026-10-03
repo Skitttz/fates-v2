@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { computeCanvasScale } from '@/presentation/story/engine/canvas-scale';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '@/presentation/story/engine/constants';
 import { renderScene } from '@/presentation/story/engine/renderer';
 import { SPRITE_SHEETS } from '@/presentation/story/sprites';
@@ -20,12 +21,14 @@ export function GameCanvas(props: GameCanvasProps) {
   useEffect(() => {
     const wrapper = wrapperRef.current;
     if (!wrapper || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(([entry]) => {
-      const ratio = entry.contentRect.width / CANVAS_WIDTH;
-      setScale(ratio >= 2 ? Math.floor(ratio) : ratio);
-    });
+    const update = () => setScale(computeCanvasScale(wrapper.clientWidth, window.innerHeight));
+    const observer = new ResizeObserver(update);
     observer.observe(wrapper);
-    return () => observer.disconnect();
+    window.addEventListener('resize', update);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', update);
+    };
   }, []);
 
   useEffect(() => {
