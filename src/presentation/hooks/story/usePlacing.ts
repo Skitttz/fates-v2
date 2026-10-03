@@ -17,12 +17,7 @@ export function usePlacing({ player, reducedMotion, onFinish }: UsePlacingParams
   const [placing, setPlacing] = useState<string | null>(null);
   const placingRef = useRef<string | null>(null);
   const stampedRef = useRef(false);
-  const onFinishRef = useRef(onFinish);
   const duration = reducedMotion ? 0 : PLACING_MS;
-
-  useEffect(() => {
-    onFinishRef.current = onFinish;
-  }, [onFinish]);
 
   const cancel = useCallback((): string | null => {
     const pending = placingRef.current;
@@ -33,8 +28,8 @@ export function usePlacing({ player, reducedMotion, onFinish }: UsePlacingParams
 
   const finish = useCallback(() => {
     const choice = cancel();
-    if (choice) onFinishRef.current(choice);
-  }, [cancel]);
+    if (choice) onFinish(choice);
+  }, [cancel, onFinish]);
 
   const choose = useCallback(
     (choice: string) => {

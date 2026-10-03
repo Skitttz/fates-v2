@@ -8,7 +8,7 @@ export const WalkHint = memo(function WalkHint() {
   return (
     <div className={styles.root()}>
       <p>{WALK_HINT_LABELS.goal}</p>
-      <p className={styles.keys()}>{WALK_HINT_LABELS.keys}</p>
+      <p className={styles.shortcuts()}>{WALK_HINT_LABELS.keys}</p>
     </div>
   );
 });

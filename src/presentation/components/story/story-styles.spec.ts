@@ -1,3 +1,6 @@
+import { existsSync, readdirSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 import { dialogueBoxStyles } from './DialogueBox/styles';
 import { storyEndingStyles } from './StoryEnding/styles';
@@ -6,7 +9,31 @@ import { storyToolbarStyles } from './StoryToolbar/styles';
 import { transcriptLineStyles } from './TranscriptLine/styles';
 import { walkIntroStyles } from './WalkIntro/styles';
 
+type StyleOutput = string | undefined | Record<string, () => string | undefined>;
+
+type StyleModule = Record<string, () => StyleOutput>;
+
+const here = dirname(fileURLToPath(import.meta.url));
+
+const styledFolders = readdirSync(here).filter((name) => existsSync(join(here, name, 'styles.ts')));
+
+const classNames = (output: StyleOutput): (string | undefined)[] =>
+  typeof output === 'object' ? Object.values(output).map((slot) => slot()) : [output];
+
 describe('story styles', () => {
+  it('only ever writes class names into the markup', async () => {
+    const modules: StyleModule[] = await Promise.all(
+      styledFolders.map((folder) => import(`./${folder}/styles.ts`)),
+    );
+    const outputs = modules
+      .flatMap((exported) => Object.values(exported))
+      .flatMap((styles) => classNames(styles()));
+
+    expect(styledFolders.length).toBeGreaterThan(15);
+    expect(outputs.length).toBeGreaterThan(60);
+    expect(outputs.filter((value) => value?.includes('native code'))).toEqual([]);
+  });
+
   it('highlights the sound toggle only while the sound is on', () => {
     const on = storyToolbarStyles({ soundOn: true });
     const off = storyToolbarStyles({ soundOn: false });

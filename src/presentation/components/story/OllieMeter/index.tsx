@@ -41,7 +41,7 @@ export function OllieMeter({ onResult, listening = true }: OllieMeterProps) {
   }, [listening, press]);
 
   const styles = ollieMeterStyles();
-  const fillStyle = { width: `${value}%` };
+  const levelStyle = { width: `${value}%` };
 
   return (
     <div className={styles.root()}>
@@ -55,7 +55,7 @@ export function OllieMeter({ onResult, listening = true }: OllieMeterProps) {
         className={styles.meter()}
       >
         <span className={styles.window()} style={OLLIE_WINDOW_STYLE} />
-        <span className={styles.fill()} style={fillStyle} />
+        <span className={styles.level()} style={levelStyle} />
       </div>
       <Button size="lg" onClick={press} className={styles.action()}>
         {OLLIE_LABELS.action}

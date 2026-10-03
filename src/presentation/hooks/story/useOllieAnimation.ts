@@ -18,12 +18,7 @@ export function useOllieAnimation({ player, reducedMotion, onFinish }: UseOllieA
   const [ollie, setOllie] = useState<OllieAnimation | null>(null);
   const ollieRef = useRef<OllieAnimation | null>(null);
   const cueRef = useRef(0);
-  const onFinishRef = useRef(onFinish);
   const duration = reducedMotion ? 0 : OLLIE_ANIMATION_MS;
-
-  useEffect(() => {
-    onFinishRef.current = onFinish;
-  }, [onFinish]);
 
   const playCues = useCallback(
     (result: OllieResult, progress: number) => {
@@ -55,8 +50,8 @@ export function useOllieAnimation({ player, reducedMotion, onFinish }: UseOllieA
     cancel();
     if (!current) return;
     playCues(current.result, 1);
-    onFinishRef.current(current.result);
-  }, [cancel, playCues]);
+    onFinish(current.result);
+  }, [cancel, onFinish, playCues]);
 
   const progress = useProgress(Boolean(ollie), duration, finish);
 

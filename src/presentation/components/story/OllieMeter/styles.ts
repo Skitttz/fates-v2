@@ -6,7 +6,7 @@ export const ollieMeterStyles = tv({
     hint: 'font-pixel text-base text-zinc-50',
     meter: 'relative h-5 border-2 border-zinc-50 bg-zinc-900',
     window: 'absolute inset-y-0 bg-street-lime/40',
-    fill: 'absolute inset-y-0 left-0 bg-street-orange',
+    level: 'absolute inset-y-0 left-0 bg-street-orange',
     action: 'touch-manipulation',
   },
 });
