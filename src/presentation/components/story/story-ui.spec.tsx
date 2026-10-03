@@ -124,12 +124,26 @@ describe('StoryTranscript', () => {
     expect(screen.getByText('Any prompt')).toBeInTheDocument();
     expect(screen.getByText('Any epilogue')).toBeInTheDocument();
   });
+
+  it('labels conditional lines and lists each choice with its outcome', () => {
+    const story = mockStoryModel();
+    story.scenes[0].lines = [
+      { speaker: 'urso', text: 'Missed line', when: { ollie: 'missed' } },
+      { speaker: 'urso', text: 'Landed line', when: { ollie: 'landed' } },
+    ];
+
+    render(<StoryTranscript story={story} />);
+
+    expect(screen.getByText('(se o ollie não deu certo)')).toBeInTheDocument();
+    expect(screen.getByText('(se o ollie deu certo)')).toBeInTheDocument();
+    expect(screen.getByText('Caixote: Any caixote outcome')).toBeInTheDocument();
+  });
 });
 
 describe('StoryEnding', () => {
   it('shows the chosen photo, the epilogue and restarts', async () => {
     const onRestart = vi.fn();
-    render(<StoryEnding epilogue="Fim." photoId="poste" onRestart={onRestart} />);
+    render(<StoryEnding epilogue="Fim." outcome={null} photoId="poste" onRestart={onRestart} />);
 
     expect(screen.getByRole('img')).toHaveAttribute('alt', expect.stringContaining('poste'));
     expect(screen.getByText('Fim.')).toBeInTheDocument();
@@ -138,8 +152,24 @@ describe('StoryEnding', () => {
     expect(onRestart).toHaveBeenCalledTimes(1);
   });
 
+  it('shows the outcome of the choice above the epilogue', () => {
+    render(
+      <StoryEnding
+        epilogue="Any epilogue"
+        outcome="Any outcome"
+        photoId="poste"
+        onRestart={vi.fn()}
+      />,
+    );
+
+    const outcome = screen.getByText('Any outcome');
+    expect(outcome.compareDocumentPosition(screen.getByText('Any epilogue'))).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
+
   it('uses the default photo when there is no choice', () => {
-    render(<StoryEnding epilogue="Fim." photoId={null} onRestart={vi.fn()} />);
+    render(<StoryEnding epilogue="Fim." outcome={null} photoId={null} onRestart={vi.fn()} />);
 
     expect(screen.getByRole('img')).toHaveAttribute('alt', expect.stringContaining('caixote'));
   });

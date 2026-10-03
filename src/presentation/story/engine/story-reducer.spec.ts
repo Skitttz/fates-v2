@@ -1,12 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { mockStoryModel } from '@/domain/test';
 import {
+  choiceOutcome,
   createInitialState,
   createStoryReducer,
   getCurrentLine,
   getCurrentScene,
+  OllieResult,
   StoryAction,
   StoryState,
+  visibleLines,
 } from './story-reducer';
 
 const story = mockStoryModel();
@@ -102,5 +105,80 @@ describe('story reducer', () => {
     expect(skipped.phase).toBe('ending');
 
     expect(reducer(skipped, { type: 'RESTART' })).toEqual(createInitialState(story));
+  });
+});
+
+describe('conditional lines', () => {
+  const branching = mockStoryModel({
+    scenes: [
+      {
+        id: 'pista',
+        world: 'real',
+        backdrop: 'pista-dia',
+        actors: [],
+        lines: [{ speaker: null, text: 'Start' }],
+        interaction: { type: 'ollie' },
+      },
+      {
+        id: 'ursinho',
+        world: 'dream',
+        backdrop: 'sonho',
+        actors: [],
+        lines: [
+          { speaker: 'urso', text: 'Missed line', when: { ollie: 'missed' } },
+          { speaker: 'urso', text: 'Landed line', when: { ollie: 'landed' } },
+          { speaker: 'urso', text: 'Shared line' },
+        ],
+      },
+      {
+        id: 'only-landed',
+        world: 'dream',
+        backdrop: 'sonho',
+        actors: [],
+        lines: [{ speaker: 'urso', text: 'Only landed', when: { ollie: 'landed' } }],
+      },
+    ],
+  });
+  const branchingReducer = createStoryReducer(branching);
+  const play = (result: OllieResult) =>
+    (
+      [
+        { type: 'NEXT_LINE' },
+        { type: 'COMPLETE_INTERACTION', ollieResult: result },
+      ] as StoryAction[]
+    ).reduce(branchingReducer, createInitialState(branching));
+
+  it('shows only the lines that match the ollie result', () => {
+    const missed = play('missed');
+    expect(getCurrentLine(branching, missed)?.text).toBe('Missed line');
+    const shared = branchingReducer(missed, { type: 'NEXT_LINE' });
+    expect(getCurrentLine(branching, shared)?.text).toBe('Shared line');
+
+    const landed = play('landed');
+    expect(getCurrentLine(branching, landed)?.text).toBe('Landed line');
+  });
+
+  it('skips a scene whose lines all belong to the other result', () => {
+    const missed = play('missed');
+    const ended = ([{ type: 'NEXT_LINE' }, { type: 'NEXT_LINE' }] as StoryAction[]).reduce(
+      branchingReducer,
+      missed,
+    );
+
+    expect(ended.phase).toBe('ending');
+  });
+
+  it('hides conditional lines while there is no result', () => {
+    expect(visibleLines(branching.scenes[1], { ollieResult: null })).toEqual([
+      { speaker: 'urso', text: 'Shared line' },
+    ]);
+  });
+});
+
+describe('choiceOutcome', () => {
+  it('returns the outcome of the chosen option or null', () => {
+    expect(choiceOutcome(story, { choice: 'poste' })).toBe('Any poste outcome');
+    expect(choiceOutcome(story, { choice: null })).toBeNull();
+    expect(choiceOutcome(story, { choice: 'lua' })).toBeNull();
   });
 });

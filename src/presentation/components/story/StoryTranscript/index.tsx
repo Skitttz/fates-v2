@@ -1,6 +1,6 @@
 import { describeBackdrop } from '@/presentation/story/backdrop-descriptions';
 import { getSpeakerName } from '@/presentation/story/speakers';
-import { TRANSCRIPT_NOTES } from './constants';
+import { CONDITION_LABELS, TRANSCRIPT_NOTES } from './constants';
 import { StoryTranscriptProps } from './types';
 
 export function StoryTranscript({ story }: StoryTranscriptProps) {
@@ -18,6 +18,9 @@ export function StoryTranscript({ story }: StoryTranscriptProps) {
               key={`${scene.id}-${index}`}
               className={line.speaker ? undefined : 'italic text-zinc-300'}
             >
+              {line.when && (
+                <span className="text-sm text-zinc-500">{CONDITION_LABELS[line.when.ollie]} </span>
+              )}
               {line.speaker && (
                 <strong className="text-street-lime">{getSpeakerName(line.speaker)}: </strong>
               )}
@@ -32,7 +35,7 @@ export function StoryTranscript({ story }: StoryTranscriptProps) {
               <p className="text-street-yellow">{scene.interaction.prompt}</p>
               <ul className="list-inside list-disc text-zinc-300">
                 {scene.interaction.options.map((option) => (
-                  <li key={option.id}>{option.label}</li>
+                  <li key={option.id}>{`${option.label}: ${option.outcome}`}</li>
                 ))}
               </ul>
             </div>

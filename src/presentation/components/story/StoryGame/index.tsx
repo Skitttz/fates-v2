@@ -9,6 +9,7 @@ import { describeBackdrop } from '@/presentation/story/backdrop-descriptions';
 import { OLLIE_ANIMATION_MS, TRANSITION_MS } from '@/presentation/story/engine/constants';
 import {
   createInitialState,
+  choiceOutcome,
   createStoryReducer,
   getCurrentLine,
   getCurrentScene,
@@ -155,6 +156,7 @@ export function StoryGame({ story }: StoryGameProps) {
       {mode === 'game' && ended && (
         <StoryEnding
           epilogue={story.epilogue}
+          outcome={choiceOutcome(story, state)}
           photoId={photoForChoice(story, state.choice)}
           onRestart={restart}
         />
