@@ -1,6 +1,11 @@
 import { CANVAS_HEIGHT, CANVAS_WIDTH, EMPTY_BACKDROP_COLOR, GROUND_Y } from './constants';
 
-type DrawBackdrop = (context: CanvasRenderingContext2D, timeMs: number, animated: boolean) => void;
+type DrawBackdrop = (
+  context: CanvasRenderingContext2D,
+  timeMs: number,
+  animated: boolean,
+  focusX: number,
+) => void;
 
 const CITY: readonly [number, number, number][] = [
   [0, 16, 20],
@@ -38,6 +43,10 @@ const FLOATING = [
   { x: 208, y: 46, width: 8, height: 3, color: '#e4e4e7', phase: 4.2 },
 ];
 
+const DREAM_PARALLAX = { far: 0.04, near: 0.1 };
+const DREAM_CITY = { far: '#ebe6f2', near: '#ddd6e8', farShift: 9 };
+const CITY_REPEATS = [-CANVAS_WIDTH, 0, CANVAS_WIDTH];
+
 const fillSky = (context: CanvasRenderingContext2D, stops: readonly [number, string][]) => {
   const gradient = context.createLinearGradient(0, 0, 0, GROUND_Y);
   stops.forEach(([offset, color]) => gradient.addColorStop(offset, color));
@@ -45,9 +54,14 @@ const fillSky = (context: CanvasRenderingContext2D, stops: readonly [number, str
   context.fillRect(0, 0, CANVAS_WIDTH, GROUND_Y);
 };
 
-const drawCity = (context: CanvasRenderingContext2D, color: string) => {
+const drawCity = (context: CanvasRenderingContext2D, color: string, offset = 0) => {
   context.fillStyle = color;
-  CITY.forEach(([x, width, height]) => context.fillRect(x, GROUND_Y - height, width, height));
+  const repeats = offset === 0 ? [0] : CITY_REPEATS;
+  repeats.forEach((base) =>
+    CITY.forEach(([x, width, height]) =>
+      context.fillRect(x + base + offset, GROUND_Y - height, width, height),
+    ),
+  );
 };
 
 const drawGround = (context: CanvasRenderingContext2D, top: string, bottom: string) => {
@@ -106,10 +120,12 @@ const drawPistaNoite: DrawBackdrop = (context) => {
   drawRamp(context, '#52525b');
 };
 
-const drawSonho: DrawBackdrop = (context, timeMs, animated) => {
+const drawSonho: DrawBackdrop = (context, timeMs, animated, focusX) => {
+  const shift = animated ? focusX - CANVAS_WIDTH / 2 : 0;
   context.fillStyle = '#f4f1ea';
   context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  drawCity(context, '#ddd6e8');
+  drawCity(context, DREAM_CITY.far, DREAM_CITY.farShift - Math.round(shift * DREAM_PARALLAX.far));
+  drawCity(context, DREAM_CITY.near, -Math.round(shift * DREAM_PARALLAX.near));
   context.fillStyle = '#cbc5dc';
   context.fillRect(0, GROUND_Y, CANVAS_WIDTH, 1);
   context.strokeStyle = '#111111';
@@ -132,6 +148,7 @@ export function drawBackdrop(
   id: string,
   timeMs: number,
   animated: boolean,
+  focusX = CANVAS_WIDTH / 2,
 ): void {
   const draw = BACKDROPS[id];
   if (!draw) {
@@ -139,5 +156,5 @@ export function drawBackdrop(
     context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
     return;
   }
-  draw(context, timeMs, animated);
+  draw(context, timeMs, animated, focusX);
 }

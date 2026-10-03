@@ -8,7 +8,7 @@ import { resolveStoryPhoto } from '@/presentation/story/photos';
 import { ENDING_ACTIONS, ENDING_LABEL } from './constants';
 import { StoryEndingProps } from './types';
 
-export function StoryEnding({ epilogue, photoId, onRestart }: StoryEndingProps) {
+export function StoryEnding({ epilogue, outcome, photoId, onRestart }: StoryEndingProps) {
   const photo = resolveStoryPhoto(photoId);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -33,6 +33,9 @@ export function StoryEnding({ epilogue, photoId, onRestart }: StoryEndingProps) 
           className="object-cover"
         />
       </div>
+      {outcome && (
+        <p className="font-pixel text-lg leading-relaxed text-street-lime sm:text-xl">{outcome}</p>
+      )}
       <p className="font-pixel text-lg leading-relaxed text-zinc-50 sm:text-xl">{epilogue}</p>
       <div className="flex flex-wrap gap-3">
         <Link href={ENDING_ACTIONS.drop.href} className={buttonVariants({ size: 'lg' })}>

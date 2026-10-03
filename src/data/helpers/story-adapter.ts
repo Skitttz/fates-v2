@@ -2,9 +2,11 @@ import { UnexpectedError } from '@/domain/errors';
 import {
   StoryActorModel,
   StoryChoiceOptionModel,
+  StoryCondition,
   StoryInteractionModel,
   StoryLineModel,
   StoryModel,
+  StoryOllieResult,
   StorySceneModel,
   StoryTransition,
   StoryWorld,
@@ -12,6 +14,7 @@ import {
 
 const WORLDS: readonly StoryWorld[] = ['real', 'dream'];
 const TRANSITIONS: readonly StoryTransition[] = ['cut', 'fade-to-dream', 'flash-to-real'];
+const OLLIE_RESULTS: readonly StoryOllieResult[] = ['landed', 'missed'];
 
 const invalid = (): never => {
   throw new UnexpectedError();
@@ -43,17 +46,27 @@ const adaptActor = (value: unknown): StoryActorModel => {
   };
 };
 
+const adaptCondition = (value: unknown): StoryCondition => ({
+  ollie: asOneOf(asRecord(value).ollie, OLLIE_RESULTS),
+});
+
 const adaptLine = (value: unknown): StoryLineModel => {
   const line = asRecord(value);
   return {
     speaker: line.speaker === null ? null : asText(line.speaker),
     text: asText(line.text),
+    ...(line.when !== undefined ? { when: adaptCondition(line.when) } : {}),
   };
 };
 
 const adaptOption = (value: unknown): StoryChoiceOptionModel => {
   const option = asRecord(value);
-  return { id: asText(option.id), label: asText(option.label), photo: asText(option.photo) };
+  return {
+    id: asText(option.id),
+    label: asText(option.label),
+    photo: asText(option.photo),
+    outcome: asText(option.outcome),
+  };
 };
 
 const adaptInteraction = (value: unknown): StoryInteractionModel => {

@@ -3,6 +3,7 @@ import { StorySceneModel } from '@/domain/models';
 import { SpriteCache } from '../sprites/sprite-cache';
 import { EMPTY_BACKDROP_COLOR, TRANSITION_BLOCK } from './constants';
 import { renderScene } from './renderer';
+import { RenderInput } from './types';
 
 const makeContext = () => {
   const fills: { style: string; args: number[] }[] = [];
@@ -13,6 +14,10 @@ const makeContext = () => {
     filter: 'none',
     imageSmoothingEnabled: true,
     clearRect: vi.fn(),
+    save: vi.fn(),
+    restore: vi.fn(),
+    translate: vi.fn(),
+    scale: vi.fn(),
     fillRect: vi.fn(),
     strokeRect: vi.fn(),
     drawImage: vi.fn(),
@@ -35,8 +40,14 @@ const frame = (width: number, height: number) => ({ width, height }) as HTMLCanv
 
 const makeSprites = (): SpriteCache =>
   new Map([
-    ['paulo:skate', { frames: [frame(14, 24)], fps: 0 }],
-    ['paulo:deitado', { frames: [frame(22, 12)], fps: 0 }],
+    ['paulo:skate', { frames: [frame(14, 24)], fps: 0, loop: true }],
+    ['paulo:deitado', { frames: [frame(22, 12)], fps: 0, loop: true }],
+    ['paulo:ollie-ar', { frames: [frame(14, 20)], fps: 0, loop: true }],
+    ['paulo:sentado', { frames: [frame(12, 18)], fps: 0, loop: true }],
+    ['prancha:rolando', { frames: [frame(14, 2)], fps: 0, loop: true }],
+    ['adesivo:girando', { frames: [frame(12, 6)], fps: 0, loop: true }],
+    ['urso:parado', { frames: [frame(14, 14)], fps: 0, loop: true }],
+    ['urso:parado-esquerda', { frames: [frame(14, 15)], fps: 0, loop: true }],
   ]);
 
 const scene = (patch: Partial<StorySceneModel> = {}): StorySceneModel => ({
@@ -48,9 +59,13 @@ const scene = (patch: Partial<StorySceneModel> = {}): StorySceneModel => ({
   ...patch,
 });
 
-const render = (input: Parameters<typeof renderScene>[1]) => {
+const render = (input: Omit<RenderInput, 'sceneTimeMs'> & { sceneTimeMs?: number }) => {
   const { context, fills } = makeContext();
-  renderScene(context as unknown as CanvasRenderingContext2D, input, makeSprites());
+  renderScene(
+    context as unknown as CanvasRenderingContext2D,
+    { sceneTimeMs: 0, ...input },
+    makeSprites(),
+  );
   return { context, fills };
 };
 
@@ -94,14 +109,14 @@ describe('renderScene', () => {
     expect(context.drawImage).toHaveBeenCalledWith(expect.anything(), 93, 88);
   });
 
-  it('lifts paulo in the middle of a landed ollie and lays him down after a missed one', () => {
+  it('lifts paulo at the top of a landed ollie and sits him down with the board away after a missed one', () => {
     const landed = render({
       scene: scene(),
       timeMs: 0,
       animated: true,
-      effect: { type: 'ollie', progress: 0.5, result: 'landed' },
+      effect: { type: 'ollie', progress: 0.425, result: 'landed' },
     });
-    expect(landed.context.drawImage).toHaveBeenCalledWith(expect.anything(), 33, 72);
+    expect(landed.context.drawImage).toHaveBeenCalledWith(expect.anything(), 33, 76);
 
     const missed = render({
       scene: scene(),
@@ -109,7 +124,52 @@ describe('renderScene', () => {
       animated: true,
       effect: { type: 'ollie', progress: 0.6, result: 'missed' },
     });
-    expect(missed.context.drawImage).toHaveBeenCalledWith(expect.anything(), 29, 100);
+    expect(missed.context.drawImage).toHaveBeenCalledWith(expect.anything(), 34, 94);
+    expect(missed.context.drawImage).toHaveBeenCalledWith(expect.anything(), 57, 110);
+  });
+
+  it('shakes the scene after a missed ollie only with motion', () => {
+    const input = {
+      scene: scene(),
+      timeMs: 25,
+      effect: { type: 'ollie', progress: 0.5, result: 'missed' } as const,
+    };
+
+    expect(render({ ...input, animated: true }).context.translate).toHaveBeenCalledWith(2, 0);
+    expect(render({ ...input, animated: false }).context.translate).toHaveBeenCalledWith(0, 0);
+  });
+
+  it('bobs the actor who is speaking', () => {
+    const { context } = render({
+      scene: scene(),
+      timeMs: 0,
+      sceneTimeMs: 250,
+      animated: true,
+      speaker: 'paulo',
+    });
+
+    expect(context.drawImage).toHaveBeenCalledWith(expect.anything(), 33, 87);
+  });
+
+  it('makes the bear look at paulo and spins the sticker around its center', () => {
+    const { context } = render({
+      scene: scene({
+        world: 'dream',
+        backdrop: 'sonho',
+        actors: [
+          { id: 'paulo', x: 40, y: 112, pose: 'skate' },
+          { id: 'urso', x: 176, y: 100, pose: 'parado' },
+          { id: 'adesivo', x: 140, y: 112, pose: 'girando' },
+        ],
+      }),
+      timeMs: 0,
+      sceneTimeMs: 5000,
+      animated: false,
+    });
+
+    expect(context.drawImage).toHaveBeenCalledWith(expect.anything(), 169, 85);
+    expect(context.scale).toHaveBeenCalledWith(1, 1);
+    expect(context.drawImage).toHaveBeenCalledWith(expect.anything(), -6, -3);
   });
 
   it('covers the canvas at the start of the fade to dream and reveals it at the end', () => {
@@ -131,6 +191,63 @@ describe('renderScene', () => {
       transition: { kind: 'fade-to-dream', progress: 1.5 },
     });
     expect(end.fills.filter(isBlock)).toHaveLength(0);
+  });
+
+  it('moves the dream city layers with paulo only when motion is allowed', () => {
+    const nearCity = (fills: { style: string; args: number[] }[]) =>
+      fills.find(({ style }) => style === '#ddd6e8')?.args[0];
+    const dream = (x: number, animated: boolean) =>
+      render({
+        scene: scene({
+          world: 'dream',
+          backdrop: 'sonho',
+          actors: [{ id: 'paulo', x, y: 112, pose: 'skate' }],
+        }),
+        timeMs: 0,
+        animated,
+      }).fills;
+
+    expect(nearCity(dream(40, true))).not.toBe(nearCity(dream(200, true)));
+    expect(nearCity(dream(40, false))).toBe(nearCity(dream(200, false)));
+  });
+
+  it('draws the particles it receives', () => {
+    const { fills } = render({
+      scene: scene(),
+      timeMs: 0,
+      animated: true,
+      particles: [{ x: 5, y: 6, vx: 0, vy: 0, life: 1, maxLife: 1, color: '#abcdef' }],
+    });
+
+    expect(fills).toContainEqual({ style: '#abcdef', args: [5, 6, 1, 1] });
+  });
+
+  it('stamps the sticker and then clears the canvas block by block', () => {
+    const sprites = makeSprites();
+    sprites.set('adesivo:brilhando', { frames: [frame(12, 6)], fps: 0, loop: true });
+    const { context } = makeContext();
+    const draw = (progress: number) => {
+      context.clearRect.mockClear();
+      context.drawImage.mockClear();
+      renderScene(
+        context as unknown as CanvasRenderingContext2D,
+        {
+          scene: scene(),
+          timeMs: 0,
+          sceneTimeMs: 0,
+          animated: true,
+          effect: { type: 'placing', progress },
+        },
+        sprites,
+      );
+    };
+
+    draw(0.3);
+    expect(context.drawImage).toHaveBeenCalledWith(expect.anything(), 102, 55, 36, 18);
+    expect(context.clearRect).toHaveBeenCalledTimes(1);
+
+    draw(1);
+    expect(context.clearRect.mock.calls.length).toBeGreaterThan(400);
   });
 
   it('desaturates paulo in the dream and resets the filter', () => {

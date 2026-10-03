@@ -35,6 +35,31 @@ describe('sprites', () => {
     expect(first).not.toBe(second);
   });
 
+  it('holds the last frame of a sprite that does not loop', () => {
+    const cache = createSpriteCache(SPRITE_SHEETS, fakeCanvas);
+    const frames = cache.get('paulo:levantando')?.frames ?? [];
+
+    expect(frames).toHaveLength(3);
+    expect(getSpriteFrame(cache, 'paulo', 'levantando', 0)).toBe(frames[0]);
+    expect(getSpriteFrame(cache, 'paulo', 'levantando', 60_000)).toBe(frames[2]);
+  });
+
+  it('makes the bear blink and look to both sides', () => {
+    const cache = createSpriteCache(SPRITE_SHEETS, fakeCanvas);
+
+    [
+      'parado',
+      'parado-esquerda',
+      'parado-direita',
+      'sorrindo-esquerda',
+      'sorrindo-direita',
+    ].forEach((pose) => {
+      const open = getSpriteFrame(cache, 'urso', pose, 0);
+      const blink = getSpriteFrame(cache, 'urso', pose, 2900);
+      expect(open, pose).not.toBe(blink);
+    });
+  });
+
   it('returns null for unknown actors or poses', () => {
     const cache = createSpriteCache(SPRITE_SHEETS, fakeCanvas);
 

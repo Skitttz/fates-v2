@@ -6,50 +6,22 @@
       "id": "pista",
       "world": "real",
       "backdrop": "pista-dia",
-      "actors": [
-        {
-          "id": "paulo",
-          "x": 48,
-          "y": 112,
-          "pose": "skate"
-        }
-      ],
+      "actors": [{ "id": "paulo", "x": 48, "y": 112, "pose": "skate" }],
       "lines": [
-        {
-          "speaker": null,
-          "text": "Aracaju. Fim de tarde."
-        },
-        {
-          "speaker": "paulo",
-          "text": "Hoje eu acerto essa."
-        }
+        { "speaker": null, "text": "Aracaju. Fim de tarde." },
+        { "speaker": "paulo", "text": "Hoje eu acerto essa." }
       ],
-      "interaction": {
-        "type": "ollie"
-      }
+      "interaction": { "type": "ollie" }
     },
     {
       "id": "queda",
       "world": "dream",
       "backdrop": "sonho",
       "transitionIn": "fade-to-dream",
-      "actors": [
-        {
-          "id": "paulo",
-          "x": 72,
-          "y": 112,
-          "pose": "deitado"
-        }
-      ],
+      "actors": [{ "id": "paulo", "x": 72, "y": 112, "pose": "deitado" }],
       "lines": [
-        {
-          "speaker": null,
-          "text": "…"
-        },
-        {
-          "speaker": "paulo",
-          "text": "Onde… eu tô?"
-        }
+        { "speaker": null, "text": "…" },
+        { "speaker": "paulo", "text": "Onde… eu tô?" }
       ]
     },
     {
@@ -57,42 +29,37 @@
       "world": "dream",
       "backdrop": "sonho",
       "actors": [
-        {
-          "id": "paulo",
-          "x": 72,
-          "y": 112,
-          "pose": "parado"
-        },
-        {
-          "id": "caixote",
-          "x": 176,
-          "y": 112,
-          "pose": "padrao"
-        },
-        {
-          "id": "urso",
-          "x": 176,
-          "y": 100,
-          "pose": "chorando"
-        }
+        { "id": "paulo", "x": 72, "y": 112, "pose": "parado" },
+        { "id": "caixote", "x": 176, "y": 112, "pose": "padrao" },
+        { "id": "urso", "x": 176, "y": 100, "pose": "chorando" }
       ],
       "lines": [
+        { "speaker": "paulo", "text": "Ei… tá tudo bem?" },
+        { "speaker": "urso", "text": "Você… consegue me ver?" },
+        { "speaker": "urso", "text": "Ninguém nunca me vê. Faz tanto tempo que eu tô aqui." },
         {
-          "speaker": "paulo",
-          "text": "Ei… tá tudo bem?"
+          "speaker": "urso",
+          "text": "Eu vi você cair lá na pista.",
+          "when": { "ollie": "missed" }
+        },
+        { "speaker": "paulo", "text": "É… errei o ollie.", "when": { "ollie": "missed" } },
+        {
+          "speaker": "urso",
+          "text": "Todo mundo cai. O que importa é pra onde você vai quando levanta.",
+          "when": { "ollie": "missed" }
         },
         {
           "speaker": "urso",
-          "text": "Você… consegue me ver?"
+          "text": "Eu vi seu ollie. Você acertou… e mesmo assim caiu.",
+          "when": { "ollie": "landed" }
         },
+        { "speaker": "paulo", "text": "Me distraí com um brilho.", "when": { "ollie": "landed" } },
         {
           "speaker": "urso",
-          "text": "Ninguém nunca me vê. Faz tanto tempo que eu tô aqui."
+          "text": "Às vezes é o caminho chamando a gente.",
+          "when": { "ollie": "landed" }
         },
-        {
-          "speaker": "urso",
-          "text": "Eu guardei uma coisa pra quem me encontrasse."
-        }
+        { "speaker": "urso", "text": "Eu guardei uma coisa pra quem me encontrasse." }
       ]
     },
     {
@@ -100,77 +67,33 @@
       "world": "dream",
       "backdrop": "sonho",
       "actors": [
-        {
-          "id": "paulo",
-          "x": 32,
-          "y": 112,
-          "pose": "skate"
-        },
-        {
-          "id": "adesivo",
-          "x": 132,
-          "y": 112,
-          "pose": "brilhando"
-        },
-        {
-          "id": "caixote",
-          "x": 200,
-          "y": 112,
-          "pose": "padrao"
-        },
-        {
-          "id": "urso",
-          "x": 200,
-          "y": 100,
-          "pose": "parado"
-        }
+        { "id": "paulo", "x": 32, "y": 112, "pose": "skate" },
+        { "id": "adesivo", "x": 132, "y": 112, "pose": "brilhando" },
+        { "id": "caixote", "x": 200, "y": 112, "pose": "padrao" },
+        { "id": "urso", "x": 200, "y": 100, "pose": "parado" }
       ],
       "lines": [],
-      "interaction": {
-        "type": "walk-to",
-        "actor": "paulo",
-        "targetX": 132
-      }
+      "interaction": { "type": "walk-to", "actor": "paulo", "targetX": 132 }
     },
     {
       "id": "adesivo",
       "world": "dream",
       "backdrop": "sonho",
       "actors": [
-        {
-          "id": "paulo",
-          "x": 118,
-          "y": 112,
-          "pose": "parado"
-        },
-        {
-          "id": "adesivo",
-          "x": 138,
-          "y": 112,
-          "pose": "brilhando"
-        },
-        {
-          "id": "caixote",
-          "x": 200,
-          "y": 112,
-          "pose": "padrao"
-        },
-        {
-          "id": "urso",
-          "x": 200,
-          "y": 100,
-          "pose": "sorrindo"
-        }
+        { "id": "paulo", "x": 122, "y": 112, "pose": "parado" },
+        { "id": "adesivo", "x": 140, "y": 112, "pose": "girando" },
+        { "id": "caixote", "x": 200, "y": 112, "pose": "padrao" },
+        { "id": "urso", "x": 200, "y": 100, "pose": "sorrindo" }
       ],
       "lines": [
+        { "speaker": "urso", "text": "Fates. Destinos, no plural." },
         {
           "speaker": "urso",
-          "text": "Fates. Quer dizer destinos."
+          "text": "Não é um destino só. Cada lugar onde um desses fica colado vira o começo do caminho de alguém."
         },
-        {
-          "speaker": "urso",
-          "text": "O meu sempre foi ser visto. O seu… você vai descobrir colando por aí."
-        }
+        { "speaker": "urso", "text": "Quem passa e vê… para, olha, e decide seguir." },
+        { "speaker": "paulo", "text": "E o meu?" },
+        { "speaker": "urso", "text": "O seu começa quando você colar o primeiro." }
       ]
     },
     {
@@ -178,37 +101,17 @@
       "world": "real",
       "backdrop": "pista-noite",
       "transitionIn": "flash-to-real",
-      "actors": [
-        {
-          "id": "paulo",
-          "x": 96,
-          "y": 112,
-          "pose": "sentado"
-        }
-      ],
+      "actors": [{ "id": "paulo", "x": 96, "y": 112, "pose": "sentado" }],
       "lines": [
-        {
-          "speaker": null,
-          "text": "No shape, um adesivo FATES. Do lado, um ursinho desenhado."
-        },
-        {
-          "speaker": "paulo",
-          "text": "Foi só um sonho… né?"
-        }
+        { "speaker": null, "text": "No shape do skate, o mesmo adesivo do sonho." },
+        { "speaker": "paulo", "text": "Foi só um sonho… né?" }
       ]
     },
     {
       "id": "primeiro-adesivo",
       "world": "real",
       "backdrop": "pista-noite",
-      "actors": [
-        {
-          "id": "paulo",
-          "x": 96,
-          "y": 112,
-          "pose": "parado"
-        }
-      ],
+      "actors": [{ "id": "paulo", "x": 96, "y": 112, "pose": "levantando" }],
       "lines": [],
       "interaction": {
         "type": "choice",
@@ -217,21 +120,24 @@
           {
             "id": "caixote",
             "label": "No caixote",
-            "photo": "caixote"
+            "photo": "caixote",
+            "outcome": "Ali, toda sessão começa passando por ele."
           },
           {
             "id": "poste",
             "label": "No poste",
-            "photo": "poste"
+            "photo": "poste",
+            "outcome": "Quem espera o ônibus agora tem pra onde olhar."
           },
           {
             "id": "moletom",
             "label": "No moletom",
-            "photo": "moletom"
+            "photo": "moletom",
+            "outcome": "Esse vai junto, pra onde o Paulo for."
           }
         ]
       }
     }
   ],
-  "epilogue": "Desde então, a Fates aparece pela cidade. E o ursinho nunca mais ficou invisível."
+  "epilogue": "Desde então, a Fates aparece pela cidade. Cada adesivo é o começo do caminho de alguém. E o ursinho nunca mais ficou invisível."
 }

@@ -35,8 +35,8 @@ export const mockStoryModel = (overrides: Partial<StoryModel> = {}): StoryModel 
         type: 'choice',
         prompt: 'Any prompt',
         options: [
-          { id: 'caixote', label: 'Caixote', photo: 'caixote' },
-          { id: 'poste', label: 'Poste', photo: 'poste' },
+          { id: 'caixote', label: 'Caixote', photo: 'caixote', outcome: 'Any caixote outcome' },
+          { id: 'poste', label: 'Poste', photo: 'poste', outcome: 'Any poste outcome' },
         ],
       },
     },

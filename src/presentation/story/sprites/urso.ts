@@ -11,13 +11,27 @@ const PALETTE: SpritePalette = {
   t: '#5ce1e6',
 };
 
-const HEAD: SpriteFrame = [
+const HEAD_TOP: SpriteFrame = [
   '...kkkkkkkk...',
   '..kccffccccck.',
   '.kccccccccccck',
   '.kuuuuuuuuuuk.',
-  '.kuwewuuuwewuk',
 ];
+
+const EYES = {
+  frente: '.kuwewuuuwewuk',
+  esquerda: '.kuewwuuuewwuk',
+  direita: '.kuwweuuuwweuk',
+  fechados: '.kukkkuuukkkuk',
+};
+
+const MOUTH: Readonly<Record<'neutra' | 'sorriso', SpriteFrame>> = {
+  neutra: ['.kuuuuuuuuuuk.', '.kuuuuukuuuuuk', '..kuuuuuuuuk..'],
+  sorriso: ['.kuuuuuuuuuuk.', '.kuuukuuukuuuk', '..kuuukkkuuk..'],
+};
+
+const BLINK_HOLD_FRAMES = 11;
+const BLINK_FPS = 4;
 
 const BODY: SpriteFrame = [
   '.kuuuuuuuuuuk.',
@@ -28,22 +42,42 @@ const BODY: SpriteFrame = [
   '.kkkk....kkkk.',
 ];
 
-const face = (rows: SpriteFrame): SpriteFrame => [...HEAD, ...rows, ...BODY];
-
 const sprite = (frames: SpriteFrame[], fps = 0): SpriteDefinition => ({
   palette: PALETTE,
   frames,
   fps,
 });
 
+const face = (eyes: string, rows: SpriteFrame): SpriteFrame => [
+  ...HEAD_TOP,
+  eyes,
+  ...rows,
+  ...BODY,
+];
+
+const blinking = (eyes: string, mouth: SpriteFrame): SpriteDefinition =>
+  sprite(
+    [
+      ...Array.from({ length: BLINK_HOLD_FRAMES }, () => face(eyes, mouth)),
+      face(EYES.fechados, mouth),
+    ],
+    BLINK_FPS,
+  );
+
+const withLooks = (name: string, mouth: SpriteFrame): SpriteSheet => ({
+  [name]: blinking(EYES.frente, mouth),
+  [`${name}-esquerda`]: blinking(EYES.esquerda, mouth),
+  [`${name}-direita`]: blinking(EYES.direita, mouth),
+});
+
 export const URSO: SpriteSheet = {
   chorando: sprite(
     [
-      face(['.kuutuuuuutuuk', '.kuutuukuutuuk', '..kuuuuuuuuk..']),
-      face(['.kuuuuuuuuuuk.', '.kuutuukuutuuk', '..kutuuuutuk..']),
+      face(EYES.frente, ['.kuutuuuuutuuk', '.kuutuukuutuuk', '..kuuuuuuuuk..']),
+      face(EYES.frente, ['.kuuuuuuuuuuk.', '.kuutuukuutuuk', '..kutuuuutuk..']),
     ],
     3,
   ),
-  parado: sprite([face(['.kuuuuuuuuuuk.', '.kuuuuukuuuuuk', '..kuuuuuuuuk..'])]),
-  sorrindo: sprite([face(['.kuuuuuuuuuuk.', '.kuuukuuukuuuk', '..kuuukkkuuk..'])]),
+  ...withLooks('parado', MOUTH.neutra),
+  ...withLooks('sorrindo', MOUTH.sorriso),
 };
