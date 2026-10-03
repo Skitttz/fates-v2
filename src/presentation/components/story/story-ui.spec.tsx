@@ -217,6 +217,14 @@ describe('StoryEnding', () => {
     );
   });
 
+  it('takes the focus without drawing the focus ring around the whole ending', () => {
+    render(<StoryEnding epilogue="Fim." outcome={null} photoId="poste" onRestart={vi.fn()} />);
+
+    const ending = screen.getByRole('region', { name: 'Final da história' });
+    expect(ending).toHaveFocus();
+    expect(ending).toHaveClass('focus-visible:ring-0', 'focus-visible:ring-offset-0');
+  });
+
   it('uses the default photo when there is no choice', () => {
     render(<StoryEnding epilogue="Fim." outcome={null} photoId={null} onRestart={vi.fn()} />);
 
