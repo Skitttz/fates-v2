@@ -1,8 +1,9 @@
+import { quietFocusStyles } from '@/presentation/styles/focus';
 import { tv } from '@/presentation/styles/tv';
 
 export const storyGameStyles = tv({
   slots: {
-    root: 'flex flex-col gap-4 focus:outline-none',
+    root: ['flex flex-col gap-4', quietFocusStyles()],
     status: 'sr-only',
     stage: 'flex flex-col gap-3',
     backdrop: 'sr-only',

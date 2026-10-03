@@ -1,9 +1,10 @@
 import { buttonVariants } from '@/presentation/components/ui';
+import { quietFocusStyles } from '@/presentation/styles/focus';
 import { tv } from '@/presentation/styles/tv';
 
 export const storyEndingStyles = tv({
   slots: {
-    root: 'flex animate-page-in flex-col gap-6 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0',
+    root: ['flex animate-page-in flex-col gap-6', quietFocusStyles()],
     photo: 'relative aspect-video overflow-hidden border-4 border-zinc-50',
     image: 'object-cover',
     outcome: 'font-pixel text-lg leading-relaxed text-street-lime sm:text-xl',
