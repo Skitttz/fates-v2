@@ -69,10 +69,16 @@ describe('ollie timeline', () => {
     expect(ollieBoard(paulo, ollie(0.9, 'landed'))).toMatchObject({ id: 'prancha', y: 112 });
   });
 
-  it('shows the glow ahead of paulo after a landed ollie', () => {
-    expect(landingGlow(paulo, ollie(0.8, 'landed'))).toBeNull();
-    expect(landingGlow(paulo, ollie(0.9, 'landed'))).toMatchObject({ id: 'adesivo', y: 112 });
+  it('shows the glow ahead of paulo as soon as he lands the ollie', () => {
+    expect(landingGlow(paulo, ollie(0.69, 'landed'))).toBeNull();
+    expect(landingGlow(paulo, ollie(0.7, 'landed'))).toMatchObject({ id: 'adesivo', y: 112 });
+    expect(landingGlow(paulo, ollie(0.99, 'landed'))).toMatchObject({ id: 'adesivo', y: 112 });
     expect(landingGlow(paulo, ollie(0.9, 'missed'))).toBeNull();
+  });
+
+  it('lets paulo see the glow before he slips', () => {
+    expect(ollieActor(paulo, ollie(0.75, 'landed')).pose).toBe('agachado');
+    expect(landingGlow(paulo, ollie(0.75, 'landed'))).not.toBeNull();
   });
 });
 

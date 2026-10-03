@@ -106,6 +106,17 @@ describe('painters', () => {
     expect(context.drawImage).not.toHaveBeenCalled();
   });
 
+  it('draws the glow that distracts paulo bigger than the resting one', () => {
+    const sticker = { id: 'adesivo', x: 150, y: 112, pose: 'brilhando' };
+    const landing = { type: 'ollie' as const, progress: 0.8, result: 'landed' as const };
+
+    const resting = paint(sticker, { scene: { ...input().scene, world: 'real' } });
+    const distracting = paint(sticker, { effect: landing });
+
+    expect(resting.context.arc).toHaveBeenCalledWith(150, 109, 12, 0, Math.PI * 2);
+    expect(distracting.context.arc).toHaveBeenCalledWith(150, 109, 18, 0, Math.PI * 2);
+  });
+
   it('builds the entering actor out of blocks and nothing at the very start', () => {
     const bear = { id: 'urso', x: 120, y: 112, pose: 'parado', entrance: 'materialize' as const };
 

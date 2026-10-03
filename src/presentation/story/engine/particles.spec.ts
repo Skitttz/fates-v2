@@ -42,8 +42,35 @@ describe('emitParticles', () => {
     const at = (progress: number) =>
       input({ effect: { type: 'ollie', progress, result: 'landed' } });
 
-    expect(emitParticles(at(0.71), at(0.69), 16, never)).toHaveLength(6);
+    const dust = emitParticles(at(0.71), at(0.69), 16, never).filter(
+      ({ color }) => color === PARTICLE_COLORS.dust,
+    );
+    expect(dust).toHaveLength(6);
     expect(emitParticles(at(0.75), at(0.71), 16, never)).toHaveLength(0);
+  });
+
+  it('bursts sparks where the glow appears when paulo lands the ollie', () => {
+    const at = (progress: number) =>
+      input({ effect: { type: 'ollie', progress, result: 'landed' } });
+
+    const sparks = emitParticles(at(0.71), at(0.69), 16, never).filter(
+      ({ color }) => color === PARTICLE_COLORS.spark,
+    );
+
+    expect(sparks).toHaveLength(10);
+    expect(sparks.every(({ x, y }) => x === 88 && y < 112)).toBe(true);
+  });
+
+  it('keeps sparkling around the glow until the ollie ends', () => {
+    const at = (progress: number, result: 'landed' | 'missed' = 'landed') =>
+      input({ effect: { type: 'ollie', progress, result } });
+
+    const [spark] = emitParticles(at(0.9), at(0.89), 16, always);
+    expect(spark).toMatchObject({ color: PARTICLE_COLORS.spark });
+    expect(Math.abs(spark.x - 88)).toBeLessThanOrEqual(10);
+
+    expect(emitParticles(at(0.5), at(0.49), 16, always)).toEqual([]);
+    expect(emitParticles(at(0.9, 'missed'), at(0.89, 'missed'), 16, always)).toEqual([]);
   });
 
   it('leaves dust behind while paulo is riding', () => {

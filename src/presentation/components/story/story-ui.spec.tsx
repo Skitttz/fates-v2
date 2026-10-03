@@ -9,10 +9,12 @@ import {
   DialogueBox,
   OllieMeter,
   StoryEnding,
+  StoryGame,
   StoryToolbar,
   StoryTranscript,
   TouchControls,
 } from '.';
+import { StoryAftermath } from './StoryAftermath';
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -240,6 +242,30 @@ describe('StoryEnding', () => {
     const ending = screen.getByRole('region', { name: 'Final da história' });
     expect(ending).toHaveFocus();
     expect(ending).toHaveClass('focus-visible:ring-0', 'focus-visible:ring-offset-0');
+  });
+
+  it('takes the focus on the aftermath without drawing the focus ring around it', () => {
+    render(
+      <StoryAftermath
+        consequence={{ title: 'Any title', text: 'Any text', place: 'poste' }}
+        reducedMotion
+        onContinue={vi.fn()}
+      />,
+    );
+
+    const aftermath = screen.getByRole('region', { name: 'Seu adesivo ganhou a rua' });
+    expect(aftermath).toHaveFocus();
+    expect(aftermath).toHaveClass('focus-visible:ring-0', 'focus-visible:ring-offset-0');
+  });
+
+  it('never draws the focus ring around the whole game when it holds the focus', () => {
+    render(<StoryGame story={mockStoryModel()} />);
+
+    const game = screen.getByRole('region', { name: 'História da Fates' });
+    game.focus();
+
+    expect(game).toHaveFocus();
+    expect(game).toHaveClass('focus-visible:ring-0', 'focus-visible:ring-offset-0');
   });
 
   it('uses the default photo when there is no choice', () => {

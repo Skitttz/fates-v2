@@ -16,7 +16,7 @@ const GLOW = {
 
 export class GlowPainter implements ActorPainter {
   paint({ context, input }: Brush, actor: StoryActorModel): void {
-    const emphasized = input.emphasis === actor.id;
+    const emphasized = input.emphasis === actor.id || input.effect?.type === 'ollie';
     const pulse = glowPulse(input.timeMs, input.animated, emphasized);
     const radius = emphasized ? GLOW.radius + GLOW.emphasisRadius : GLOW.radius;
     const alpha = emphasized ? GLOW.alpha + GLOW.emphasisAlpha : GLOW.alpha;
