@@ -19,7 +19,7 @@
 
 ## 📝 Visao Geral
 
-Fates é uma vitrine de streetwear feita com Next.js 15 (App Router) para aplicar Clean Architecture no front-end. Catálogo, login e pedidos vêm da API do projeto (Bun + Elysia + Prisma). Nenhuma compra é real: o pedido é registrado, mas não há pagamento.
+Fates é uma vitrine de streetwear feita com Next.js 15 (App Router) para aplicar Clean Architecture no front-end. Catálogo, login e pedidos podem usar a API do projeto ou um mock local, sem backend. Nenhuma compra é real e não há pagamento.
 
 Funcionalidades:
 
@@ -61,7 +61,7 @@ As dependências apontam sempre para dentro, para o `domain`. Regras de `no-rest
 | `infra`        | Detalhes técnicos que implementam os protocolos de `data`.                                                                     | `FetchHttpClient`, `LocalStorageAdapter`                       |
 | `validation`   | Validadores que implementam o protocolo `Validation` da apresentação.                                                          | `ValidationBuilder.field('email').required().email()`          |
 | `presentation` | Componentes, páginas e contextos React. Recebe os casos de uso por props e só conhece as interfaces do `domain`.               | `Store`, `Login`, `CartProvider`                               |
-| `main`         | Composition root: monta as dependências e entrega para a apresentação. Também guarda decorators.                               | `makeRemoteLoadProducts`, `AuthorizeHttpClientDecorator`       |
+| `main`         | Composition root: monta as dependências e entrega para a apresentação. Também guarda decorators.                               | `makeLoadProducts`, `AuthorizeHttpClientDecorator`       |
 | `app`          | Rotas do Next. Arquivos finos que só chamam as factories.                                                                      | `app/(store)/products/page.tsx`                                |
 
 Algumas decisões:
@@ -69,7 +69,7 @@ Algumas decisões:
 - **Server Components injetados.** As páginas de catálogo e produto são Server Components assíncronos que recebem `LoadProducts`/`LoadProductBySlug` da factory. Páginas interativas (carrinho e login) usam factories `'use client'`, porque instâncias de classe não atravessam a fronteira servidor → cliente.
 - **Decorator de autorização.** O `RemotePlaceOrder` não sabe nada de token. O `AuthorizeHttpClientDecorator` lê a conta salva e adiciona `Authorization: Bearer <token>` antes de delegar ao `HttpClient` real.
 - **Adapters de API.** A API responde no envelope `{ status, data }`, com imagens em caminhos relativos e o pedido usando `clothingId`. O `data` desembrulha, resolve as URLs e traduz os nomes, então o resto da aplicação nunca vê o formato remoto.
-- **Trocar a fonte de dados** exige mudar só a factory (ou definir `NEXT_PUBLIC_API_URL` para uma API real com o mesmo contrato).
+- **API com mock.** As factories em `main` selecionam implementações locais dos contratos de domínio quando `NEXT_PUBLIC_DEMO_MODE=true`. Os casos de uso `MockAuthentication`, `MockLoadProducts`, `MockLoadProductBySlug` e `MockPlaceOrder` ficam em `data`, recebem os dados por injeção e retornam modelos e erros do domínio. Os dados de exemplo ficam em `main/mocks`; o cliente HTTP continua exclusivo da integração com a API.
 
 ### API
 
@@ -80,7 +80,7 @@ Algumas decisões:
 | POST   | `/auth/login`             | Login                                                 |
 | POST   | `/orders`                 | Checkout (exige `Authorization: Bearer`)              |
 
-Conta demo criada pelo seed da API: **demo@fates.com** / **fates123**
+Conta para testar com o mock: **demo@fates.com** / **fates123**
 
 <a id="como-executar"></a>
 
@@ -90,33 +90,33 @@ Conta demo criada pelo seed da API: **demo@fates.com** / **fates123**
 
 - `Node.js` 22.12+
 - `npm`
-- A API do projeto rodando (por padrão em `http://localhost:3000`)
 
-### Subindo a API
-
-No repositório da API:
+### Rodar com mock (sem backend)
 
 ```bash
-docker compose up --build
-```
-
-Isso sobe o Postgres, aplica as migrations, roda o seed (3 roupas + usuário demo) e inicia a API na porta 3000.
-
-### Instalação
-
-```bash
-npm install
-```
-
-### Desenvolvimento
-
-```bash
+npm ci
+cp .env.example .env.local
 npm run dev
 ```
 
-Abra `http://localhost:3001` (a 3000 fica com a API). Para apontar para outra API, defina `NEXT_PUBLIC_API_URL` (veja `.env.example`).
+Abra `http://localhost:3001`. O arquivo de exemplo ativa o mock com `NEXT_PUBLIC_DEMO_MODE=true`: catálogo com três produtos e imagens locais, busca, filtros, detalhes, carrinho, login e checkout funcionam sem API ou banco de dados.
+
+Use **demo@fates.com** / **fates123** para entrar. Os pedidos são simulados, recebem um código `FTS-DEMO-...` e não são persistidos. O carrinho e a conta continuam salvos no navegador. O mock implementa os contratos dos casos de uso com dados locais, sem simular rotas HTTP ou realizar autenticação real. As imagens dos produtos são ilustrações incluídas no projeto para os testes.
+
+### Rodar com uma API
+
+Em `.env.local`, configure:
+
+```dotenv
+NEXT_PUBLIC_DEMO_MODE=false
+NEXT_PUBLIC_API_URL=http://localhost:3000/api/v1
+```
+
+Reinicie o servidor após alterar essas variáveis. Sem `NEXT_PUBLIC_DEMO_MODE=true`, a aplicação usa a API configurada; falhas de conexão não ativam o mock automaticamente. Ao alternar entre mock e API, saia da conta e limpe o carrinho, pois as sessões e os produtos são diferentes.
 
 ### Build e produção
+
+A escolha entre mock e API é definida no momento do build. Use `NEXT_PUBLIC_DEMO_MODE=true` para rodar com mock ou `false` para conectar à API configurada.
 
 ```bash
 npm run build
@@ -141,11 +141,11 @@ npm test               # roda uma vez
 npm run test:watch     # modo watch
 ```
 
-Testes E2E com Cypress (com a API rodando e o front em `localhost:3001`):
+Testes E2E com Cypress (com o mock ativo ou uma API compatível e o front em `localhost:3001`):
 
 ```bash
 npm run build && npm run start
-npm run cypress:run    # headless
+npm run cypress:run -- --browser chrome  # headless, com Google Chrome instalado
 npm run cypress:open   # interface
 ```
 

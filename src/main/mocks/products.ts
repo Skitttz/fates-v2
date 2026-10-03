@@ -1,0 +1,42 @@
+import { ProductModel } from '@/domain/models';
+
+export const mockProducts: readonly ProductModel[] = [
+  {
+    id: '00000000-0000-4000-8000-000000000001',
+    slug: 'camiseta-masculina-fates',
+    name: 'Camiseta Masculina Fates',
+    description: 'Camiseta preta de algodão com caimento reto e estampa Fates no peito.',
+    category: 'camisetas',
+    material: '100% algodão',
+    price: 70,
+    sizes: ['P', 'M', 'G', 'GG'],
+    colors: ['Preto'],
+    images: ['/demo/camiseta.svg'],
+    tag: 'DROP 01',
+  },
+  {
+    id: '00000000-0000-4000-8000-000000000002',
+    slug: 'gorro-bordado-fates',
+    name: 'Gorro Bordado Fates',
+    description: 'Gorro de tricô com barra dobrada e bordado Fates.',
+    category: 'acessorios',
+    material: 'Tricô acrílico',
+    price: 50,
+    sizes: ['Único'],
+    colors: ['Preto'],
+    images: ['/demo/gorro.svg'],
+  },
+  {
+    id: '00000000-0000-4000-8000-000000000003',
+    slug: 'calca-jogger-fates-unissex',
+    name: 'Calça Jogger Fates Unissex',
+    description: 'Calça de moletom com elástico na cintura e punhos ajustados.',
+    category: 'calcas',
+    material: 'Moletom de algodão e poliéster',
+    price: 80,
+    sizes: ['P', 'M', 'G', 'GG'],
+    colors: ['Preto'],
+    images: ['/demo/calca.svg'],
+    tag: 'NEW',
+  },
+];

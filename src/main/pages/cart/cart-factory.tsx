@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import { Cart } from '@/presentation/pages/cart';
-import { makeRemotePlaceOrder } from '../../usecases';
+import { makePlaceOrder } from '../../usecases';
 
 export function CartFactory() {
-  const [placeOrder] = useState(makeRemotePlaceOrder);
+  const [placeOrder] = useState(makePlaceOrder);
 
   return <Cart placeOrder={placeOrder} />;
 }
