@@ -32,3 +32,17 @@ describe('adaptStory', () => {
     expect(() => adaptStory(raw)).toThrow(UnexpectedError);
   });
 });
+
+describe('adaptStory walk validation', () => {
+  it('rejects a walk whose actor is not in the scene', () => {
+    const story = mockStoryModel();
+    const raw = {
+      ...story,
+      scenes: [
+        { ...story.scenes[1], interaction: { type: 'walk-to', actor: 'urso', targetX: 150 } },
+      ],
+    };
+
+    expect(() => adaptStory(raw)).toThrow(UnexpectedError);
+  });
+});

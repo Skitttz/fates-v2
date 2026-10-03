@@ -1,15 +1,28 @@
+'use client';
+
 import Image from 'next/image';
+import { useEffect, useRef } from 'react';
 import { Link } from '@/presentation/components/navigation';
 import { buttonVariants } from '@/presentation/components/ui';
 import { resolveStoryPhoto } from '@/presentation/story/photos';
-import { ENDING_ACTIONS } from './constants';
+import { ENDING_ACTIONS, ENDING_LABEL } from './constants';
 import { StoryEndingProps } from './types';
 
 export function StoryEnding({ epilogue, photoId, onRestart }: StoryEndingProps) {
   const photo = resolveStoryPhoto(photoId);
+  const sectionRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    sectionRef.current?.focus();
+  }, []);
 
   return (
-    <div className="flex animate-page-in flex-col gap-6">
+    <section
+      ref={sectionRef}
+      aria-label={ENDING_LABEL}
+      tabIndex={-1}
+      className="flex animate-page-in flex-col gap-6 focus:outline-none"
+    >
       <div className="relative aspect-video overflow-hidden border-4 border-zinc-50">
         <Image
           src={photo.src}
@@ -39,6 +52,6 @@ export function StoryEnding({ epilogue, photoId, onRestart }: StoryEndingProps) 
           {ENDING_ACTIONS.restart}
         </button>
       </div>
-    </div>
+    </section>
   );
 }

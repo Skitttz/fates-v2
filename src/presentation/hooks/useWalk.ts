@@ -37,6 +37,7 @@ export function useWalk({ active, startX, targetX, direction, onArrive }: UseWal
     let frame = 0;
     let last = performance.now();
     let current = startX;
+    const target = Math.min(WALK_BOUNDS.max, Math.max(WALK_BOUNDS.min, targetX));
 
     const step = (now: number) => {
       const delta = Math.min(Math.max(now - last, 0), WALK_MAX_STEP_MS);
@@ -47,7 +48,7 @@ export function useWalk({ active, startX, targetX, direction, onArrive }: UseWal
       );
       setX(current);
 
-      if (Math.abs(current - targetX) <= WALK_ARRIVAL_DISTANCE) {
+      if (Math.abs(current - target) <= WALK_ARRIVAL_DISTANCE) {
         onArriveRef.current();
         return;
       }

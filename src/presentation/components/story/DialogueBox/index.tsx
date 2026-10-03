@@ -4,14 +4,11 @@ import { SpritePortrait } from '../SpritePortrait';
 import { DIALOGUE_LABELS } from './constants';
 import { DialogueBoxProps } from './types';
 
-export function DialogueBox({ speaker, text, visibleText, onActivate }: DialogueBoxProps) {
+export function DialogueBox({ speaker, visibleText, onActivate }: DialogueBoxProps) {
   const speakerName = getSpeakerName(speaker);
 
   return (
     <div className="relative">
-      <p className="sr-only" aria-live="polite">
-        {speakerName ? `${speakerName}: ${text}` : text}
-      </p>
       <button
         type="button"
         onClick={onActivate}

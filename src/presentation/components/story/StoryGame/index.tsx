@@ -14,9 +14,12 @@ import {
   getCurrentScene,
   OllieResult,
 } from '@/presentation/story/engine/story-reducer';
+import { isActionKey, isArrowKey, isFromInteractiveElement } from '@/presentation/story/keyboard';
 import { photoForChoice } from '@/presentation/story/photos';
+import { getSpeakerName } from '@/presentation/story/speakers';
 import { ChoiceMenu } from '../ChoiceMenu';
 import { DialogueBox } from '../DialogueBox';
+import { DIALOGUE_LABELS } from '../DialogueBox/constants';
 import { GameCanvas } from '../GameCanvas';
 import { OllieMeter } from '../OllieMeter';
 import { StoryEnding } from '../StoryEnding';
@@ -24,12 +27,7 @@ import { StoryToolbar } from '../StoryToolbar';
 import { StoryMode } from '../StoryToolbar/types';
 import { StoryTranscript } from '../StoryTranscript';
 import { TouchControls } from '../TouchControls';
-import {
-  GAME_LAYOUT_CLASS,
-  GAME_PANEL_CLASS,
-  INTERACTIVE_SELECTOR,
-  STORY_GAME_LABELS,
-} from './constants';
+import { GAME_LAYOUT_CLASS, GAME_PANEL_CLASS, STORY_GAME_LABELS } from './constants';
 import { OllieAnimation, StoryGameProps } from './types';
 
 export function StoryGame({ story }: StoryGameProps) {
@@ -40,6 +38,8 @@ export function StoryGame({ story }: StoryGameProps) {
   const [direction, setDirection] = useState<WalkDirection>(0);
   const [ollie, setOllie] = useState<OllieAnimation | null>(null);
   const ollieRef = useRef<OllieAnimation | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
+  const focusDialogueRef = useRef(false);
 
   const scene = getCurrentScene(story, state);
   const line = getCurrentLine(story, state);
@@ -95,21 +95,19 @@ export function StoryGame({ story }: StoryGameProps) {
     if (mode !== 'game') return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (walk && (event.key === 'ArrowLeft' || event.key === 'ArrowRight')) {
+      if (walk && isArrowKey(event)) {
         event.preventDefault();
         setDirection(event.key === 'ArrowLeft' ? -1 : 1);
         return;
       }
-      const target = event.target as HTMLElement | null;
-      if (target?.closest?.(INTERACTIVE_SELECTOR)) return;
-      if (state.phase === 'dialogue' && (event.code === 'Space' || event.key === 'Enter')) {
-        event.preventDefault();
-        handleAdvance();
-      }
+      if (!isActionKey(event) || isFromInteractiveElement(event)) return;
+      if (state.phase !== 'dialogue') return;
+      event.preventDefault();
+      if (!event.repeat) handleAdvance();
     };
 
     const handleKeyUp = (event: KeyboardEvent) => {
-      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') setDirection(0);
+      if (isArrowKey(event)) setDirection(0);
     };
 
     window.addEventListener('keydown', handleKeyDown);
@@ -124,13 +122,27 @@ export function StoryGame({ story }: StoryGameProps) {
     ollieRef.current = null;
     setOllie(null);
     setDirection(0);
+    focusDialogueRef.current = true;
     dispatch({ type: 'RESTART' });
   };
+
+  useEffect(() => {
+    if (!focusDialogueRef.current || state.phase !== 'dialogue') return;
+    focusDialogueRef.current = false;
+    sectionRef.current
+      ?.querySelector<HTMLButtonElement>(`button[aria-label="${DIALOGUE_LABELS.advance}"]`)
+      ?.focus();
+  }, [state.phase, state.sceneIndex, state.lineIndex]);
 
   const ended = state.phase === 'ending';
 
   return (
-    <section aria-label={STORY_GAME_LABELS.region} className="flex flex-col gap-4">
+    <section ref={sectionRef} aria-label={STORY_GAME_LABELS.region} className="flex flex-col gap-4">
+      <p role="status" aria-label={STORY_GAME_LABELS.currentLine} className="sr-only">
+        {mode === 'game' && line
+          ? [getSpeakerName(line.speaker), line.text].filter(Boolean).join(': ')
+          : ''}
+      </p>
       <StoryToolbar
         mode={mode}
         ended={ended}
@@ -171,7 +183,6 @@ export function StoryGame({ story }: StoryGameProps) {
               {line && (
                 <DialogueBox
                   speaker={line.speaker}
-                  text={line.text}
                   visibleText={typewriter.visibleText}
                   onActivate={handleAdvance}
                 />

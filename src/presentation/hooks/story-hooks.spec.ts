@@ -136,3 +136,16 @@ describe('useProgress', () => {
     expect(result.current).toBe(0);
   });
 });
+
+describe('useWalk target bounds', () => {
+  it('arrives at a target outside the walkable area', async () => {
+    const onArrive = vi.fn();
+    renderHook(() => useWalk({ active: true, startX: 228, targetX: 400, direction: 1, onArrive }));
+
+    await flushFrame(WALK_MAX_STEP_MS);
+    await flushFrame(WALK_MAX_STEP_MS * 2);
+    await flushFrame(WALK_MAX_STEP_MS * 3);
+
+    expect(onArrive).toHaveBeenCalledTimes(1);
+  });
+});

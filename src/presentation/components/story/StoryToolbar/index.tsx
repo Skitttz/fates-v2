@@ -8,7 +8,7 @@ export function StoryToolbar({ mode, ended, onSkip, onToggleMode }: StoryToolbar
       <button
         type="button"
         onClick={onToggleMode}
-        className={buttonVariants({ variant: 'outline', size: 'sm' })}
+        className={buttonVariants({ variant: 'outline', size: 'sm', className: 'min-h-12' })}
       >
         {mode === 'game' ? TOOLBAR_LABELS.readAsText : TOOLBAR_LABELS.backToGame}
       </button>
@@ -16,7 +16,7 @@ export function StoryToolbar({ mode, ended, onSkip, onToggleMode }: StoryToolbar
         <button
           type="button"
           onClick={onSkip}
-          className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+          className={buttonVariants({ variant: 'ghost', size: 'sm', className: 'min-h-12' })}
         >
           {TOOLBAR_LABELS.skip}
         </button>

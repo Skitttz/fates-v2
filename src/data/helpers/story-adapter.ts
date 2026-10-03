@@ -80,15 +80,21 @@ const adaptInteraction = (value: unknown): StoryInteractionModel => {
 
 const adaptScene = (value: unknown): StorySceneModel => {
   const scene = asRecord(value);
+  const actors = asList(scene.actors).map(adaptActor);
+  const interaction =
+    scene.interaction !== undefined ? adaptInteraction(scene.interaction) : undefined;
+
+  if (interaction?.type === 'walk-to' && !actors.some(({ id }) => id === interaction.actor)) {
+    invalid();
+  }
+
   return {
     id: asText(scene.id),
     world: asOneOf(scene.world, WORLDS),
     backdrop: asText(scene.backdrop),
-    actors: asList(scene.actors).map(adaptActor),
+    actors,
     lines: asList(scene.lines).map(adaptLine),
-    ...(scene.interaction !== undefined
-      ? { interaction: adaptInteraction(scene.interaction) }
-      : {}),
+    ...(interaction ? { interaction } : {}),
     ...(scene.transitionIn !== undefined
       ? { transitionIn: asOneOf(scene.transitionIn, TRANSITIONS) }
       : {}),

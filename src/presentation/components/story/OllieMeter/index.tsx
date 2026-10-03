@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/presentation/components/ui';
 import { meterValueAt, OLLIE_WINDOW, ollieResultFor } from '@/presentation/story/engine/ollie';
+import { isActionKey, isFromInteractiveElement } from '@/presentation/story/keyboard';
 import { OLLIE_LABELS } from './constants';
 import { OllieMeterProps } from './types';
 
@@ -29,9 +30,9 @@ export function OllieMeter({ onResult }: OllieMeterProps) {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code !== 'Space' && event.key !== 'Enter') return;
+      if (!isActionKey(event) || isFromInteractiveElement(event)) return;
       event.preventDefault();
-      press();
+      if (!event.repeat) press();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);

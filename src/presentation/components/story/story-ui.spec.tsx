@@ -19,25 +19,21 @@ afterEach(() => {
 });
 
 describe('DialogueBox', () => {
-  it('shows the speaker, announces the full line and activates on click', async () => {
+  it('shows the speaker and the typed text and activates on click', async () => {
     const onActivate = vi.fn();
-    render(
-      <DialogueBox speaker="urso" text="Oi, tudo bem?" visibleText="Oi" onActivate={onActivate} />,
-    );
+    render(<DialogueBox speaker="urso" visibleText="Oi" onActivate={onActivate} />);
 
     expect(screen.getByText('Ursinho')).toBeInTheDocument();
-    expect(screen.getByText('Ursinho: Oi, tudo bem?')).toHaveAttribute('aria-live', 'polite');
+    expect(screen.getByText('Oi')).toBeInTheDocument();
     await userEvent.click(screen.getByRole('button', { name: 'Avançar diálogo' }));
     expect(onActivate).toHaveBeenCalledTimes(1);
   });
 
   it('shows narration without speaker name', () => {
-    render(
-      <DialogueBox speaker={null} text="Aracaju." visibleText="Aracaju." onActivate={vi.fn()} />,
-    );
+    render(<DialogueBox speaker={null} visibleText="Aracaju." onActivate={vi.fn()} />);
 
     expect(screen.queryByText('Paulo')).not.toBeInTheDocument();
-    expect(screen.getAllByText('Aracaju.')).toHaveLength(2);
+    expect(screen.getByText('Aracaju.')).toBeInTheDocument();
   });
 });
 
