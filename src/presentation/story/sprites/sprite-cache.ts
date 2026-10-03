@@ -4,10 +4,7 @@ export const TRANSPARENT_PIXEL = '.';
 
 export type CreateCanvas = (width: number, height: number) => HTMLCanvasElement | null;
 
-export type SpriteCache = Map<
-  string,
-  { frames: HTMLCanvasElement[]; fps: number; loop: boolean }
->;
+export type SpriteCache = Map<string, { frames: HTMLCanvasElement[]; fps: number; loop: boolean }>;
 
 export const spriteKey = (actor: string, pose: string) => `${actor}:${pose}`;
 
@@ -56,7 +53,8 @@ export function createSpriteCache(
       const frames = definition.frames
         .map((frame) => rasterize(frame, definition.palette, createCanvas))
         .filter((frame): frame is HTMLCanvasElement => frame !== null);
-      if (frames.length > 0) cache.set(spriteKey(actor, pose), {
+      if (frames.length > 0)
+        cache.set(spriteKey(actor, pose), {
           frames,
           fps: definition.fps,
           loop: definition.loop ?? true,

@@ -1,9 +1,4 @@
-import {
-  StoryLineModel,
-  StoryModel,
-  StoryOllieResult,
-  StorySceneModel,
-} from '@/domain/models';
+import { StoryLineModel, StoryModel, StoryOllieResult, StorySceneModel } from '@/domain/models';
 
 export type StoryPhase = 'dialogue' | 'interaction' | 'transition' | 'ending';
 
@@ -27,8 +22,7 @@ export type StoryAction =
 export const visibleLines = (
   scene: StorySceneModel,
   state: Pick<StoryState, 'ollieResult'>,
-): StoryLineModel[] =>
-  scene.lines.filter(({ when }) => !when || when.ollie === state.ollieResult);
+): StoryLineModel[] => scene.lines.filter(({ when }) => !when || when.ollie === state.ollieResult);
 
 const scenePhase = (scene: StorySceneModel, state: StoryState): StoryPhase | null => {
   if (visibleLines(scene, state).length > 0) return 'dialogue';

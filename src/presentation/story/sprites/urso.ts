@@ -48,7 +48,12 @@ const sprite = (frames: SpriteFrame[], fps = 0): SpriteDefinition => ({
   fps,
 });
 
-const face = (eyes: string, rows: SpriteFrame): SpriteFrame => [...HEAD_TOP, eyes, ...rows, ...BODY];
+const face = (eyes: string, rows: SpriteFrame): SpriteFrame => [
+  ...HEAD_TOP,
+  eyes,
+  ...rows,
+  ...BODY,
+];
 
 const blinking = (eyes: string, mouth: SpriteFrame): SpriteDefinition =>
   sprite(

@@ -171,7 +171,14 @@ export function StoryGame({ story }: StoryGameProps) {
             <GameCanvas
               scene={scene}
               animated={!reducedMotion}
-              actorOverrides={walk ? { [walk.actor]: { x: walkX, pose: 'skate' } } : undefined}
+              speaker={line?.speaker ?? null}
+              actorOverrides={
+                walk
+                  ? {
+                      [walk.actor]: { x: walkX, pose: direction === 0 ? 'skate' : 'skate-andando' },
+                    }
+                  : undefined
+              }
               effect={
                 ollie ? { type: 'ollie', progress: ollieProgress, result: ollie.result } : null
               }

@@ -47,13 +47,17 @@ describe('sprites', () => {
   it('makes the bear blink and look to both sides', () => {
     const cache = createSpriteCache(SPRITE_SHEETS, fakeCanvas);
 
-    ['parado', 'parado-esquerda', 'parado-direita', 'sorrindo-esquerda', 'sorrindo-direita'].forEach(
-      (pose) => {
-        const open = getSpriteFrame(cache, 'urso', pose, 0);
-        const blink = getSpriteFrame(cache, 'urso', pose, 2900);
-        expect(open, pose).not.toBe(blink);
-      },
-    );
+    [
+      'parado',
+      'parado-esquerda',
+      'parado-direita',
+      'sorrindo-esquerda',
+      'sorrindo-direita',
+    ].forEach((pose) => {
+      const open = getSpriteFrame(cache, 'urso', pose, 0);
+      const blink = getSpriteFrame(cache, 'urso', pose, 2900);
+      expect(open, pose).not.toBe(blink);
+    });
   });
 
   it('returns null for unknown actors or poses', () => {
