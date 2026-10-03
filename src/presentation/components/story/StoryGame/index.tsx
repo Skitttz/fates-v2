@@ -51,7 +51,8 @@ import { StoryMode } from '../StoryToolbar/types';
 import { StoryTranscript } from '../StoryTranscript';
 import { TouchControls } from '../TouchControls';
 import { WalkIntro } from '../WalkIntro';
-import { GAME_LAYOUT_CLASS, GAME_PANEL_CLASS, STORY_GAME_LABELS, WALK_INTRO_MS } from './constants';
+import { STORY_GAME_LABELS, WALK_INTRO_MS } from './constants';
+import { storyGameStyles } from './styles';
 import { OllieAnimation, StoryGameProps } from './types';
 
 export function StoryGame({ story }: StoryGameProps) {
@@ -326,9 +327,11 @@ export function StoryGame({ story }: StoryGameProps) {
       ?.focus();
   }, [state.phase, state.sceneIndex, state.lineIndex]);
 
+  const styles = storyGameStyles();
+
   return (
-    <section ref={sectionRef} aria-label={STORY_GAME_LABELS.region} className="flex flex-col gap-4">
-      <p role="status" aria-label={STORY_GAME_LABELS.currentLine} className="sr-only">
+    <section ref={sectionRef} aria-label={STORY_GAME_LABELS.region} className={styles.root()}>
+      <p role="status" aria-label={STORY_GAME_LABELS.currentLine} className={styles.status()}>
         {mode === 'game' && line
           ? [getSpeakerName(line.speaker), line.text].filter(Boolean).join(': ')
           : ''}
@@ -357,11 +360,11 @@ export function StoryGame({ story }: StoryGameProps) {
       )}
 
       {mode === 'game' && !ended && (
-        <div className="flex flex-col gap-3">
-          <p className="sr-only" aria-live="polite">
+        <div className={styles.stage()}>
+          <p className={styles.backdrop()} aria-live="polite">
             {describeBackdrop(scene.backdrop)}
           </p>
-          <div className={GAME_LAYOUT_CLASS}>
+          <div className={styles.layout()}>
             <GameCanvas
               scene={scene}
               animated={!reducedMotion}
@@ -414,7 +417,7 @@ export function StoryGame({ story }: StoryGameProps) {
                   : null
               }
             />
-            <div className={GAME_PANEL_CLASS}>
+            <div className={styles.panel()}>
               {line && (
                 <DialogueBox
                   speaker={line.speaker}
@@ -441,7 +444,7 @@ export function StoryGame({ story }: StoryGameProps) {
                   onMove={() => player.play(SOUNDS.menuSelect)}
                 />
               )}
-              <div className="[@media(pointer:fine)]:hidden">
+              <div className={styles.touch()}>
                 <TouchControls
                   visible={Boolean(walk)}
                   onDirectionChange={setDirection}

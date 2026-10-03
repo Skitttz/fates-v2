@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { SPRITE_SHEETS } from '@/presentation/story/sprites';
 import { drawPixels } from '@/presentation/story/sprites/sprite-cache';
 import { PORTRAIT_POSES, PORTRAIT_ROWS, PORTRAIT_SIZE } from './constants';
+import { spritePortraitStyles } from './styles';
 import { SpritePortraitProps } from './types';
 
 export function SpritePortrait({ actor }: SpritePortraitProps) {
@@ -23,7 +24,7 @@ export function SpritePortrait({ actor }: SpritePortraitProps) {
       width={PORTRAIT_SIZE}
       height={PORTRAIT_SIZE}
       aria-hidden="true"
-      className="size-8 border-2 border-zinc-50 bg-zinc-800 [image-rendering:pixelated]"
+      className={spritePortraitStyles()}
     />
   );
 }

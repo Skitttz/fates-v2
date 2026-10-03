@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockStoryModel } from '@/domain/test';
 import { OllieMeter, StoryGame, StoryToolbar } from '.';
-import { GAME_PANEL_CLASS } from './StoryGame/constants';
+import { storyGameStyles } from './StoryGame/styles';
 
 beforeEach(() => {
   vi.stubGlobal(
@@ -95,6 +95,6 @@ describe('review fixes', () => {
     const dialogue = screen.getByRole('button', { name: 'Avançar diálogo' });
 
     expect(canvas?.compareDocumentPosition(dialogue)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-    expect(GAME_PANEL_CLASS).not.toMatch(/absolute/);
+    expect(storyGameStyles().panel()).not.toMatch(/absolute/);
   });
 });

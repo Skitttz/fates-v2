@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button } from '@/presentation/components/ui';
-import { meterValueAt, OLLIE_WINDOW, ollieResultFor } from '@/presentation/story/engine/ollie';
+import { meterValueAt, ollieResultFor } from '@/presentation/story/engine/ollie';
 import { isActionKey, isFromInteractiveElement } from '@/presentation/story/keyboard';
-import { OLLIE_LABELS } from './constants';
+import { OLLIE_LABELS, OLLIE_WINDOW_STYLE } from './constants';
+import { ollieMeterStyles } from './styles';
 import { OllieMeterProps } from './types';
 
 export function OllieMeter({ onResult, listening = true }: OllieMeterProps) {
@@ -39,27 +40,24 @@ export function OllieMeter({ onResult, listening = true }: OllieMeterProps) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [listening, press]);
 
+  const styles = ollieMeterStyles();
+  const fillStyle = { width: `${value}%` };
+
   return (
-    <div className="flex flex-col gap-3 border-4 border-zinc-50 bg-black p-4">
-      <p className="font-pixel text-base text-zinc-50">{OLLIE_LABELS.hint}</p>
+    <div className={styles.root()}>
+      <p className={styles.hint()}>{OLLIE_LABELS.hint}</p>
       <div
         role="meter"
         aria-label={OLLIE_LABELS.meter}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={value}
-        className="relative h-5 border-2 border-zinc-50 bg-zinc-900"
+        className={styles.meter()}
       >
-        <span
-          className="absolute inset-y-0 bg-street-lime/40"
-          style={{ left: `${OLLIE_WINDOW.min}%`, width: `${OLLIE_WINDOW.max - OLLIE_WINDOW.min}%` }}
-        />
-        <span
-          className="absolute inset-y-0 left-0 bg-street-orange"
-          style={{ width: `${value}%` }}
-        />
+        <span className={styles.window()} style={OLLIE_WINDOW_STYLE} />
+        <span className={styles.fill()} style={fillStyle} />
       </div>
-      <Button size="lg" onClick={press} className="touch-manipulation">
+      <Button size="lg" onClick={press} className={styles.action()}>
         {OLLIE_LABELS.action}
       </Button>
     </div>

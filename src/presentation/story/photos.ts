@@ -22,6 +22,7 @@ export const STORY_PHOTOS: Readonly<Record<string, StoryPhoto>> = {
 };
 
 export const DEFAULT_STORY_PHOTO = 'caixote';
+export const STORY_PHOTO_SIZES = '(max-width: 1024px) 100vw, 960px';
 
 export const resolveStoryPhoto = (id: string | null): StoryPhoto =>
   (id ? STORY_PHOTOS[id] : undefined) ?? STORY_PHOTOS[DEFAULT_STORY_PHOTO];

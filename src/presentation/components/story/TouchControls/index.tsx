@@ -3,46 +3,51 @@
 import { MouseEvent } from 'react';
 import { ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon } from '@heroicons/react/24/solid';
 import { WalkDirection } from '@/presentation/hooks/useWalk';
-import { TOUCH_BUTTON_CLASS, TOUCH_LABELS } from './constants';
+import { TOUCH_LABELS } from './constants';
+import { touchControlsStyles } from './styles';
 import { TouchControlsProps } from './types';
+
+const preventContextMenu = (event: MouseEvent) => event.preventDefault();
 
 export function TouchControls({ visible, onDirectionChange, onJump }: TouchControlsProps) {
   if (!visible) return null;
 
-  const handlers = (direction: WalkDirection) => ({
+  const styles = touchControlsStyles();
+  const release = () => onDirectionChange(0);
+  const holdHandlers = (direction: WalkDirection) => ({
     onPointerDown: () => onDirectionChange(direction),
-    onPointerUp: () => onDirectionChange(0),
-    onPointerLeave: () => onDirectionChange(0),
-    onPointerCancel: () => onDirectionChange(0),
-    onContextMenu: (event: MouseEvent) => event.preventDefault(),
+    onPointerUp: release,
+    onPointerLeave: release,
+    onPointerCancel: release,
+    onContextMenu: preventContextMenu,
   });
 
   return (
-    <div className="flex items-center justify-between gap-4">
+    <div className={styles.root()}>
       <button
         type="button"
         aria-label={TOUCH_LABELS.left}
-        className={TOUCH_BUTTON_CLASS}
-        {...handlers(-1)}
+        className={styles.button()}
+        {...holdHandlers(-1)}
       >
-        <ArrowLeftIcon className="size-7" />
+        <ArrowLeftIcon className={styles.icon()} />
       </button>
       <button
         type="button"
         aria-label={TOUCH_LABELS.jump}
-        className={TOUCH_BUTTON_CLASS}
+        className={styles.button()}
         onPointerDown={onJump}
-        onContextMenu={(event: MouseEvent) => event.preventDefault()}
+        onContextMenu={preventContextMenu}
       >
-        <ArrowUpIcon className="size-7" />
+        <ArrowUpIcon className={styles.icon()} />
       </button>
       <button
         type="button"
         aria-label={TOUCH_LABELS.right}
-        className={TOUCH_BUTTON_CLASS}
-        {...handlers(1)}
+        className={styles.button()}
+        {...holdHandlers(1)}
       >
-        <ArrowRightIcon className="size-7" />
+        <ArrowRightIcon className={styles.icon()} />
       </button>
     </div>
   );

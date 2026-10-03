@@ -9,6 +9,7 @@ import { renderScene } from '@/presentation/story/engine/renderer';
 import { Particle, RenderInput } from '@/presentation/story/engine/types';
 import { SPRITE_SHEETS } from '@/presentation/story/sprites';
 import { createBrowserCanvas, createSpriteCache } from '@/presentation/story/sprites/sprite-cache';
+import { gameCanvasStyles } from './styles';
 import { GameCanvasProps } from './types';
 
 export function GameCanvas({ underlay, overlay, ...props }: GameCanvasProps) {
@@ -16,6 +17,7 @@ export function GameCanvas({ underlay, overlay, ...props }: GameCanvasProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const propsRef = useRef(props);
   const [scale, setScale] = useState<number | null>(null);
+  const styles = gameCanvasStyles();
 
   useEffect(() => {
     propsRef.current = props;
@@ -91,10 +93,10 @@ export function GameCanvas({ underlay, overlay, ...props }: GameCanvasProps) {
   }, []);
 
   return (
-    <div ref={wrapperRef} className="flex w-full justify-center bg-black">
-      <div className="relative" style={{ width: scale ? CANVAS_WIDTH * scale : '100%' }}>
+    <div ref={wrapperRef} className={styles.root()}>
+      <div className={styles.stage()} style={{ width: scale ? CANVAS_WIDTH * scale : '100%' }}>
         {underlay && (
-          <div aria-hidden="true" className="absolute inset-0">
+          <div aria-hidden="true" className={styles.underlay()}>
             {underlay}
           </div>
         )}
@@ -103,10 +105,10 @@ export function GameCanvas({ underlay, overlay, ...props }: GameCanvasProps) {
           width={CANVAS_WIDTH}
           height={CANVAS_HEIGHT}
           aria-hidden="true"
-          className="relative block h-auto w-full [image-rendering:pixelated]"
+          className={styles.canvas()}
         />
         {overlay && (
-          <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+          <div aria-hidden="true" className={styles.overlay()}>
             {overlay}
           </div>
         )}
