@@ -256,6 +256,21 @@ describe('renderScene', () => {
     expect(context.clearRect.mock.calls.length).toBeGreaterThan(400);
   });
 
+  it('fills the dream sky with clouds and stars instead of floating boxes', () => {
+    const dream = (timeMs: number, animated: boolean) =>
+      render({ scene: scene({ world: 'dream', backdrop: 'sonho', actors: [] }), timeMs, animated });
+
+    const still = dream(0, true);
+    expect(still.context.strokeRect).not.toHaveBeenCalled();
+    expect(still.fills.some(({ style }) => style === '#ffffff')).toBe(true);
+    expect(still.fills.some(({ style }) => style === '#a78bfa' || style === '#f472b6')).toBe(true);
+
+    const cloudX = (fills: { style: string; args: number[] }[]) =>
+      fills.find(({ style }) => style === '#ffffff')?.args[0];
+    expect(cloudX(dream(10_000, true).fills)).not.toBe(cloudX(still.fills));
+    expect(cloudX(dream(10_000, false).fills)).toBe(cloudX(dream(0, false).fills));
+  });
+
   it('desaturates paulo in the dream and resets the filter', () => {
     const { context } = render({
       scene: scene({ world: 'dream', backdrop: 'sonho' }),

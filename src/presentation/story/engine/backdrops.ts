@@ -35,17 +35,63 @@ const STARS: readonly [number, number][] = [
   [228, 34],
 ];
 
-const FLOATING = [
-  { x: 24, y: 30, width: 6, height: 6, color: '#c4b5fd', phase: 0 },
-  { x: 70, y: 18, width: 2, height: 22, color: '#d4d4d8', phase: 1.4 },
-  { x: 118, y: 40, width: 10, height: 4, color: '#e9d5ff', phase: 2.1 },
-  { x: 160, y: 22, width: 5, height: 5, color: '#c4b5fd', phase: 3 },
-  { x: 208, y: 46, width: 8, height: 3, color: '#e4e4e7', phase: 4.2 },
-];
-
 const DREAM_PARALLAX = { far: 0.04, near: 0.1 };
 const DREAM_CITY = { far: '#ebe6f2', near: '#ddd6e8', farShift: 9 };
 const CITY_REPEATS = [-CANVAS_WIDTH, 0, CANVAS_WIDTH];
+
+export const DREAM_CLOUD = { fill: '#ffffff', edge: '#e4dff0' };
+export const DREAM_STAR_COLORS = ['#a78bfa', '#f472b6'] as const;
+export const CLOUD_SPEED = 3;
+const CLOUD_WRAP = CANVAS_WIDTH + 40;
+
+const CLOUDS: readonly { x: number; y: number }[] = [
+  { x: 14, y: 20 },
+  { x: 92, y: 40 },
+  { x: 150, y: 14 },
+  { x: 204, y: 46 },
+];
+
+const DREAM_STARS: readonly { x: number; y: number; phase: number }[] = [
+  { x: 30, y: 10, phase: 0 },
+  { x: 62, y: 28, phase: 1.1 },
+  { x: 118, y: 8, phase: 2.3 },
+  { x: 136, y: 30, phase: 0.6 },
+  { x: 176, y: 12, phase: 3.1 },
+  { x: 222, y: 26, phase: 1.7 },
+  { x: 88, y: 16, phase: 2.8 },
+];
+
+const drawCloud = (context: CanvasRenderingContext2D, x: number, y: number) => {
+  context.fillStyle = DREAM_CLOUD.edge;
+  context.fillRect(x - 1, y + 1, 20, 6);
+  context.fillRect(x + 2, y - 1, 8, 3);
+  context.fillRect(x + 9, y, 7, 2);
+  context.fillStyle = DREAM_CLOUD.fill;
+  context.fillRect(x, y + 2, 18, 4);
+  context.fillRect(x + 3, y, 6, 2);
+  context.fillRect(x + 10, y + 1, 5, 1);
+};
+
+const drawDreamSky = (
+  context: CanvasRenderingContext2D,
+  timeMs: number,
+  animated: boolean,
+  shift: number,
+) => {
+  DREAM_STARS.forEach(({ x, y, phase }, index) => {
+    context.globalAlpha = animated ? 0.35 + 0.65 * ((Math.sin(timeMs / 500 + phase) + 1) / 2) : 1;
+    context.fillStyle = DREAM_STAR_COLORS[index % DREAM_STAR_COLORS.length];
+    context.fillRect(x, y - 1, 1, 3);
+    context.fillRect(x - 1, y, 3, 1);
+  });
+  context.globalAlpha = 1;
+  const drift = animated ? (timeMs / 1000) * CLOUD_SPEED : 0;
+  CLOUDS.forEach(({ x, y }) => {
+    const travelled = x - drift - shift * DREAM_PARALLAX.far;
+    const position = (((travelled % CLOUD_WRAP) + CLOUD_WRAP) % CLOUD_WRAP) - 20;
+    drawCloud(context, Math.round(position), y);
+  });
+};
 
 const fillSky = (context: CanvasRenderingContext2D, stops: readonly [number, string][]) => {
   const gradient = context.createLinearGradient(0, 0, 0, GROUND_Y);
@@ -124,17 +170,11 @@ const drawSonho: DrawBackdrop = (context, timeMs, animated, focusX) => {
   const shift = animated ? focusX - CANVAS_WIDTH / 2 : 0;
   context.fillStyle = '#f4f1ea';
   context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  drawDreamSky(context, timeMs, animated, shift);
   drawCity(context, DREAM_CITY.far, DREAM_CITY.farShift - Math.round(shift * DREAM_PARALLAX.far));
   drawCity(context, DREAM_CITY.near, -Math.round(shift * DREAM_PARALLAX.near));
   context.fillStyle = '#cbc5dc';
   context.fillRect(0, GROUND_Y, CANVAS_WIDTH, 1);
-  context.strokeStyle = '#111111';
-  FLOATING.forEach(({ x, y, width, height, color, phase }) => {
-    const offset = animated ? Math.round(Math.sin(timeMs / 900 + phase) * 3) : 0;
-    context.fillStyle = color;
-    context.fillRect(x, y + offset, width, height);
-    context.strokeRect(x + 0.5, y + offset + 0.5, width - 1, height - 1);
-  });
 };
 
 export const BACKDROPS: Readonly<Record<string, DrawBackdrop>> = {
