@@ -5,6 +5,13 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  @supports (overflow-x: clip) {
+    html {
+      overflow-x: clip;
+    }
   }
 
   ::selection {
