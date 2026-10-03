@@ -1,5 +1,5 @@
 import '@/presentation/test/mock-next-navigation';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { UnexpectedError } from '@/domain/errors';
@@ -23,6 +23,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  cleanup();
   vi.useRealTimers();
   vi.unstubAllGlobals();
   vi.restoreAllMocks();
