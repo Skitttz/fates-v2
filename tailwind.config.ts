@@ -12,6 +12,7 @@ const config: Config = {
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
         display: ['var(--font-anton)', 'Impact', 'sans-serif'],
         marker: ['var(--font-marker)', 'cursive'],
+        pixel: ['var(--font-pixel)', 'monospace'],
       },
       colors: {
         street: {
