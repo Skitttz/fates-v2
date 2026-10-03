@@ -4,6 +4,7 @@ import {
   bobOffset,
   dissolveProgress,
   entranceProgress,
+  glowPulse,
   isBlockDissolved,
   landingGlow,
   lookPose,
@@ -58,7 +59,7 @@ const drawGlow = (
   animated: boolean,
   emphasized: boolean,
 ) => {
-  const pulse = animated ? (Math.sin(timeMs / (emphasized ? 180 : 300)) + 1) / 2 : 1;
+  const pulse = glowPulse(timeMs, animated, emphasized);
   const boost = emphasized ? 6 : 0;
   context.globalAlpha = Math.min(1, 0.25 + pulse * 0.35 + (emphasized ? 0.15 : 0));
   context.fillStyle = GLOW_COLOR;

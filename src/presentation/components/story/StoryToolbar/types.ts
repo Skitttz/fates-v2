@@ -1,4 +1,6 @@
-export type StoryMode = 'game' | 'text';
+import { StoryMode } from '@/presentation/story/view';
+
+export type { StoryMode };
 
 export interface StorySoundToggle {
   enabled: boolean;

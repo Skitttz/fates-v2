@@ -1,4 +1,5 @@
 import { act, renderHook } from '@testing-library/react';
+import { useLayoutEffect } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { usePrefersReducedMotion } from './usePrefersReducedMotion';
 import { useProgress } from './useProgress';
@@ -173,5 +174,86 @@ describe('useWalk target bounds', () => {
     await flushFrame(WALK_MAX_STEP_MS * 3);
 
     expect(onArrive).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('usePrefersReducedMotion store', () => {
+  it('knows the preference on the first render and follows its changes', () => {
+    const listeners = new Set<() => void>();
+    const media = {
+      matches: true,
+      addEventListener: (_: string, listener: () => void) => listeners.add(listener),
+      removeEventListener: (_: string, listener: () => void) => listeners.delete(listener),
+    };
+    vi.stubGlobal('matchMedia', () => media);
+    const committed: boolean[] = [];
+
+    const { unmount } = renderHook(() => {
+      const reduced = usePrefersReducedMotion();
+      useLayoutEffect(() => {
+        committed.push(reduced);
+      });
+      return reduced;
+    });
+    expect(committed).toEqual([true]);
+
+    act(() => {
+      media.matches = false;
+      listeners.forEach((listener) => listener());
+    });
+    expect(committed.at(-1)).toBe(false);
+
+    unmount();
+    expect(listeners.size).toBe(0);
+  });
+});
+
+describe('useProgress restart', () => {
+  it('never commits the progress of the previous run', async () => {
+    const committed: number[] = [];
+    const { rerender } = renderHook(
+      ({ run }) => {
+        const progress = useProgress(true, 100, vi.fn(), run);
+        useLayoutEffect(() => {
+          committed.push(progress);
+        });
+        return progress;
+      },
+      { initialProps: { run: 1 } },
+    );
+    await flushFrame(100);
+    expect(committed.at(-1)).toBe(1);
+
+    committed.length = 0;
+    rerender({ run: 2 });
+
+    expect(committed.length).toBeGreaterThan(0);
+    expect(committed.every((value) => value === 0)).toBe(true);
+  });
+});
+
+describe('useWalk restart', () => {
+  it('never commits the previous position after it stops', async () => {
+    const committed: number[] = [];
+    const { rerender } = renderHook(
+      ({ active }) => {
+        const walk = useWalk({ active, startX: 20, targetX: 200, direction: 1, onArrive: vi.fn() });
+        useLayoutEffect(() => {
+          committed.push(walk.x);
+        });
+        return walk;
+      },
+      { initialProps: { active: true } },
+    );
+    await flushFrame(0);
+    await flushFrame(WALK_MAX_STEP_MS);
+    await flushFrame(WALK_MAX_STEP_MS * 2);
+    expect(committed.at(-1)).toBeGreaterThan(20);
+
+    committed.length = 0;
+    rerender({ active: false });
+
+    expect(committed.length).toBeGreaterThan(0);
+    expect(committed.every((value) => value === 20)).toBe(true);
   });
 });

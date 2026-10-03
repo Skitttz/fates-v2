@@ -1,20 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
 
 const QUERY = '(prefers-reduced-motion: reduce)';
 
+const reducedMotionQuery = () =>
+  typeof window.matchMedia === 'function' ? window.matchMedia(QUERY) : null;
+
+const subscribe = (onChange: () => void) => {
+  const media = reducedMotionQuery();
+  media?.addEventListener('change', onChange);
+  return () => media?.removeEventListener('change', onChange);
+};
+
+const getSnapshot = () => reducedMotionQuery()?.matches ?? false;
+
+const getServerSnapshot = () => false;
+
 export function usePrefersReducedMotion(): boolean {
-  const [reduced, setReduced] = useState(false);
-
-  useEffect(() => {
-    if (typeof window.matchMedia !== 'function') return;
-    const media = window.matchMedia(QUERY);
-    const update = () => setReduced(media.matches);
-    update();
-    media.addEventListener('change', update);
-    return () => media.removeEventListener('change', update);
-  }, []);
-
-  return reduced;
+  return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

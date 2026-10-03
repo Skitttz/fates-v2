@@ -25,6 +25,7 @@ export const SPIN_PERIOD_MS = 900;
 export const PLACING_TIMELINE = { stampEnd: 0.25, holdEnd: 0.5 };
 
 export const ENTRANCE_MS = 1200;
+export const GLOW_PERIOD_MS = { normal: 300, emphasized: 180 };
 
 const NO_OFFSET = { x: 0, y: 0 };
 
@@ -160,6 +161,12 @@ export const entranceProgress = (
   sceneTimeMs: number,
   animated: boolean,
 ): number => (actor.entrance && animated ? clamp01(sceneTimeMs / ENTRANCE_MS) : 1);
+
+export const glowPulse = (timeMs: number, animated: boolean, emphasized: boolean): number => {
+  if (!animated) return 1;
+  const period = emphasized ? GLOW_PERIOD_MS.emphasized : GLOW_PERIOD_MS.normal;
+  return (Math.sin(timeMs / period) + 1) / 2;
+};
 
 export const obstacleActors = (scene: StorySceneModel): StoryActorModel[] =>
   scene.interaction?.type === 'walk-to'

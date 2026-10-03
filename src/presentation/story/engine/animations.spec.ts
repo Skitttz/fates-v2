@@ -4,6 +4,7 @@ import {
   bobOffset,
   ENTRANCE_MS,
   entranceProgress,
+  glowPulse,
   obstacleActors,
   dissolveProgress,
   isBlockDissolved,
@@ -182,5 +183,18 @@ describe('entrance and obstacles', () => {
 
     expect(obstacleActors(walkScene)).toEqual([{ id: 'cone', x: 84, y: 112, pose: 'padrao' }]);
     expect(obstacleActors({ ...walkScene, interaction: undefined })).toEqual([]);
+  });
+});
+
+describe('glowPulse', () => {
+  it('stays full without motion', () => {
+    expect(glowPulse(0, false, false)).toBe(1);
+    expect(glowPulse(1234, false, true)).toBe(1);
+  });
+
+  it('pulses faster when emphasized', () => {
+    expect(glowPulse(0, true, false)).toBeCloseTo(0.5);
+    expect(glowPulse(300 * (Math.PI / 2), true, false)).toBeCloseTo(1);
+    expect(glowPulse(180 * (Math.PI / 2), true, true)).toBeCloseTo(1);
   });
 });

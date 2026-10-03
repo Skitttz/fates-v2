@@ -50,11 +50,14 @@ export function useWalk({
   onJump,
   onLand,
 }: UseWalkParams): WalkView {
-  const [walk, setWalk] = useState(() => view(createWalkState(startX)));
+  const obstaclesKey = obstacles.map(({ x }) => x).join(',');
+  const runKey = [active, startX, targetX, obstaclesKey].join(':');
+  const [run, setRun] = useState(() => ({ key: runKey, view: view(createWalkState(startX)) }));
   const directionRef = useRef(direction);
   const jumpRef = useRef(false);
   const callbacksRef = useRef({ onArrive, onJump, onLand });
-  const obstaclesKey = obstacles.map(({ x }) => x).join(',');
+
+  if (run.key !== runKey) setRun({ key: runKey, view: view(createWalkState(startX)) });
 
   useEffect(() => {
     directionRef.current = direction;
@@ -70,7 +73,6 @@ export function useWalk({
 
   useEffect(() => {
     let state = createWalkState(startX);
-    setWalk(view(state));
     jumpRef.current = false;
     if (!active) return;
 
@@ -98,7 +100,7 @@ export function useWalk({
       if (!state.airborne && next.airborne) callbacksRef.current.onJump?.();
       if (state.airborne && !next.airborne) callbacksRef.current.onLand?.();
       state = next;
-      setWalk(view(state));
+      setRun({ key: runKey, view: view(state) });
 
       if (Math.abs(state.x - target) <= WALK_ARRIVAL_DISTANCE) {
         callbacksRef.current.onArrive();
@@ -109,7 +111,7 @@ export function useWalk({
 
     frame = requestAnimationFrame(step);
     return () => cancelAnimationFrame(frame);
-  }, [active, startX, targetX, obstaclesKey]);
+  }, [active, startX, targetX, obstaclesKey, runKey]);
 
-  return { ...walk, jump };
+  return { ...run.view, jump };
 }

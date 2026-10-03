@@ -6,6 +6,11 @@ import { ROUTES } from '@/presentation/constants/route';
 import { CART_EMPTY, CART_PAGE } from './constants';
 import { CartLayoutProps } from './types';
 
+const checkoutLabel = (isProcessing: boolean, isAuthenticated: boolean): string => {
+  if (isProcessing) return CART_PAGE.processing;
+  return isAuthenticated ? CART_PAGE.checkout : CART_PAGE.loginToCheckout;
+};
+
 export default function CartLayout({
   items,
   ready,
@@ -62,11 +67,7 @@ export default function CartLayout({
         <div>
           <CartSummary subtotal={subtotal} totalItems={totalItems}>
             <Button size="lg" onClick={onCheckout} disabled={isProcessing} className="w-full">
-              {isProcessing
-                ? CART_PAGE.processing
-                : isAuthenticated
-                  ? CART_PAGE.checkout
-                  : CART_PAGE.loginToCheckout}
+              {checkoutLabel(isProcessing, isAuthenticated)}
             </Button>
             {status.type === 'error' && (
               <p role="alert" className="text-sm text-street-orange">

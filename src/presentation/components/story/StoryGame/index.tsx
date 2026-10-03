@@ -38,7 +38,14 @@ import {
   transitionSound,
   WALK_SOUND_VOLUME,
 } from '@/presentation/story/sounds';
-import { getSpeakerName } from '@/presentation/story/speakers';
+import {
+  lineAnnouncement,
+  nextMode,
+  OllieAnimation,
+  sceneTransition,
+  storyEffect,
+  walkOverrides,
+} from '@/presentation/story/view';
 import { ChoiceMenu } from '../ChoiceMenu';
 import { DialogueBox } from '../DialogueBox';
 import { DIALOGUE_LABELS } from '../DialogueBox/constants';
@@ -53,7 +60,7 @@ import { TouchControls } from '../TouchControls';
 import { WalkIntro } from '../WalkIntro';
 import { STORY_GAME_LABELS, WALK_INTRO_MS } from './constants';
 import { storyGameStyles } from './styles';
-import { OllieAnimation, StoryGameProps } from './types';
+import { StoryGameProps } from './types';
 
 export function StoryGame({ story }: StoryGameProps) {
   const reducer = useMemo(() => createStoryReducer(story), [story]);
@@ -184,13 +191,6 @@ export function StoryGame({ story }: StoryGameProps) {
   );
 
   const ended = state.phase === 'ending';
-  const walkPose = walking.airborne
-    ? walking.rising
-      ? 'ollie-pop'
-      : 'ollie-ar'
-    : direction === 0
-      ? 'skate'
-      : 'skate-andando';
   const speaker = line?.speaker ?? null;
   const typedCount = typewriter.visibleText.length;
   const world = ended ? 'real' : scene.world;
@@ -327,14 +327,18 @@ export function StoryGame({ story }: StoryGameProps) {
       ?.focus();
   }, [state.phase, state.sceneIndex, state.lineIndex]);
 
+  const renderOverlay = () => {
+    if (placing) return <StickerStamp progress={placingProgress} />;
+    if (walk && !moved) return <WalkIntro animated={!reducedMotion} />;
+    return undefined;
+  };
+
   const styles = storyGameStyles();
 
   return (
     <section ref={sectionRef} aria-label={STORY_GAME_LABELS.region} className={styles.root()}>
       <p role="status" aria-label={STORY_GAME_LABELS.currentLine} className={styles.status()}>
-        {mode === 'game' && line
-          ? [getSpeakerName(line.speaker), line.text].filter(Boolean).join(': ')
-          : ''}
+        {lineAnnouncement(mode, line)}
       </p>
       <StoryToolbar
         mode={mode}
@@ -345,7 +349,7 @@ export function StoryGame({ story }: StoryGameProps) {
             ? { enabled: sound.enabled, onToggle: () => sound.setEnabled(!sound.enabled) }
             : undefined
         }
-        onToggleMode={() => setMode((current) => (current === 'game' ? 'text' : 'game'))}
+        onToggleMode={() => setMode(nextMode)}
       />
 
       {mode === 'text' && <StoryTranscript story={story} />}
@@ -369,31 +373,9 @@ export function StoryGame({ story }: StoryGameProps) {
               scene={scene}
               animated={!reducedMotion}
               speaker={line?.speaker ?? null}
-              actorOverrides={
-                walk
-                  ? {
-                      [walk.actor]: {
-                        x: walking.x,
-                        y: (walkActor?.y ?? 0) - Math.round(walking.y),
-                        pose: walkPose,
-                      },
-                    }
-                  : undefined
-              }
-              effect={
-                placing
-                  ? { type: 'placing', progress: placingProgress }
-                  : ollie
-                    ? { type: 'ollie', progress: ollieProgress, result: ollie.result }
-                    : null
-              }
-              overlay={
-                placing ? (
-                  <StickerStamp progress={placingProgress} />
-                ) : walk && !moved ? (
-                  <WalkIntro animated={!reducedMotion} />
-                ) : undefined
-              }
+              actorOverrides={walkOverrides(walk, walkActor, walking, direction)}
+              effect={storyEffect({ placing, placingProgress, ollie, ollieProgress })}
+              overlay={renderOverlay()}
               emphasis={walk && !moved && !reducedMotion ? 'adesivo' : undefined}
               underlay={
                 interaction?.type === 'choice'
@@ -411,11 +393,7 @@ export function StoryGame({ story }: StoryGameProps) {
                     ))
                   : undefined
               }
-              transition={
-                state.phase === 'transition' && scene.transitionIn
-                  ? { kind: scene.transitionIn, progress: transitionProgress }
-                  : null
-              }
+              transition={sceneTransition(state.phase, scene, transitionProgress)}
             />
             <div className={styles.panel()}>
               {line && (
