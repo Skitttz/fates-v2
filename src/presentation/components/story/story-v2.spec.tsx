@@ -142,16 +142,30 @@ describe('StoryGame sound', () => {
     expect(screen.queryByRole('button', { name: /^Som:/ })).not.toBeInTheDocument();
   });
 
-  it('plays the music of the current world and the ollie', async () => {
+  it('plays the music of the current world and the ollie without rolling while paulo stands', async () => {
     const player = renderWithSound();
     expect(player.playMusic).toHaveBeenLastCalledWith('music-real');
-    expect(player.loop).toHaveBeenCalledWith('skate-roll');
 
     await toChoice();
     await toChoice();
     await userEvent.click(screen.getByRole('button', { name: 'Ollie!' }));
 
     expect(player.play).toHaveBeenCalledWith('ollie');
+    expect(player.loop).not.toHaveBeenCalledWith('skate-roll');
+  });
+
+  it('rolls the skate only while paulo is moving', async () => {
+    const player = renderWithSound();
+    await toChoice();
+    await toChoice();
+    await userEvent.click(screen.getByRole('button', { name: 'Ollie!' }));
+    await screen.findByText('Leve o Paulo até o brilho.');
+    expect(player.loop).not.toHaveBeenCalledWith('skate-roll');
+
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(player.loop).toHaveBeenCalledWith('skate-roll');
+
+    fireEvent.keyUp(window, { key: 'ArrowRight' });
     expect(player.stopLoop).toHaveBeenCalledWith('skate-roll');
   });
 

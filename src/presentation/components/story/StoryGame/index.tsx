@@ -141,11 +141,7 @@ export function StoryGame({ story }: StoryGameProps) {
   const speaker = line?.speaker ?? null;
   const typedCount = typewriter.visibleText.length;
   const world = ended ? 'real' : scene.world;
-  const rolling =
-    mode === 'game' &&
-    !ended &&
-    ((Boolean(walk) && direction !== 0) ||
-      (scene.interaction?.type === 'ollie' && !ollie && state.ollieResult === null));
+  const rolling = mode === 'game' && !ended && Boolean(walk) && direction !== 0;
   const ollieCueRef = useRef(0);
   const stampedRef = useRef(false);
 
