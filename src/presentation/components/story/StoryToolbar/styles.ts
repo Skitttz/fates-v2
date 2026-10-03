@@ -1,11 +1,13 @@
+import { buttonVariants } from '@/presentation/components/ui';
 import { tv } from '@/presentation/styles/tv';
 
 export const storyToolbarStyles = tv({
   slots: {
     root: 'flex flex-wrap justify-end gap-2',
-    action: 'min-h-12',
-    sound: 'min-h-12',
+    sound: buttonVariants({ variant: 'ghost', size: 'sm', className: 'min-h-12' }),
     soundIcon: 'size-4',
+    mode: buttonVariants({ variant: 'outline', size: 'sm', className: 'min-h-12' }),
+    skip: buttonVariants({ variant: 'ghost', size: 'sm', className: 'min-h-12' }),
   },
   variants: {
     soundOn: {

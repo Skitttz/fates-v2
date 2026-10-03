@@ -1,3 +1,4 @@
+import { buttonVariants } from '@/presentation/components/ui';
 import { tv } from '@/presentation/styles/tv';
 
 export const storyEndingStyles = tv({
@@ -8,5 +9,8 @@ export const storyEndingStyles = tv({
     outcome: 'font-pixel text-lg leading-relaxed text-street-lime sm:text-xl',
     epilogue: 'font-pixel text-lg leading-relaxed text-zinc-50 sm:text-xl',
     actions: 'flex flex-wrap gap-3',
+    drop: buttonVariants({ size: 'lg' }),
+    city: buttonVariants({ variant: 'outline', size: 'lg' }),
+    restart: buttonVariants({ variant: 'ghost', size: 'lg' }),
   },
 });
