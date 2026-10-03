@@ -7,3 +7,6 @@ export const computeCanvasScale = (availableWidth: number, viewportHeight: numbe
   );
   return ratio >= 2 ? Math.floor(ratio) : ratio;
 };
+
+export const canvasWidth = (scale: number | null): number | string =>
+  scale ? CANVAS_WIDTH * scale : '100%';

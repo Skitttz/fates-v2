@@ -1,3 +1,4 @@
+export * from './useCanvasScale';
 export * from './useOllieAnimation';
 export * from './usePlacing';
 export * from './useRestartFocus';

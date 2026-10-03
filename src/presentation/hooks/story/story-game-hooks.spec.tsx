@@ -15,6 +15,7 @@ import {
   WALK_SOUND_VOLUME,
 } from '@/presentation/story/sounds';
 import {
+  useCanvasScale,
   useOllieAnimation,
   usePlacing,
   useRestartFocus,
@@ -572,5 +573,47 @@ describe('useStoryWalk', () => {
 
     expect(reading.result.current.rolling).toBe(false);
     expect(reading.result.current.actorOverrides?.paulo.x).toBe(40);
+  });
+});
+
+describe('useCanvasScale', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('measures the wrapper and follows its size', () => {
+    let resize = () => undefined as void;
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        constructor(callback: () => void) {
+          resize = callback;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+    vi.stubGlobal('innerHeight', 900);
+    const wrapper = document.createElement('div');
+    Object.defineProperty(wrapper, 'clientWidth', { configurable: true, value: 960 });
+    const { result } = renderHook(() => useCanvasScale({ current: wrapper }));
+    expect(result.current).toBeNull();
+
+    act(() => resize());
+    expect(result.current).toBe(4);
+
+    Object.defineProperty(wrapper, 'clientWidth', { configurable: true, value: 480 });
+    act(() => {
+      window.dispatchEvent(new Event('resize'));
+    });
+    expect(result.current).toBe(2);
+  });
+
+  it('stays unknown without a resize observer', () => {
+    vi.stubGlobal('ResizeObserver', undefined);
+
+    const { result } = renderHook(() => useCanvasScale({ current: document.createElement('div') }));
+
+    expect(result.current).toBeNull();
   });
 });

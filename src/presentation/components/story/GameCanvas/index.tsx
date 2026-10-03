@@ -1,40 +1,29 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { computeCanvasScale } from '@/presentation/story/engine/canvas-scale';
+import { useEffect, useRef } from 'react';
+import { useCanvasScale } from '@/presentation/hooks/story';
+import { canvasWidth } from '@/presentation/story/engine/canvas-scale';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '@/presentation/story/engine/constants';
-import { createFrameClock } from '@/presentation/story/engine/frame-clock';
-import { emitParticles, updateParticles } from '@/presentation/story/engine/particles';
-import { renderScene } from '@/presentation/story/engine/renderer';
-import { Particle, RenderInput } from '@/presentation/story/engine/types';
+import { StoryStage } from '@/presentation/story/engine/stage';
+import { watchVisibility } from '@/presentation/story/engine/visibility';
 import { SPRITE_SHEETS } from '@/presentation/story/sprites';
 import { createBrowserCanvas, createSpriteCache } from '@/presentation/story/sprites/sprite-cache';
 import { gameCanvasStyles } from './styles';
 import { GameCanvasProps } from './types';
 
-export function GameCanvas({ underlay, overlay, ...props }: GameCanvasProps) {
+export function GameCanvas({ underlay, overlay, ...input }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const propsRef = useRef(props);
-  const [scale, setScale] = useState<number | null>(null);
+  const inputRef = useRef(input);
+  const stageRef = useRef<StoryStage | null>(null);
+  const scale = useCanvasScale(wrapperRef);
+  const stageStyle = { width: canvasWidth(scale) };
   const styles = gameCanvasStyles();
 
   useEffect(() => {
-    propsRef.current = props;
+    inputRef.current = input;
+    stageRef.current?.update(input);
   });
-
-  useEffect(() => {
-    const wrapper = wrapperRef.current;
-    if (!wrapper || typeof ResizeObserver === 'undefined') return;
-    const update = () => setScale(computeCanvasScale(wrapper.clientWidth, window.innerHeight));
-    const observer = new ResizeObserver(update);
-    observer.observe(wrapper);
-    window.addEventListener('resize', update);
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', update);
-    };
-  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -42,59 +31,23 @@ export function GameCanvas({ underlay, overlay, ...props }: GameCanvasProps) {
     if (!canvas || !context) return;
 
     const sprites = createSpriteCache(SPRITE_SHEETS, createBrowserCanvas);
-    const clock = createFrameClock();
-    let particles: Particle[] = [];
-    let previous: RenderInput | null = null;
-    let frame = 0;
-    let onScreen = true;
-    let pageVisible = !document.hidden;
-
-    const draw = (now: number) => {
-      const current = propsRef.current;
-      const { sceneTimeMs, dtMs } = clock.tick(now, current.scene.id);
-      const input: RenderInput = { ...current, timeMs: now, sceneTimeMs };
-      particles = current.animated
-        ? updateParticles(
-            [...particles, ...emitParticles(input, previous, dtMs, Math.random)],
-            dtMs,
-          )
-        : [];
-      renderScene(context, { ...input, particles }, sprites);
-      previous = input;
-      frame = requestAnimationFrame(draw);
-    };
-
-    const schedule = () => {
-      cancelAnimationFrame(frame);
-      if (onScreen && pageVisible) frame = requestAnimationFrame(draw);
-    };
-
-    const observer =
-      typeof IntersectionObserver === 'undefined'
-        ? null
-        : new IntersectionObserver(([entry]) => {
-            onScreen = entry.isIntersecting;
-            schedule();
-          });
-    observer?.observe(canvas);
-
-    const handleVisibility = () => {
-      pageVisible = !document.hidden;
-      schedule();
-    };
-    document.addEventListener('visibilitychange', handleVisibility);
-    schedule();
+    const stage = new StoryStage(context, sprites, inputRef.current);
+    stageRef.current = stage;
+    const release = watchVisibility(canvas, (visible) => {
+      if (visible) stage.start();
+      else stage.stop();
+    });
 
     return () => {
-      cancelAnimationFrame(frame);
-      observer?.disconnect();
-      document.removeEventListener('visibilitychange', handleVisibility);
+      release();
+      stage.dispose();
+      stageRef.current = null;
     };
   }, []);
 
   return (
     <div ref={wrapperRef} className={styles.root()}>
-      <div className={styles.stage()} style={{ width: scale ? CANVAS_WIDTH * scale : '100%' }}>
+      <div className={styles.stage()} style={stageStyle}>
         {underlay && (
           <div aria-hidden="true" className={styles.underlay()}>
             {underlay}
