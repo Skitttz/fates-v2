@@ -68,12 +68,9 @@ const TILTED_BOARD: SpriteFrame = [
 const pad = (rows: SpriteFrame, size: number): SpriteFrame =>
   rows.map((row) => `${'.'.repeat(size)}${row}${'.'.repeat(size)}`);
 
-const rotateClockwise = (rows: SpriteFrame): SpriteFrame =>
+const rotateCounterClockwise = (rows: SpriteFrame): SpriteFrame =>
   Array.from({ length: rows[0].length }, (_, column) =>
-    rows
-      .map((row) => row[column])
-      .reverse()
-      .join(''),
+    rows.map((row) => row[row.length - 1 - column]).join(''),
   );
 
 const sprite = (frames: SpriteFrame[], fps = 0): SpriteDefinition => ({
@@ -101,7 +98,7 @@ export const PAULO: SpriteSheet = {
   agachado: sprite([onBoard(CROUCH, WHEELS[0])]),
   'ollie-pop': sprite([[...pad(BODY, 1), ...TILTED_BOARD]]),
   'ollie-ar': sprite([onBoard(TUCK, WHEELS[0])]),
-  deitado: sprite([rotateClockwise(BODY)]),
+  'deitado-costas': sprite([rotateCounterClockwise(BODY)]),
   sentado: sprite([SITTING]),
   levantando: { ...sprite([SITTING, KNEEL, BODY], 4), loop: false },
 };
