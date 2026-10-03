@@ -222,6 +222,34 @@ describe('renderScene', () => {
     expect(fills).toContainEqual({ style: '#abcdef', args: [5, 6, 1, 1] });
   });
 
+  it('stamps the sticker and then clears the canvas block by block', () => {
+    const sprites = makeSprites();
+    sprites.set('adesivo:brilhando', { frames: [frame(12, 6)], fps: 0, loop: true });
+    const { context } = makeContext();
+    const draw = (progress: number) => {
+      context.clearRect.mockClear();
+      context.drawImage.mockClear();
+      renderScene(
+        context as unknown as CanvasRenderingContext2D,
+        {
+          scene: scene(),
+          timeMs: 0,
+          sceneTimeMs: 0,
+          animated: true,
+          effect: { type: 'placing', progress },
+        },
+        sprites,
+      );
+    };
+
+    draw(0.3);
+    expect(context.drawImage).toHaveBeenCalledWith(expect.anything(), 102, 55, 36, 18);
+    expect(context.clearRect).toHaveBeenCalledTimes(1);
+
+    draw(1);
+    expect(context.clearRect.mock.calls.length).toBeGreaterThan(400);
+  });
+
   it('desaturates paulo in the dream and resets the filter', () => {
     const { context } = render({
       scene: scene({ world: 'dream', backdrop: 'sonho' }),

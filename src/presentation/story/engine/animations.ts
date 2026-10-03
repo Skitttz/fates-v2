@@ -126,3 +126,21 @@ export function stickerMotion(
     scaleX: Math.cos((sceneTimeMs / SPIN_PERIOD_MS) * Math.PI * 2),
   };
 }
+
+export const STAMP_SCALE = { from: 6, to: 3 };
+const DISSOLVE_NOISE_SIZE = 997;
+
+export const stampScale = (progress: number): number =>
+  progress >= PLACING_TIMELINE.stampEnd
+    ? STAMP_SCALE.to
+    : STAMP_SCALE.from -
+      (STAMP_SCALE.from - STAMP_SCALE.to) * (Math.max(progress, 0) / PLACING_TIMELINE.stampEnd);
+
+export const dissolveProgress = (progress: number): number =>
+  clamp01((progress - PLACING_TIMELINE.holdEnd) / (1 - PLACING_TIMELINE.holdEnd));
+
+const blockNoise = (column: number, row: number) =>
+  ((((column * 73856093) ^ (row * 19349663)) >>> 0) % DISSOLVE_NOISE_SIZE) / DISSOLVE_NOISE_SIZE;
+
+export const isBlockDissolved = (column: number, row: number, progress: number): boolean =>
+  progress > 0 && blockNoise(column, row) < progress;

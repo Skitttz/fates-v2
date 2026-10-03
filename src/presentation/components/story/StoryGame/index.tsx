@@ -1,12 +1,17 @@
 'use client';
 
+import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
 import { usePrefersReducedMotion } from '@/presentation/hooks/usePrefersReducedMotion';
 import { useProgress } from '@/presentation/hooks/useProgress';
 import { useTypewriter } from '@/presentation/hooks/useTypewriter';
 import { useWalk, WalkDirection } from '@/presentation/hooks/useWalk';
 import { describeBackdrop } from '@/presentation/story/backdrop-descriptions';
-import { OLLIE_ANIMATION_MS, TRANSITION_MS } from '@/presentation/story/engine/constants';
+import {
+  OLLIE_ANIMATION_MS,
+  PLACING_MS,
+  TRANSITION_MS,
+} from '@/presentation/story/engine/constants';
 import {
   createInitialState,
   choiceOutcome,
@@ -16,7 +21,7 @@ import {
   OllieResult,
 } from '@/presentation/story/engine/story-reducer';
 import { isActionKey, isArrowKey, isFromInteractiveElement } from '@/presentation/story/keyboard';
-import { photoForChoice } from '@/presentation/story/photos';
+import { photoForChoice, resolveStoryPhoto } from '@/presentation/story/photos';
 import { getSpeakerName } from '@/presentation/story/speakers';
 import { ChoiceMenu } from '../ChoiceMenu';
 import { DialogueBox } from '../DialogueBox';
@@ -80,6 +85,28 @@ export function StoryGame({ story }: StoryGameProps) {
     finishOllie,
   );
 
+  const [placing, setPlacing] = useState<string | null>(null);
+  const placingRef = useRef<string | null>(null);
+
+  const finishPlacing = useCallback(() => {
+    const choice = placingRef.current;
+    placingRef.current = null;
+    setPlacing(null);
+    if (choice) dispatch({ type: 'COMPLETE_INTERACTION', choice });
+  }, []);
+
+  const placingProgress = useProgress(
+    Boolean(placing),
+    reducedMotion ? 0 : PLACING_MS,
+    finishPlacing,
+  );
+
+  const choose = useCallback((choice: string) => {
+    if (placingRef.current) return;
+    placingRef.current = choice;
+    setPlacing(choice);
+  }, []);
+
   const transitionProgress = useProgress(
     state.phase === 'transition',
     reducedMotion ? 0 : TRANSITION_MS,
@@ -119,7 +146,17 @@ export function StoryGame({ story }: StoryGameProps) {
     };
   }, [handleAdvance, mode, state.phase, walk]);
 
+  const skip = () => {
+    placingRef.current = null;
+    setPlacing(null);
+    ollieRef.current = null;
+    setOllie(null);
+    dispatch({ type: 'SKIP' });
+  };
+
   const restart = () => {
+    placingRef.current = null;
+    setPlacing(null);
     ollieRef.current = null;
     setOllie(null);
     setDirection(0);
@@ -147,7 +184,7 @@ export function StoryGame({ story }: StoryGameProps) {
       <StoryToolbar
         mode={mode}
         ended={ended}
-        onSkip={() => dispatch({ type: 'SKIP' })}
+        onSkip={skip}
         onToggleMode={() => setMode((current) => (current === 'game' ? 'text' : 'game'))}
       />
 
@@ -180,7 +217,22 @@ export function StoryGame({ story }: StoryGameProps) {
                   : undefined
               }
               effect={
-                ollie ? { type: 'ollie', progress: ollieProgress, result: ollie.result } : null
+                placing
+                  ? { type: 'placing', progress: placingProgress }
+                  : ollie
+                    ? { type: 'ollie', progress: ollieProgress, result: ollie.result }
+                    : null
+              }
+              underlay={
+                placing ? (
+                  <Image
+                    src={resolveStoryPhoto(photoForChoice(story, placing)).src}
+                    alt=""
+                    fill
+                    sizes="(max-width: 1024px) 100vw, 960px"
+                    className="object-cover"
+                  />
+                ) : undefined
               }
               transition={
                 state.phase === 'transition' && scene.transitionIn
@@ -205,11 +257,11 @@ export function StoryGame({ story }: StoryGameProps) {
                   </p>
                 </div>
               )}
-              {interaction?.type === 'choice' && (
+              {interaction?.type === 'choice' && !placing && (
                 <ChoiceMenu
                   prompt={interaction.prompt}
                   options={interaction.options}
-                  onChoose={(choice) => dispatch({ type: 'COMPLETE_INTERACTION', choice })}
+                  onChoose={choose}
                 />
               )}
               <div className="[@media(pointer:fine)]:hidden">

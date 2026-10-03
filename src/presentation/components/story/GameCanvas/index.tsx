@@ -11,7 +11,7 @@ import { SPRITE_SHEETS } from '@/presentation/story/sprites';
 import { createBrowserCanvas, createSpriteCache } from '@/presentation/story/sprites/sprite-cache';
 import { GameCanvasProps } from './types';
 
-export function GameCanvas(props: GameCanvasProps) {
+export function GameCanvas({ underlay, ...props }: GameCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const propsRef = useRef(props);
@@ -92,14 +92,20 @@ export function GameCanvas(props: GameCanvasProps) {
 
   return (
     <div ref={wrapperRef} className="flex w-full justify-center bg-black">
-      <canvas
-        ref={canvasRef}
-        width={CANVAS_WIDTH}
-        height={CANVAS_HEIGHT}
-        aria-hidden="true"
-        className="block h-auto [image-rendering:pixelated]"
-        style={{ width: scale ? CANVAS_WIDTH * scale : '100%' }}
-      />
+      <div className="relative" style={{ width: scale ? CANVAS_WIDTH * scale : '100%' }}>
+        {underlay && (
+          <div aria-hidden="true" className="absolute inset-0">
+            {underlay}
+          </div>
+        )}
+        <canvas
+          ref={canvasRef}
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
+          aria-hidden="true"
+          className="relative block h-auto w-full [image-rendering:pixelated]"
+        />
+      </div>
     </div>
   );
 }

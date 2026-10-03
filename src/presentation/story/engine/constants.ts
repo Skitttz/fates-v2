@@ -14,3 +14,4 @@ export const OLLIE_ACTOR = 'paulo';
 export const DESATURATED_IN_DREAM: readonly string[] = ['paulo', 'caixote'];
 export const MAX_VIEWPORT_HEIGHT_RATIO = 0.7;
 export const STAMP_CENTER = { x: 120, y: 64 };
+export const PLACING_MS = 1200;

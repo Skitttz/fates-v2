@@ -2,11 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { StoryActorModel } from '@/domain/models';
 import {
   bobOffset,
+  dissolveProgress,
+  isBlockDissolved,
   landingGlow,
   lookPose,
   ollieActor,
   ollieBoard,
   shakeOffset,
+  STAMP_SCALE,
+  stampScale,
   STICKER_RISE,
   stickerMotion,
 } from './animations';
@@ -107,5 +111,32 @@ describe('stickerMotion', () => {
     expect(stickerMotion(5000, true).lift).toBeGreaterThanOrEqual(STICKER_RISE - 1);
     expect(stickerMotion(225, true).scaleX).toBeCloseTo(0, 1);
     expect(stickerMotion(5000, false)).toEqual({ lift: STICKER_RISE, scaleX: 1 });
+  });
+});
+
+describe('placing', () => {
+  it('stamps the sticker from big to its final size', () => {
+    expect(stampScale(0)).toBe(STAMP_SCALE.from);
+    expect(stampScale(0.25)).toBe(STAMP_SCALE.to);
+    expect(stampScale(0.9)).toBe(STAMP_SCALE.to);
+  });
+
+  it('dissolves the scene only after the stamp holds', () => {
+    expect(dissolveProgress(0.4)).toBe(0);
+    expect(dissolveProgress(0.75)).toBe(0.5);
+    expect(dissolveProgress(1)).toBe(1);
+  });
+
+  it('clears no block at the start and every block at the end', () => {
+    const blocks = Array.from({ length: 30 * 17 }, (_, index) => [
+      index % 30,
+      Math.floor(index / 30),
+    ]);
+
+    expect(blocks.some(([column, row]) => isBlockDissolved(column, row, 0))).toBe(false);
+    expect(blocks.every(([column, row]) => isBlockDissolved(column, row, 1))).toBe(true);
+    const half = blocks.filter(([column, row]) => isBlockDissolved(column, row, 0.5)).length;
+    expect(half).toBeGreaterThan(blocks.length * 0.3);
+    expect(half).toBeLessThan(blocks.length * 0.7);
   });
 });

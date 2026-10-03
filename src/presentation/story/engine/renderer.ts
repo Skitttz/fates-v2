@@ -2,12 +2,16 @@ import { StoryActorModel } from '@/domain/models';
 import { getSpriteFrame, SpriteCache, spriteKey } from '../sprites/sprite-cache';
 import {
   bobOffset,
+  dissolveProgress,
+  isBlockDissolved,
   landingGlow,
   lookPose,
   ollieActor,
   ollieBoard,
+  PLACING_TIMELINE,
   shakeOffset,
   SPINNING_POSE,
+  stampScale,
   stickerMotion,
 } from './animations';
 import { drawBackdrop } from './backdrops';
@@ -20,10 +24,11 @@ import {
   GLOW_ACTOR,
   GLOW_COLOR,
   OLLIE_ACTOR,
+  STAMP_CENTER,
   TRANSITION_BLOCK,
 } from './constants';
 import { drawParticles } from './particles';
-import { RenderInput, SceneTransitionState } from './types';
+import { PlacingEffect, RenderInput, SceneTransitionState } from './types';
 
 const isActor = (actor: StoryActorModel | null): actor is StoryActorModel => actor !== null;
 
@@ -123,6 +128,44 @@ const drawTransition = (context: CanvasRenderingContext2D, transition: SceneTran
   }
 };
 
+const drawStamp = (
+  context: CanvasRenderingContext2D,
+  effect: PlacingEffect,
+  sprites: SpriteCache,
+) => {
+  const frame = getSpriteFrame(sprites, GLOW_ACTOR, 'brilhando', 0);
+  if (!frame) return;
+  const scale = stampScale(effect.progress);
+  const width = frame.width * scale;
+  const height = frame.height * scale;
+  context.drawImage(
+    frame,
+    Math.round(STAMP_CENTER.x - width / 2),
+    Math.round(STAMP_CENTER.y - height / 2),
+    width,
+    height,
+  );
+
+  const { stampEnd, holdEnd } = PLACING_TIMELINE;
+  if (effect.progress < stampEnd || effect.progress >= holdEnd) return;
+  context.globalAlpha = 0.4 * (1 - (effect.progress - stampEnd) / (holdEnd - stampEnd));
+  context.fillStyle = FLASH_COLOR;
+  context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  context.globalAlpha = 1;
+};
+
+const drawDissolve = (context: CanvasRenderingContext2D, effect: PlacingEffect) => {
+  const progress = dissolveProgress(effect.progress);
+  if (progress <= 0) return;
+  for (let y = 0; y < CANVAS_HEIGHT; y += TRANSITION_BLOCK) {
+    for (let x = 0; x < CANVAS_WIDTH; x += TRANSITION_BLOCK) {
+      if (isBlockDissolved(x / TRANSITION_BLOCK, y / TRANSITION_BLOCK, progress)) {
+        context.clearRect(x, y, TRANSITION_BLOCK, TRANSITION_BLOCK);
+      }
+    }
+  }
+};
+
 export function renderScene(
   context: CanvasRenderingContext2D,
   input: RenderInput,
@@ -140,7 +183,10 @@ export function renderScene(
   drawBackdrop(context, scene.backdrop, timeMs, animated, focusX);
   actors.forEach((actor) => drawActor(context, actor, input, sprites));
   drawParticles(context, particles);
+  if (effect?.type === 'placing') drawStamp(context, effect, sprites);
   context.restore();
+
+  if (effect?.type === 'placing') drawDissolve(context, effect);
 
   if (transition) drawTransition(context, transition);
 }
