@@ -113,7 +113,7 @@ describe('Sobre', () => {
     cy.contains('Eu guardei uma coisa pra quem me encontrasse.').should('exist');
   });
 
-  it('segura o espaço no jogo durante a caminhada', () => {
+  it('segura o espaço no jogo durante a caminhada e devolve ao clicar fora', () => {
     cy.visit('/about');
     advanceUntil('Ollie!');
     cy.contains('button', 'Ollie!').click();
@@ -127,6 +127,17 @@ describe('Sobre', () => {
       });
       win.document.body.dispatchEvent(event);
       expect(event.defaultPrevented).to.equal(true);
+    });
+    cy.get('footer').click({ force: true });
+    cy.window().then((win) => {
+      const event = new win.KeyboardEvent('keydown', {
+        key: ' ',
+        code: 'Space',
+        bubbles: true,
+        cancelable: true,
+      });
+      win.document.body.dispatchEvent(event);
+      expect(event.defaultPrevented).to.equal(false);
     });
   });
 });

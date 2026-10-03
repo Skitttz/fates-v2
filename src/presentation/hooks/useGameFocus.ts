@@ -11,25 +11,25 @@ export const GAME_KEYS: readonly string[] = [
   'ArrowRight',
 ];
 
-export function useGameFocus(ref: RefObject<HTMLElement>): boolean {
-  const [engaged, setEngaged] = useState(false);
+export function useGameFocus(ref: RefObject<HTMLElement>, enabled = true): boolean {
+  const [onScreen, setOnScreen] = useState(true);
+  const [dismissed, setDismissed] = useState(false);
+  const holding = enabled && onScreen && !dismissed;
 
   useEffect(() => {
     const section = ref.current;
     if (!section) return;
     const inside = (target: EventTarget | null) =>
       target instanceof Node && section.contains(target);
-    const handlePointer = (event: PointerEvent) => setEngaged(inside(event.target));
-    const handleFocusIn = () => setEngaged(true);
+    const handlePointer = (event: PointerEvent) => setDismissed(!inside(event.target));
+    const handleFocusIn = () => setDismissed(false);
     const handleFocusOut = (event: FocusEvent) => {
-      if (event.relatedTarget && !inside(event.relatedTarget)) setEngaged(false);
+      if (event.relatedTarget && !inside(event.relatedTarget)) setDismissed(true);
     };
     const observer =
       typeof IntersectionObserver === 'undefined'
         ? null
-        : new IntersectionObserver(([entry]) => {
-            if (!entry.isIntersecting) setEngaged(false);
-          });
+        : new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting));
 
     document.addEventListener('pointerdown', handlePointer);
     section.addEventListener('focusin', handleFocusIn);
@@ -44,7 +44,7 @@ export function useGameFocus(ref: RefObject<HTMLElement>): boolean {
   }, [ref]);
 
   useEffect(() => {
-    if (!engaged) return;
+    if (!holding) return;
     const holdKeys = (event: KeyboardEvent) => {
       if (GAME_KEYS.includes(event.key) && !isFromInteractiveElement(event)) {
         event.preventDefault();
@@ -52,7 +52,7 @@ export function useGameFocus(ref: RefObject<HTMLElement>): boolean {
     };
     window.addEventListener('keydown', holdKeys);
     return () => window.removeEventListener('keydown', holdKeys);
-  }, [engaged]);
+  }, [holding]);
 
-  return engaged;
+  return holding;
 }

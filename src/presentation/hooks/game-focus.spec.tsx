@@ -1,11 +1,11 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { useRef } from 'react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { useGameFocus } from './useGameFocus';
 
-function Harness() {
+function Harness({ enabled = true }: { enabled?: boolean }) {
   const ref = useRef<HTMLElement>(null);
-  const engaged = useGameFocus(ref);
+  const holding = useGameFocus(ref, enabled);
   return (
     <div>
       <section ref={ref} aria-label="jogo">
@@ -13,7 +13,8 @@ function Harness() {
         <button type="button">Ler como texto</button>
       </section>
       <p>fora</p>
-      <output>{engaged ? 'jogando' : 'livre'}</output>
+      <a href="#fim">fim</a>
+      <output>{holding ? 'jogando' : 'livre'}</output>
     </div>
   );
 }
@@ -29,16 +30,13 @@ const space = (target: Element) => {
   return event.defaultPrevented;
 };
 
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
+
 describe('useGameFocus', () => {
-  it('lets the page scroll until the visitor interacts with the game', () => {
+  it('holds space and arrows while the game is on screen and untouched', () => {
     render(<Harness />);
-
-    expect(space(document.body)).toBe(false);
-  });
-
-  it('holds space and arrows for the game after an interaction inside it', () => {
-    render(<Harness />);
-    fireEvent.pointerDown(screen.getByText('cena'));
 
     expect(screen.getByText('jogando')).toBeInTheDocument();
     expect(space(document.body)).toBe(true);
@@ -46,17 +44,52 @@ describe('useGameFocus', () => {
 
   it('keeps space working on a focused button of the game', () => {
     render(<Harness />);
-    fireEvent.pointerDown(screen.getByText('cena'));
 
     expect(space(screen.getByRole('button', { name: 'Ler como texto' }))).toBe(false);
   });
 
-  it('releases the keys after a click outside the game', () => {
+  it('releases the keys after a click outside and takes them back after a click inside', () => {
     render(<Harness />);
-    fireEvent.pointerDown(screen.getByText('cena'));
-    fireEvent.pointerDown(screen.getByText('fora'));
 
+    fireEvent.pointerDown(screen.getByText('fora'));
     expect(screen.getByText('livre')).toBeInTheDocument();
+    expect(space(document.body)).toBe(false);
+
+    fireEvent.pointerDown(screen.getByText('cena'));
+    expect(space(document.body)).toBe(true);
+  });
+
+  it('releases the keys after the focus leaves the game', () => {
+    render(<Harness />);
+    const button = screen.getByRole('button', { name: 'Ler como texto' });
+
+    fireEvent.focusOut(button, { relatedTarget: screen.getByRole('link', { name: 'fim' }) });
+
+    expect(space(document.body)).toBe(false);
+  });
+
+  it('releases the keys when the game leaves the screen', () => {
+    let report: (entries: { isIntersecting: boolean }[]) => void = () => undefined;
+    vi.stubGlobal(
+      'IntersectionObserver',
+      class {
+        constructor(callback: typeof report) {
+          report = callback;
+        }
+        observe() {}
+        disconnect() {}
+      },
+    );
+    render(<Harness />);
+
+    act(() => report([{ isIntersecting: false }]));
+
+    expect(space(document.body)).toBe(false);
+  });
+
+  it('never holds the keys when disabled', () => {
+    render(<Harness enabled={false} />);
+
     expect(space(document.body)).toBe(false);
   });
 });

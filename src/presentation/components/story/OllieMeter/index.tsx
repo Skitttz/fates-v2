@@ -7,7 +7,7 @@ import { isActionKey, isFromInteractiveElement } from '@/presentation/story/keyb
 import { OLLIE_LABELS } from './constants';
 import { OllieMeterProps } from './types';
 
-export function OllieMeter({ onResult }: OllieMeterProps) {
+export function OllieMeter({ onResult, listening = true }: OllieMeterProps) {
   const [value, setValue] = useState(0);
   const startRef = useRef(performance.now());
   const doneRef = useRef(false);
@@ -29,6 +29,7 @@ export function OllieMeter({ onResult }: OllieMeterProps) {
   }, [onResult]);
 
   useEffect(() => {
+    if (!listening) return;
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!isActionKey(event) || isFromInteractiveElement(event)) return;
       event.preventDefault();
@@ -36,7 +37,7 @@ export function OllieMeter({ onResult }: OllieMeterProps) {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [press]);
+  }, [listening, press]);
 
   return (
     <div className="flex flex-col gap-3 border-4 border-zinc-50 bg-black p-4">

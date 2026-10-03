@@ -137,6 +137,38 @@ describe('StoryGame v3', () => {
     expect(player.stopLoop).toHaveBeenCalledWith('skate-roll');
   });
 
+  it('leaves space to the page after a click outside during the walk', () => {
+    const player = renderWithSound();
+    fireEvent.pointerDown(document.body);
+
+    const event = new KeyboardEvent('keydown', {
+      key: ' ',
+      code: 'Space',
+      bubbles: true,
+      cancelable: true,
+    });
+    document.body.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(false);
+    expect(vi.mocked(player.play).mock.calls.map(([id]) => id)).not.toContain('ollie');
+  });
+
+  it('lets space scroll the transcript in text mode', async () => {
+    render(<StoryGame story={walkOnly()} />);
+    await userEvent.click(screen.getByRole('button', { name: 'Ler como texto' }));
+    fireEvent.pointerDown(screen.getByText('Any bear line'));
+
+    const event = new KeyboardEvent('keydown', {
+      key: ' ',
+      code: 'Space',
+      bubbles: true,
+      cancelable: true,
+    });
+    document.body.dispatchEvent(event);
+
+    expect(event.defaultPrevented).toBe(false);
+  });
+
   it('plays the fall sound even when the ollie is cut short by reduced motion', async () => {
     const player = renderWithSound(mockStoryModel());
     await advance();

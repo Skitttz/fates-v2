@@ -69,7 +69,7 @@ export function StoryGame({ story }: StoryGameProps) {
   const ollieCueRef = useRef(0);
   const [introDone, setIntroDone] = useState(false);
   const [moved, setMoved] = useState(false);
-  useGameFocus(sectionRef);
+  const holdingKeys = useGameFocus(sectionRef, mode === 'game');
 
   const scene = getCurrentScene(story, state);
   const line = getCurrentLine(story, state);
@@ -270,6 +270,7 @@ export function StoryGame({ story }: StoryGameProps) {
     if (mode !== 'game') return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (!holdingKeys) return;
       if (walk && (isArrowKey(event) || event.key === ' ' || event.key === 'ArrowUp')) {
         if (event.key === ' ' && isFromInteractiveElement(event)) return;
         event.preventDefault();
@@ -296,7 +297,7 @@ export function StoryGame({ story }: StoryGameProps) {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, [handleAdvance, jumpWhenFree, mode, state.phase, walk]);
+  }, [handleAdvance, holdingKeys, jumpWhenFree, mode, state.phase, walk]);
 
   const skip = () => {
     const pending = placingRef.current;
@@ -421,7 +422,9 @@ export function StoryGame({ story }: StoryGameProps) {
                   onActivate={handleAdvance}
                 />
               )}
-              {interaction?.type === 'ollie' && !ollie && <OllieMeter onResult={startOllie} />}
+              {interaction?.type === 'ollie' && !ollie && (
+                <OllieMeter onResult={startOllie} listening={holdingKeys} />
+              )}
               {walk && (
                 <div className="border-4 border-zinc-50 bg-black p-4 font-pixel text-base text-zinc-50">
                   <p>{STORY_GAME_LABELS.walkHint}</p>
