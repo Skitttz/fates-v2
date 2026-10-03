@@ -1,1 +1,1 @@
-export * from './html-audio-sound-player';
+export * from './web-audio-sound-player';
