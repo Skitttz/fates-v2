@@ -257,3 +257,38 @@ describe('useWalk restart', () => {
     expect(committed.every((value) => value === 20)).toBe(true);
   });
 });
+
+describe('useProgress leftover frame', () => {
+  it('ignores a frame left over from the previous run', async () => {
+    const { result, rerender } = renderHook(({ run }) => useProgress(true, 100, vi.fn(), run), {
+      initialProps: { run: 1 },
+    });
+    await flushFrame(50);
+    expect(result.current).toBeCloseTo(0.5);
+
+    vi.mocked(performance.now).mockReturnValue(1000);
+    rerender({ run: 2 });
+    const [leftover] = frames.splice(0, 1);
+    act(() => leftover(60));
+
+    expect(result.current).toBe(0);
+  });
+});
+
+describe('usePrefersReducedMotion query', () => {
+  it('asks the browser for the media query only once', () => {
+    const matchMedia = vi.fn(() => ({
+      matches: true,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    vi.stubGlobal('matchMedia', matchMedia);
+
+    const { result, rerender } = renderHook(() => usePrefersReducedMotion());
+    rerender();
+    rerender();
+
+    expect(result.current).toBe(true);
+    expect(matchMedia).toHaveBeenCalledTimes(1);
+  });
+});

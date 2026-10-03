@@ -526,12 +526,13 @@ describe('useStoryWalk', () => {
 
   it('shows the intro until the visitor steers, then rolls', () => {
     const { result } = render();
-    expect(result.current).toMatchObject({ introVisible: true, rolling: false, direction: 0 });
+    expect(result.current).toMatchObject({ introVisible: true, rolling: false });
+    expect(result.current).not.toHaveProperty('direction');
     expect(result.current.actorOverrides).toEqual({ paulo: { x: 40, y: 112, pose: 'skate' } });
 
     act(() => result.current.steer(1));
 
-    expect(result.current).toMatchObject({ introVisible: false, rolling: true, direction: 1 });
+    expect(result.current).toMatchObject({ introVisible: false, rolling: true });
     expect(result.current.actorOverrides?.paulo.pose).toBe('skate-andando');
   });
 
@@ -559,7 +560,7 @@ describe('useStoryWalk', () => {
 
     expect(onArrive).toHaveBeenCalledTimes(1);
     expect(played(player)).toContain('sticker-found');
-    expect(result.current.direction).toBe(0);
+    expect(result.current.rolling).toBe(false);
   });
 
   it('stays out of the way without a walk or outside the game', () => {

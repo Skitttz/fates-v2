@@ -45,6 +45,7 @@ export function StoryGame({ story }: StoryGameProps) {
   const reducedMotion = usePrefersReducedMotion();
   const { player, available, enabled, setEnabled } = useSound();
   const inGame = mode === 'game';
+  const onWalk = Boolean(walk);
   const animated = !reducedMotion;
   const holdingKeys = useGameFocus(sectionRef, inGame);
   const typewriter = useTypewriter(line?.text ?? '', reducedMotion);
@@ -93,7 +94,7 @@ export function StoryGame({ story }: StoryGameProps) {
   useStoryKeyboard({
     active: inGame,
     holding: holdingKeys,
-    walking: Boolean(walk),
+    walking: onWalk,
     dialogue: inDialogue,
     onDirection: steer,
     onJump: walking.jump,
@@ -140,7 +141,6 @@ export function StoryGame({ story }: StoryGameProps) {
     ollie: ollie.ollie,
     ollieProgress: ollie.progress,
   });
-  const onWalk = Boolean(walk);
   const showStage = inGame && !ended;
   const showEnding = inGame && ended;
   const showOllieMeter = moment.awaitsOllie && !ollie.ollie;

@@ -30,11 +30,13 @@ export function useProgress(
     }
 
     let frame = 0;
+    let stopped = false;
     const start = performance.now();
 
     const tick = (now: number) => {
+      if (stopped) return;
       const progress = Math.min(1, Math.max(0, (now - start) / durationMs));
-      setRun((current) => ({ ...current, progress }));
+      setRun((current) => (current.resetKey === resetKey ? { ...current, progress } : current));
       if (progress >= 1) {
         onDoneRef.current();
         return;
@@ -43,7 +45,10 @@ export function useProgress(
     };
 
     frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
+    return () => {
+      stopped = true;
+      cancelAnimationFrame(frame);
+    };
   }, [active, durationMs, resetKey]);
 
   if (!active) return 0;

@@ -1,13 +1,12 @@
 'use client';
 
-import { memo, MouseEvent } from 'react';
+import { memo } from 'react';
 import { ArrowLeftIcon, ArrowRightIcon, ArrowUpIcon } from '@heroicons/react/24/solid';
+import { preventDefault } from '@/presentation/helpers';
 import { WalkDirection } from '@/presentation/hooks/useWalk';
 import { TOUCH_LABELS } from './constants';
 import { touchControlsStyles } from './styles';
 import { TouchControlsProps } from './types';
-
-const preventContextMenu = (event: MouseEvent) => event.preventDefault();
 
 export const TouchControls = memo(function TouchControls({
   visible,
@@ -23,7 +22,7 @@ export const TouchControls = memo(function TouchControls({
     onPointerUp: release,
     onPointerLeave: release,
     onPointerCancel: release,
-    onContextMenu: preventContextMenu,
+    onContextMenu: preventDefault,
   });
 
   return (
@@ -41,7 +40,7 @@ export const TouchControls = memo(function TouchControls({
         aria-label={TOUCH_LABELS.jump}
         className={styles.button()}
         onPointerDown={onJump}
-        onContextMenu={preventContextMenu}
+        onContextMenu={preventDefault}
       >
         <ArrowUpIcon className={styles.icon()} />
       </button>

@@ -137,4 +137,21 @@ describe('StoryStage', () => {
 
     expect(pending()).toBe(0);
   });
+
+  it('can start again after a frame fails', () => {
+    const { stage, drawImage, flush, pending } = makeStage({ scene: scene(), animated: true });
+    drawImage.mockImplementationOnce(() => {
+      throw new Error('any failure');
+    });
+    stage.start();
+    expect(() => flush(0)).toThrow('any failure');
+    expect(pending()).toBe(0);
+
+    stage.start();
+    expect(pending()).toBe(1);
+    flush(16);
+
+    expect(drawImage).toHaveBeenCalledTimes(2);
+    expect(pending()).toBe(1);
+  });
 });

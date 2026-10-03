@@ -1,22 +1,28 @@
 'use client';
 
-import { useSyncExternalStore } from 'react';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 
 const QUERY = '(prefers-reduced-motion: reduce)';
 
-const reducedMotionQuery = () =>
-  typeof window.matchMedia === 'function' ? window.matchMedia(QUERY) : null;
-
-const subscribe = (onChange: () => void) => {
-  const media = reducedMotionQuery();
-  media?.addEventListener('change', onChange);
-  return () => media?.removeEventListener('change', onChange);
+const reducedMotionQuery = (): MediaQueryList | null => {
+  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return null;
+  return window.matchMedia(QUERY);
 };
-
-const getSnapshot = () => reducedMotionQuery()?.matches ?? false;
 
 const getServerSnapshot = () => false;
 
 export function usePrefersReducedMotion(): boolean {
+  const media = useMemo(reducedMotionQuery, []);
+
+  const subscribe = useCallback(
+    (onChange: () => void) => {
+      media?.addEventListener('change', onChange);
+      return () => media?.removeEventListener('change', onChange);
+    },
+    [media],
+  );
+
+  const getSnapshot = useCallback(() => media?.matches ?? false, [media]);
+
   return useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 }

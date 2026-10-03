@@ -105,7 +105,11 @@
       }
     },
     {
-      "files": ["src/presentation/story/**", "src/presentation/hooks/**"],
+      "files": [
+        "src/presentation/story/**",
+        "src/presentation/hooks/**",
+        "src/presentation/components/story/**"
+      ],
       "rules": {
         "max-depth": ["error", 3]
       }

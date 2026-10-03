@@ -102,6 +102,27 @@ describe('StoryGame v3', () => {
     expect(screen.queryByText('Sua vez!')).not.toBeInTheDocument();
   });
 
+  it('shows "Sua vez!" and locks the walk again after playing again', async () => {
+    mockReducedMotion(false);
+    useAnimationClock();
+    render(<StoryGame story={walkOnly()} />);
+    await act(() => vi.advanceTimersByTimeAsync(WALK_INTRO_MS));
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    fireEvent.keyUp(window, { key: 'ArrowRight' });
+    expect(screen.queryByText('Sua vez!')).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Pular história' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Jogar de novo' }));
+    expect(screen.getByText('Sua vez!')).toBeInTheDocument();
+
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    await act(() => vi.advanceTimersByTimeAsync(300));
+    expect(screen.getByText('Sua vez!')).toBeInTheDocument();
+
+    await act(() => vi.advanceTimersByTimeAsync(WALK_INTRO_MS));
+    expect(screen.queryByText('Sua vez!')).not.toBeInTheDocument();
+  });
+
   it('releases the controls at once with reduced motion', () => {
     render(<StoryGame story={walkOnly()} />);
 

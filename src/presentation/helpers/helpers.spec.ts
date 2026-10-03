@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { formatCurrency } from './format-currency';
+import { preventDefault } from './prevent-default';
 import { getImageFit } from './product-image';
 import { safeRedirect } from './safe-redirect';
 import { buildProductsHref } from './build-products-href';
@@ -43,5 +44,15 @@ describe('buildProductsHref', () => {
     expect(buildProductsHref({ query: 'touca', category: 'acessorios' })).toBe(
       '/products?q=touca&category=acessorios',
     );
+  });
+});
+
+describe('preventDefault', () => {
+  it('cancels the default action of the event', () => {
+    const event = { preventDefault: vi.fn() };
+
+    preventDefault(event);
+
+    expect(event.preventDefault).toHaveBeenCalledTimes(1);
   });
 });

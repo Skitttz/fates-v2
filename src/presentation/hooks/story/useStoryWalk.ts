@@ -68,7 +68,6 @@ export function useStoryWalk({
   }, [dismiss, leap, released]);
 
   return {
-    direction,
     steer,
     jump,
     introVisible: visible,

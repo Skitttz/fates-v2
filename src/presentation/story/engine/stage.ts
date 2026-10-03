@@ -24,8 +24,8 @@ export class StoryStage {
   private readonly scheduler: FrameScheduler;
   private particles: Particle[] = [];
   private previous: RenderInput | null = null;
-  private frame = 0;
-  private running = false;
+  private frame: number | null = null;
+  private active = false;
 
   constructor(
     private readonly context: CanvasRenderingContext2D,
@@ -42,14 +42,14 @@ export class StoryStage {
   }
 
   start(): void {
-    if (this.running) return;
-    this.running = true;
-    this.frame = this.scheduler.request(this.draw);
+    this.active = true;
+    this.schedule();
   }
 
   stop(): void {
-    this.running = false;
-    this.scheduler.cancel(this.frame);
+    this.active = false;
+    if (this.frame !== null) this.scheduler.cancel(this.frame);
+    this.frame = null;
   }
 
   dispose(): void {
@@ -58,13 +58,19 @@ export class StoryStage {
     this.previous = null;
   }
 
+  private schedule(): void {
+    if (!this.active || this.frame !== null) return;
+    this.frame = this.scheduler.request(this.draw);
+  }
+
   private readonly draw = (now: number): void => {
+    this.frame = null;
     const { sceneTimeMs, dtMs } = this.clock.tick(now, this.input.scene.id);
     const input: RenderInput = { ...this.input, timeMs: now, sceneTimeMs };
     this.particles = this.nextParticles(input, dtMs);
     renderScene(this.context, { ...input, particles: this.particles }, this.sprites);
     this.previous = input;
-    if (this.running) this.frame = this.scheduler.request(this.draw);
+    this.schedule();
   };
 
   private nextParticles(input: RenderInput, dtMs: number): Particle[] {
