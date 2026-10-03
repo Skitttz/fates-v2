@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import { Link } from '@/presentation/components/navigation';
-import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import logo from '@/presentation/assets/logo.svg';
 import { ROUTES } from '@/presentation/constants/route';
 import { AccountMenu } from '../AccountMenu';
@@ -32,13 +31,6 @@ export function Header() {
         </nav>
 
         <div className="flex items-center gap-3 sm:gap-5">
-          <Link
-            href={ROUTES.PRODUCTS}
-            aria-label="Buscar produtos"
-            className="text-zinc-300 transition-colors hover:text-street-lime"
-          >
-            <MagnifyingGlassIcon className="size-5" />
-          </Link>
           <AccountMenu />
           <CartButton />
         </div>
