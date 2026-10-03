@@ -222,7 +222,7 @@ describe('renderScene', () => {
     expect(fills).toContainEqual({ style: '#abcdef', args: [5, 6, 1, 1] });
   });
 
-  it('stamps the sticker and then clears the canvas block by block', () => {
+  it('flashes on the stamp without drawing the pixel sticker and then clears the canvas block by block', () => {
     const sprites = makeSprites();
     sprites.set('adesivo:brilhando', { frames: [frame(12, 6)], fps: 0, loop: true });
     const { context } = makeContext();
@@ -243,7 +243,13 @@ describe('renderScene', () => {
     };
 
     draw(0.3);
-    expect(context.drawImage).toHaveBeenCalledWith(expect.anything(), 102, 55, 36, 18);
+    expect(context.drawImage).not.toHaveBeenCalledWith(
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+      expect.anything(),
+    );
     expect(context.clearRect).toHaveBeenCalledTimes(1);
 
     draw(1);

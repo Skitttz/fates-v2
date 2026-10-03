@@ -24,7 +24,7 @@ export const EFFECT_SOUNDS: readonly string[] = Object.values(SOUNDS).filter(
 );
 
 export const BLIP_EVERY_CHARS = 2;
-export const BLIP_VOLUME = 0.35;
+export const BLIP_VOLUME = 0.18;
 const BLIP_RATES: Readonly<Record<string, number>> = { paulo: 1, urso: 1.25 };
 const NARRATION_BLIP_RATE = 0.9;
 const DEFAULT_BLIP_RATE = 1;

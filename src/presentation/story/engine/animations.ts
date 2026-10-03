@@ -127,14 +127,17 @@ export function stickerMotion(
   };
 }
 
-export const STAMP_SCALE = { from: 6, to: 3 };
+export const STAMP_SCALE = { from: 1.8, to: 1 };
 const DISSOLVE_NOISE_SIZE = 997;
 
-export const stampScale = (progress: number): number =>
-  progress >= PLACING_TIMELINE.stampEnd
-    ? STAMP_SCALE.to
-    : STAMP_SCALE.from -
-      (STAMP_SCALE.from - STAMP_SCALE.to) * (Math.max(progress, 0) / PLACING_TIMELINE.stampEnd);
+export const stickerStamp = (progress: number): { scale: number; opacity: number } => ({
+  scale:
+    progress >= PLACING_TIMELINE.stampEnd
+      ? STAMP_SCALE.to
+      : STAMP_SCALE.from -
+        (STAMP_SCALE.from - STAMP_SCALE.to) * (Math.max(progress, 0) / PLACING_TIMELINE.stampEnd),
+  opacity: 1 - dissolveProgress(progress),
+});
 
 export const dissolveProgress = (progress: number): number =>
   clamp01((progress - PLACING_TIMELINE.holdEnd) / (1 - PLACING_TIMELINE.holdEnd));

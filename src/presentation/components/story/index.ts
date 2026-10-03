@@ -6,6 +6,7 @@ export * from './TouchControls';
 export * from './StoryToolbar';
 export * from './StoryTranscript';
 export * from './StoryEnding';
+export * from './StickerStamp';
 export type { StoryMode } from './StoryToolbar/types';
 export * from './GameCanvas';
 export * from './StoryGame';

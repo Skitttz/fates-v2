@@ -1,5 +1,5 @@
 import { ReactNode } from 'react';
-import { SoundPlayer } from '@/presentation/protocols';
+import { SoundPlayer, SoundPreference } from '@/presentation/protocols';
 
 export interface SoundContextValue {
   available: boolean;
@@ -10,5 +10,6 @@ export interface SoundContextValue {
 
 export interface SoundProviderProps {
   player: SoundPlayer;
+  preference?: SoundPreference;
   children: ReactNode;
 }

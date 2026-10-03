@@ -1,5 +1,6 @@
+import { SpeakerWaveIcon, SpeakerXMarkIcon } from '@heroicons/react/24/outline';
 import { buttonVariants } from '@/presentation/components/ui';
-import { TOOLBAR_LABELS } from './constants';
+import { SOUND_ON_CLASS, TOOLBAR_LABELS } from './constants';
 import { StoryToolbarProps } from './types';
 
 export function StoryToolbar({ mode, ended, sound, onSkip, onToggleMode }: StoryToolbarProps) {
@@ -8,9 +9,19 @@ export function StoryToolbar({ mode, ended, sound, onSkip, onToggleMode }: Story
       {sound && (
         <button
           type="button"
+          aria-pressed={sound.enabled}
           onClick={sound.onToggle}
-          className={buttonVariants({ variant: 'ghost', size: 'sm', className: 'min-h-12' })}
+          className={buttonVariants({
+            variant: sound.enabled ? 'outline' : 'ghost',
+            size: 'sm',
+            className: sound.enabled ? SOUND_ON_CLASS : 'min-h-12',
+          })}
         >
+          {sound.enabled ? (
+            <SpeakerWaveIcon aria-hidden="true" className="size-4 motion-safe:animate-pulse" />
+          ) : (
+            <SpeakerXMarkIcon aria-hidden="true" className="size-4" />
+          )}
           {sound.enabled ? TOOLBAR_LABELS.soundOn : TOOLBAR_LABELS.soundOff}
         </button>
       )}

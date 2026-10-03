@@ -20,6 +20,7 @@ const fakePlayer = (): SoundPlayer => ({
   setEnabled: vi.fn(),
   play: vi.fn(),
   preload: vi.fn(),
+  resume: vi.fn(),
   loop: vi.fn(),
   stopLoop: vi.fn(),
   playMusic: vi.fn(),
@@ -100,6 +101,21 @@ describe('StoryGame v2', () => {
     photos.forEach((photo) => expect(photo).toHaveAttribute('loading', 'eager'));
   });
 
+  it('stamps the fates logo over the scene while placing', async () => {
+    mockReducedMotion(false);
+    useAnimationClock();
+    render(<StoryGame story={choiceOnly()} />);
+    await act(() => vi.advanceTimersByTimeAsync(2000));
+    await reachChoice();
+    expect(screen.queryByTestId('sticker-stamp')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Caixote' }));
+
+    const stamp = screen.getByTestId('sticker-stamp');
+    expect(stamp.querySelector('img')).toBeInTheDocument();
+    expect(stamp.closest('[aria-hidden="true"]')).not.toBeNull();
+  });
+
   it('skips to the ending during the placing without choosing twice', async () => {
     mockReducedMotion(false);
     useAnimationClock();
@@ -127,13 +143,18 @@ describe('StoryGame sound', () => {
     return player;
   };
 
-  it('offers the sound toggle off by default only when there is a provider', async () => {
+  it('starts with the sound on, shows it as active and lets the visitor turn it off', async () => {
     const player = renderWithSound();
+    const toggle = screen.getByRole('button', { name: 'Som: ligado' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
 
-    await userEvent.click(screen.getByRole('button', { name: 'Som: desligado' }));
+    await userEvent.click(toggle);
 
-    expect(player.setEnabled).toHaveBeenLastCalledWith(true);
-    expect(screen.getByRole('button', { name: 'Som: ligado' })).toBeInTheDocument();
+    expect(player.setEnabled).toHaveBeenLastCalledWith(false);
+    expect(screen.getByRole('button', { name: 'Som: desligado' })).toHaveAttribute(
+      'aria-pressed',
+      'false',
+    );
   });
 
   it('has no sound toggle without a provider', () => {
@@ -142,16 +163,30 @@ describe('StoryGame sound', () => {
     expect(screen.queryByRole('button', { name: /^Som:/ })).not.toBeInTheDocument();
   });
 
-  it('plays the music of the current world and the ollie', async () => {
+  it('plays the music of the current world and the ollie without rolling while paulo stands', async () => {
     const player = renderWithSound();
     expect(player.playMusic).toHaveBeenLastCalledWith('music-real');
-    expect(player.loop).toHaveBeenCalledWith('skate-roll');
 
     await toChoice();
     await toChoice();
     await userEvent.click(screen.getByRole('button', { name: 'Ollie!' }));
 
     expect(player.play).toHaveBeenCalledWith('ollie');
+    expect(player.loop).not.toHaveBeenCalledWith('skate-roll');
+  });
+
+  it('rolls the skate only while paulo is moving', async () => {
+    const player = renderWithSound();
+    await toChoice();
+    await toChoice();
+    await userEvent.click(screen.getByRole('button', { name: 'Ollie!' }));
+    await screen.findByText('Leve o Paulo até o brilho.');
+    expect(player.loop).not.toHaveBeenCalledWith('skate-roll');
+
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(player.loop).toHaveBeenCalledWith('skate-roll');
+
+    fireEvent.keyUp(window, { key: 'ArrowRight' });
     expect(player.stopLoop).toHaveBeenCalledWith('skate-roll');
   });
 

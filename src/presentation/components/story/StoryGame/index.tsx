@@ -40,6 +40,7 @@ import { DialogueBox } from '../DialogueBox';
 import { DIALOGUE_LABELS } from '../DialogueBox/constants';
 import { GameCanvas } from '../GameCanvas';
 import { OllieMeter } from '../OllieMeter';
+import { StickerStamp } from '../StickerStamp';
 import { StoryEnding } from '../StoryEnding';
 import { StoryToolbar } from '../StoryToolbar';
 import { StoryMode } from '../StoryToolbar/types';
@@ -141,11 +142,7 @@ export function StoryGame({ story }: StoryGameProps) {
   const speaker = line?.speaker ?? null;
   const typedCount = typewriter.visibleText.length;
   const world = ended ? 'real' : scene.world;
-  const rolling =
-    mode === 'game' &&
-    !ended &&
-    ((Boolean(walk) && direction !== 0) ||
-      (scene.interaction?.type === 'ollie' && !ollie && state.ollieResult === null));
+  const rolling = mode === 'game' && !ended && Boolean(walk) && direction !== 0;
   const ollieCueRef = useRef(0);
   const stampedRef = useRef(false);
 
@@ -310,6 +307,7 @@ export function StoryGame({ story }: StoryGameProps) {
                     ? { type: 'ollie', progress: ollieProgress, result: ollie.result }
                     : null
               }
+              overlay={placing ? <StickerStamp progress={placingProgress} /> : undefined}
               underlay={
                 interaction?.type === 'choice'
                   ? interaction.options.map((option) => (

@@ -10,7 +10,7 @@ import {
   ollieBoard,
   shakeOffset,
   STAMP_SCALE,
-  stampScale,
+  stickerStamp,
   STICKER_RISE,
   stickerMotion,
 } from './animations';
@@ -115,10 +115,12 @@ describe('stickerMotion', () => {
 });
 
 describe('placing', () => {
-  it('stamps the sticker from big to its final size', () => {
-    expect(stampScale(0)).toBe(STAMP_SCALE.from);
-    expect(stampScale(0.25)).toBe(STAMP_SCALE.to);
-    expect(stampScale(0.9)).toBe(STAMP_SCALE.to);
+  it('stamps the sticker from big to its final size and fades it while the scene dissolves', () => {
+    expect(stickerStamp(0)).toEqual({ scale: STAMP_SCALE.from, opacity: 1 });
+    expect(stickerStamp(0.25)).toEqual({ scale: STAMP_SCALE.to, opacity: 1 });
+    expect(stickerStamp(0.5)).toEqual({ scale: STAMP_SCALE.to, opacity: 1 });
+    expect(stickerStamp(0.75).opacity).toBeCloseTo(0.5);
+    expect(stickerStamp(1)).toEqual({ scale: STAMP_SCALE.to, opacity: 0 });
   });
 
   it('dissolves the scene only after the stamp holds', () => {
