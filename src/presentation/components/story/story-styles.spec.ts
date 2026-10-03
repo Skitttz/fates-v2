@@ -3,7 +3,7 @@ import { dialogueBoxStyles } from './DialogueBox/styles';
 import { storyEndingStyles } from './StoryEnding/styles';
 import { storyGameStyles } from './StoryGame/styles';
 import { storyToolbarStyles } from './StoryToolbar/styles';
-import { storyTranscriptStyles } from './StoryTranscript/styles';
+import { transcriptLineStyles } from './TranscriptLine/styles';
 import { walkIntroStyles } from './WalkIntro/styles';
 
 describe('story styles', () => {
@@ -40,8 +40,8 @@ describe('story styles', () => {
   it('writes narration in italics in the dialogue and in the transcript', () => {
     expect(dialogueBoxStyles({ narration: true }).text()).toBe('italic text-zinc-300');
     expect(dialogueBoxStyles({ narration: false }).text()).toBeUndefined();
-    expect(storyTranscriptStyles({ narration: true }).line()).toBe('italic text-zinc-300');
-    expect(storyTranscriptStyles({ narration: false }).line()).toBeUndefined();
+    expect(transcriptLineStyles({ narration: true }).root()).toBe('italic text-zinc-300');
+    expect(transcriptLineStyles({ narration: false }).root()).toBeUndefined();
   });
 
   it('animates the walk intro only with motion', () => {

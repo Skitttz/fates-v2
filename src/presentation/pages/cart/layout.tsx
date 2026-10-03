@@ -6,11 +6,6 @@ import { ROUTES } from '@/presentation/constants/route';
 import { CART_EMPTY, CART_PAGE } from './constants';
 import { CartLayoutProps } from './types';
 
-const checkoutLabel = (isProcessing: boolean, isAuthenticated: boolean): string => {
-  if (isProcessing) return CART_PAGE.processing;
-  return isAuthenticated ? CART_PAGE.checkout : CART_PAGE.loginToCheckout;
-};
-
 export default function CartLayout({
   items,
   ready,
@@ -23,6 +18,8 @@ export default function CartLayout({
   onCheckout,
 }: CartLayoutProps) {
   const isProcessing = status.type === 'processing';
+  const idleLabel = isAuthenticated ? CART_PAGE.checkout : CART_PAGE.loginToCheckout;
+  const checkoutLabel = isProcessing ? CART_PAGE.processing : idleLabel;
 
   const renderContent = () => {
     if (status.type === 'done') return <OrderConfirmation order={status.order} />;
@@ -67,7 +64,7 @@ export default function CartLayout({
         <div>
           <CartSummary subtotal={subtotal} totalItems={totalItems}>
             <Button size="lg" onClick={onCheckout} disabled={isProcessing} className="w-full">
-              {checkoutLabel(isProcessing, isAuthenticated)}
+              {checkoutLabel}
             </Button>
             {status.type === 'error' && (
               <p role="alert" className="text-sm text-street-orange">
