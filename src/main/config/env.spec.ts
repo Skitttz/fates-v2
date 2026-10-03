@@ -1,7 +1,10 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getApiBaseUrl } from './env';
 
 describe('getApiBaseUrl', () => {
+  beforeEach(() => {
+    vi.stubEnv('NEXT_PUBLIC_DEMO_MODE', 'false');
+  });
   afterEach(() => {
     vi.unstubAllEnvs();
   });

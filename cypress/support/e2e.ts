@@ -17,5 +17,14 @@ Cypress.Commands.add('findField', (label: string) =>
 );
 
 beforeEach(() => {
+  // O modo headless não depende dos snapshots gráficos das View Transitions.
+  if (Cypress.isBrowser({ family: 'chromium' })) {
+    cy.then(() =>
+      Cypress.automation('remote:debugger:protocol', {
+        command: 'Emulation.setEmulatedMedia',
+        params: { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] },
+      }),
+    );
+  }
   cy.clearLocalStorage();
 });
