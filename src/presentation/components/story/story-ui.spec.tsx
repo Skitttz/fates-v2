@@ -154,6 +154,21 @@ describe('StoryToolbar', () => {
     expect(onToggleMode).toHaveBeenCalledTimes(1);
   });
 
+  it('keeps the active sound toggle still on hover', () => {
+    render(
+      <StoryToolbar
+        mode="game"
+        ended={false}
+        sound={{ enabled: true, onToggle: vi.fn() }}
+        onSkip={vi.fn()}
+        onToggleMode={vi.fn()}
+      />,
+    );
+
+    const toggle = screen.getByRole('button', { name: 'Som: ligado' });
+    expect(toggle.className).not.toMatch(/hover:(?!text-street-lime)/);
+  });
+
   it('hides skip when the story ended and offers the game back in text mode', () => {
     render(<StoryToolbar mode="text" ended onSkip={vi.fn()} onToggleMode={vi.fn()} />);
 

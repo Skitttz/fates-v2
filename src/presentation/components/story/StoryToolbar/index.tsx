@@ -12,7 +12,7 @@ export function StoryToolbar({ mode, ended, sound, onSkip, onToggleMode }: Story
           aria-pressed={sound.enabled}
           onClick={sound.onToggle}
           className={buttonVariants({
-            variant: sound.enabled ? 'outline' : 'ghost',
+            variant: 'ghost',
             size: 'sm',
             className: sound.enabled ? SOUND_ON_CLASS : 'min-h-12',
           })}
