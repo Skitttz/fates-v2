@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { StoryActorModel } from '@/domain/models';
+import { StoryActorModel, StorySceneModel } from '@/domain/models';
 import {
   bobOffset,
+  ENTRANCE_MS,
+  entranceProgress,
+  obstacleActors,
   dissolveProgress,
   isBlockDissolved,
   landingGlow,
@@ -142,5 +145,42 @@ describe('placing', () => {
     const half = blocks.filter(([column, row]) => isBlockDissolved(column, row, 0.5)).length;
     expect(half).toBeGreaterThan(blocks.length * 0.3);
     expect(half).toBeLessThan(blocks.length * 0.7);
+  });
+});
+
+describe('entrance and obstacles', () => {
+  const urso: StoryActorModel = {
+    id: 'urso',
+    x: 176,
+    y: 100,
+    pose: 'parado',
+    entrance: 'materialize',
+  };
+
+  it('materializes an actor over the entrance time only with motion', () => {
+    expect(entranceProgress(urso, 0, true)).toBe(0);
+    expect(entranceProgress(urso, ENTRANCE_MS / 2, true)).toBeCloseTo(0.5);
+    expect(entranceProgress(urso, ENTRANCE_MS * 2, true)).toBe(1);
+    expect(entranceProgress(urso, 0, false)).toBe(1);
+    expect(entranceProgress({ ...urso, entrance: undefined }, 0, true)).toBe(1);
+  });
+
+  it('turns walk obstacles into actors on the ground', () => {
+    const walkScene: StorySceneModel = {
+      id: 's',
+      world: 'dream',
+      backdrop: 'sonho',
+      actors: [],
+      lines: [],
+      interaction: {
+        type: 'walk-to',
+        actor: 'paulo',
+        targetX: 132,
+        obstacles: [{ id: 'cone', x: 84 }],
+      },
+    };
+
+    expect(obstacleActors(walkScene)).toEqual([{ id: 'cone', x: 84, y: 112, pose: 'padrao' }]);
+    expect(obstacleActors({ ...walkScene, interaction: undefined })).toEqual([]);
   });
 });

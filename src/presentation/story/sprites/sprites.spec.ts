@@ -81,6 +81,17 @@ describe('sprites', () => {
     expect(frames[0]).not.toEqual(frames[1]);
   });
 
+  it('settles sprites when there is no animation', () => {
+    const cache = createSpriteCache(SPRITE_SHEETS, fakeCanvas);
+    const standUp = cache.get('paulo:levantando')?.frames ?? [];
+    const skate = cache.get('paulo:skate')?.frames ?? [];
+
+    expect(getSpriteFrame(cache, 'paulo', 'levantando', 'settled')).toBe(
+      standUp[standUp.length - 1],
+    );
+    expect(getSpriteFrame(cache, 'paulo', 'skate', 'settled')).toBe(skate[0]);
+  });
+
   it('returns null for unknown actors or poses', () => {
     const cache = createSpriteCache(SPRITE_SHEETS, fakeCanvas);
 

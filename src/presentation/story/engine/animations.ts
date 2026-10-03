@@ -1,5 +1,5 @@
-import { StoryActorModel } from '@/domain/models';
-import { GLOW_ACTOR, OLLIE_ACTOR, OLLIE_LIFT } from './constants';
+import { StoryActorModel, StorySceneModel } from '@/domain/models';
+import { GLOW_ACTOR, GROUND_Y, OLLIE_ACTOR, OLLIE_LIFT } from './constants';
 import { StoryEffect } from './types';
 
 export const OLLIE_TIMELINE = {
@@ -23,6 +23,8 @@ export const STICKER_RISE = 12;
 export const STICKER_RISE_MS = 600;
 export const SPIN_PERIOD_MS = 900;
 export const PLACING_TIMELINE = { stampEnd: 0.25, holdEnd: 0.5 };
+
+export const ENTRANCE_MS = 1200;
 
 const NO_OFFSET = { x: 0, y: 0 };
 
@@ -152,3 +154,19 @@ const blockNoise = (column: number, row: number) =>
 
 export const isBlockDissolved = (column: number, row: number, progress: number): boolean =>
   progress > 0 && blockNoise(column, row) < progress;
+
+export const entranceProgress = (
+  actor: StoryActorModel,
+  sceneTimeMs: number,
+  animated: boolean,
+): number => (actor.entrance && animated ? clamp01(sceneTimeMs / ENTRANCE_MS) : 1);
+
+export const obstacleActors = (scene: StorySceneModel): StoryActorModel[] =>
+  scene.interaction?.type === 'walk-to'
+    ? (scene.interaction.obstacles ?? []).map(({ id, x }) => ({
+        id,
+        x,
+        y: GROUND_Y,
+        pose: 'padrao',
+      }))
+    : [];
