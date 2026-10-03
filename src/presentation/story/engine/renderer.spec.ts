@@ -3,6 +3,7 @@ import { StorySceneModel } from '@/domain/models';
 import { SpriteCache } from '../sprites/sprite-cache';
 import { EMPTY_BACKDROP_COLOR, TRANSITION_BLOCK } from './constants';
 import { renderScene } from './renderer';
+import { RenderInput } from './types';
 
 const makeContext = () => {
   const fills: { style: string; args: number[] }[] = [];
@@ -35,8 +36,8 @@ const frame = (width: number, height: number) => ({ width, height }) as HTMLCanv
 
 const makeSprites = (): SpriteCache =>
   new Map([
-    ['paulo:skate', { frames: [frame(14, 24)], fps: 0 }],
-    ['paulo:deitado', { frames: [frame(22, 12)], fps: 0 }],
+    ['paulo:skate', { frames: [frame(14, 24)], fps: 0, loop: true }],
+    ['paulo:deitado', { frames: [frame(22, 12)], fps: 0, loop: true }],
   ]);
 
 const scene = (patch: Partial<StorySceneModel> = {}): StorySceneModel => ({
@@ -48,9 +49,13 @@ const scene = (patch: Partial<StorySceneModel> = {}): StorySceneModel => ({
   ...patch,
 });
 
-const render = (input: Parameters<typeof renderScene>[1]) => {
+const render = (input: Omit<RenderInput, 'sceneTimeMs'> & { sceneTimeMs?: number }) => {
   const { context, fills } = makeContext();
-  renderScene(context as unknown as CanvasRenderingContext2D, input, makeSprites());
+  renderScene(
+    context as unknown as CanvasRenderingContext2D,
+    { sceneTimeMs: 0, ...input },
+    makeSprites(),
+  );
   return { context, fills };
 };
 

@@ -42,6 +42,29 @@ const SITTING: SpriteFrame = [...BODY.slice(0, 16), '..kppppppbbk', '..kkkkkkkkk
 
 const BOARD = `k${'o'.repeat(12)}k`;
 
+const WHEELS = ['..krk....krk..', '..kRk....kRk..'] as const;
+
+const CROUCH: SpriteFrame = [
+  ...BODY.slice(0, 14),
+  '..kppppppk..',
+  '.kppkkkkppk.',
+  '.kbbbk.kbbbk',
+  '.kkkkk.kkkkk',
+];
+
+const TUCK: SpriteFrame = [...BODY.slice(0, 14), '.kppkkkkppk.', '.kbbbk.kbbbk', '.kkkkk.kkkkk'];
+
+const KNEEL: SpriteFrame = [...BODY.slice(0, 17), '..kppk.kppk.', '.kbbbk.kbbbk', '.kkkkk.kkkkk'];
+
+const LEAN: SpriteFrame = BODY.map((row, index) => (index < 8 ? `.${row}` : `${row}.`));
+
+const TILTED_BOARD: SpriteFrame = [
+  '..........kook',
+  '......kooook..',
+  '..kooook......',
+  '.krk..........',
+];
+
 const pad = (rows: SpriteFrame, size: number): SpriteFrame =>
   rows.map((row) => `${'.'.repeat(size)}${row}${'.'.repeat(size)}`);
 
@@ -59,15 +82,26 @@ const sprite = (frames: SpriteFrame[], fps = 0): SpriteDefinition => ({
   fps,
 });
 
+const onBoard = (rows: SpriteFrame, wheels: string): SpriteFrame => [
+  ...pad(rows, 1),
+  BOARD,
+  wheels,
+];
+
 export const PAULO: SpriteSheet = {
   parado: sprite([BODY]),
-  skate: sprite(
+  skate: sprite([onBoard(BODY, WHEELS[0]), onBoard(BODY, WHEELS[1])], 6),
+  'skate-andando': sprite(
     [
-      [...pad(BODY, 1), BOARD, '..krk....krk..'],
-      [...pad(BODY, 1), BOARD, '..kRk....kRk..'],
+      [...pad(LEAN, 1), `${BOARD}.`, `${WHEELS[0]}.`],
+      [...pad(LEAN, 1), `${BOARD}.`, `${WHEELS[1]}.`],
     ],
-    6,
+    8,
   ),
+  agachado: sprite([onBoard(CROUCH, WHEELS[0])]),
+  'ollie-pop': sprite([[...pad(BODY, 1), ...TILTED_BOARD]]),
+  'ollie-ar': sprite([onBoard(TUCK, WHEELS[0])]),
   deitado: sprite([rotateClockwise(BODY)]),
   sentado: sprite([SITTING]),
+  levantando: { ...sprite([SITTING, KNEEL, BODY], 4), loop: false },
 };

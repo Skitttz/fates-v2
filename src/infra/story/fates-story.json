@@ -81,7 +81,7 @@
       "backdrop": "sonho",
       "actors": [
         { "id": "paulo", "x": 122, "y": 112, "pose": "parado" },
-        { "id": "adesivo", "x": 140, "y": 112, "pose": "brilhando" },
+        { "id": "adesivo", "x": 140, "y": 112, "pose": "girando" },
         { "id": "caixote", "x": 200, "y": 112, "pose": "padrao" },
         { "id": "urso", "x": 200, "y": 100, "pose": "sorrindo" }
       ],
@@ -111,7 +111,7 @@
       "id": "primeiro-adesivo",
       "world": "real",
       "backdrop": "pista-noite",
-      "actors": [{ "id": "paulo", "x": 96, "y": 112, "pose": "parado" }],
+      "actors": [{ "id": "paulo", "x": 96, "y": 112, "pose": "levantando" }],
       "lines": [],
       "interaction": {
         "type": "choice",

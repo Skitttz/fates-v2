@@ -13,23 +13,10 @@ import {
   OLLIE_LIFT,
   TRANSITION_BLOCK,
 } from './constants';
-import { OllieResult } from './story-reducer';
+import { RenderInput, SceneTransitionState, StoryEffect } from './types';
 
-export type OllieEffect = { type: 'ollie'; progress: number; result: OllieResult };
-
-export type SceneTransitionState = { kind: StoryTransition; progress: number };
-
-export type RenderInput = {
-  scene: StorySceneModel;
-  timeMs: number;
-  animated: boolean;
-  actorOverrides?: Readonly<Record<string, Partial<StoryActorModel>>>;
-  effect?: OllieEffect | null;
-  transition?: SceneTransitionState | null;
-};
-
-const applyOllie = (actor: StoryActorModel, effect?: OllieEffect | null): StoryActorModel => {
-  if (!effect || actor.id !== OLLIE_ACTOR) return actor;
+const applyOllie = (actor: StoryActorModel, effect?: StoryEffect | null): StoryActorModel => {
+  if (effect?.type !== 'ollie' || actor.id !== OLLIE_ACTOR) return actor;
   const progress = Math.min(Math.max(effect.progress, 0), 1);
   const fell = effect.result === 'missed' ? progress > 0.5 : progress > 0.85;
   if (fell) return { ...actor, pose: 'deitado' };
@@ -84,7 +71,7 @@ export function renderScene(
   input: RenderInput,
   sprites: SpriteCache,
 ): void {
-  const { scene, timeMs, animated, actorOverrides = {}, effect, transition } = input;
+  const { scene, timeMs, sceneTimeMs, animated, actorOverrides = {}, effect, transition } = input;
 
   context.imageSmoothingEnabled = false;
   context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -94,7 +81,7 @@ export function renderScene(
     const actor = applyOllie({ ...baseActor, ...actorOverrides[baseActor.id] }, effect);
     if (actor.id === GLOW_ACTOR) drawGlow(context, actor, timeMs, animated);
 
-    const frame = getSpriteFrame(sprites, actor.id, actor.pose, timeMs);
+    const frame = getSpriteFrame(sprites, actor.id, actor.pose, sceneTimeMs);
     if (!frame) return;
 
     const desaturate = scene.world === 'dream' && DESATURATED_IN_DREAM.includes(actor.id);

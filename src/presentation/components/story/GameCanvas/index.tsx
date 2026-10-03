@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { computeCanvasScale } from '@/presentation/story/engine/canvas-scale';
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from '@/presentation/story/engine/constants';
+import { createFrameClock } from '@/presentation/story/engine/frame-clock';
 import { renderScene } from '@/presentation/story/engine/renderer';
 import { SPRITE_SHEETS } from '@/presentation/story/sprites';
 import { createBrowserCanvas, createSpriteCache } from '@/presentation/story/sprites/sprite-cache';
@@ -37,12 +38,15 @@ export function GameCanvas(props: GameCanvasProps) {
     if (!canvas || !context) return;
 
     const sprites = createSpriteCache(SPRITE_SHEETS, createBrowserCanvas);
+    const clock = createFrameClock();
     let frame = 0;
     let onScreen = true;
     let pageVisible = !document.hidden;
 
     const draw = (now: number) => {
-      renderScene(context, { ...propsRef.current, timeMs: now }, sprites);
+      const current = propsRef.current;
+      const { sceneTimeMs } = clock.tick(now, current.scene.id);
+      renderScene(context, { ...current, timeMs: now, sceneTimeMs }, sprites);
       frame = requestAnimationFrame(draw);
     };
 

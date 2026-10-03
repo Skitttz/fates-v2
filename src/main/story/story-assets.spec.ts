@@ -23,5 +23,9 @@ describe('Fates story assets', () => {
         });
       }
     });
+    expect(SPRITE_SHEETS.prancha?.rolando).toBeDefined();
+    ['agachado', 'ollie-pop', 'ollie-ar', 'skate-andando', 'sentado', 'deitado'].forEach((pose) => {
+      expect(SPRITE_SHEETS.paulo[pose], pose).toBeDefined();
+    });
   });
 });
