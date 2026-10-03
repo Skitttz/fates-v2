@@ -1,0 +1,15 @@
+export const CANVAS_WIDTH = 240;
+export const CANVAS_HEIGHT = 135;
+export const GROUND_Y = 112;
+export const TRANSITION_MS = 900;
+export const OLLIE_ANIMATION_MS = 900;
+export const OLLIE_LIFT = 16;
+export const TRANSITION_BLOCK = 8;
+export const EMPTY_BACKDROP_COLOR = '#09090b';
+export const FADE_COLOR = '#09090b';
+export const FLASH_COLOR = '#ffffff';
+export const GLOW_COLOR = '#c4f82a';
+export const GLOW_ACTOR = 'adesivo';
+export const OLLIE_ACTOR = 'paulo';
+export const DESATURATED_IN_DREAM: readonly string[] = ['paulo', 'caixote'];
+export const MAX_VIEWPORT_HEIGHT_RATIO = 0.7;

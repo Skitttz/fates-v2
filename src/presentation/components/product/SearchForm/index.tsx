@@ -20,7 +20,7 @@ export function SearchForm({ query, category }: SearchFormProps) {
         type="search"
         defaultValue={query}
         placeholder={SEARCH_PLACEHOLDER}
-        className="h-full min-w-0 flex-1 bg-transparent px-4 text-sm placeholder-zinc-500 focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
+        className="h-full min-w-0 flex-1 bg-transparent px-4 text-base placeholder-zinc-500 sm:text-sm focus:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
       />
       <button
         type="submit"

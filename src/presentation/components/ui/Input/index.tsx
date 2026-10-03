@@ -22,7 +22,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           aria-invalid={!!error}
           aria-describedby={error ? errorId : undefined}
           className={cn(
-            'h-12 border-2 bg-zinc-900 px-4 text-sm text-zinc-50 placeholder-zinc-600 transition-colors focus:border-street-lime focus:outline-none focus-visible:ring-0',
+            'h-12 border-2 bg-zinc-900 px-4 text-base text-zinc-50 sm:text-sm placeholder-zinc-600 transition-colors focus:border-street-lime focus:outline-none focus-visible:ring-0',
             error ? 'border-street-orange' : 'border-zinc-700',
             className,
           )}

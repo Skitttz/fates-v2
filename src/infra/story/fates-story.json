@@ -1,0 +1,237 @@
+{
+  "id": "como-tudo-comecou",
+  "title": "Como tudo começou",
+  "scenes": [
+    {
+      "id": "pista",
+      "world": "real",
+      "backdrop": "pista-dia",
+      "actors": [
+        {
+          "id": "paulo",
+          "x": 48,
+          "y": 112,
+          "pose": "skate"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": null,
+          "text": "Aracaju. Fim de tarde."
+        },
+        {
+          "speaker": "paulo",
+          "text": "Hoje eu acerto essa."
+        }
+      ],
+      "interaction": {
+        "type": "ollie"
+      }
+    },
+    {
+      "id": "queda",
+      "world": "dream",
+      "backdrop": "sonho",
+      "transitionIn": "fade-to-dream",
+      "actors": [
+        {
+          "id": "paulo",
+          "x": 72,
+          "y": 112,
+          "pose": "deitado"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": null,
+          "text": "…"
+        },
+        {
+          "speaker": "paulo",
+          "text": "Onde… eu tô?"
+        }
+      ]
+    },
+    {
+      "id": "ursinho",
+      "world": "dream",
+      "backdrop": "sonho",
+      "actors": [
+        {
+          "id": "paulo",
+          "x": 72,
+          "y": 112,
+          "pose": "parado"
+        },
+        {
+          "id": "caixote",
+          "x": 176,
+          "y": 112,
+          "pose": "padrao"
+        },
+        {
+          "id": "urso",
+          "x": 176,
+          "y": 100,
+          "pose": "chorando"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "paulo",
+          "text": "Ei… tá tudo bem?"
+        },
+        {
+          "speaker": "urso",
+          "text": "Você… consegue me ver?"
+        },
+        {
+          "speaker": "urso",
+          "text": "Ninguém nunca me vê. Faz tanto tempo que eu tô aqui."
+        },
+        {
+          "speaker": "urso",
+          "text": "Eu guardei uma coisa pra quem me encontrasse."
+        }
+      ]
+    },
+    {
+      "id": "brilho",
+      "world": "dream",
+      "backdrop": "sonho",
+      "actors": [
+        {
+          "id": "paulo",
+          "x": 32,
+          "y": 112,
+          "pose": "skate"
+        },
+        {
+          "id": "adesivo",
+          "x": 132,
+          "y": 112,
+          "pose": "brilhando"
+        },
+        {
+          "id": "caixote",
+          "x": 200,
+          "y": 112,
+          "pose": "padrao"
+        },
+        {
+          "id": "urso",
+          "x": 200,
+          "y": 100,
+          "pose": "parado"
+        }
+      ],
+      "lines": [],
+      "interaction": {
+        "type": "walk-to",
+        "actor": "paulo",
+        "targetX": 132
+      }
+    },
+    {
+      "id": "adesivo",
+      "world": "dream",
+      "backdrop": "sonho",
+      "actors": [
+        {
+          "id": "paulo",
+          "x": 118,
+          "y": 112,
+          "pose": "parado"
+        },
+        {
+          "id": "adesivo",
+          "x": 138,
+          "y": 112,
+          "pose": "brilhando"
+        },
+        {
+          "id": "caixote",
+          "x": 200,
+          "y": 112,
+          "pose": "padrao"
+        },
+        {
+          "id": "urso",
+          "x": 200,
+          "y": 100,
+          "pose": "sorrindo"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": "urso",
+          "text": "Fates. Quer dizer destinos."
+        },
+        {
+          "speaker": "urso",
+          "text": "O meu sempre foi ser visto. O seu… você vai descobrir colando por aí."
+        }
+      ]
+    },
+    {
+      "id": "despertar",
+      "world": "real",
+      "backdrop": "pista-noite",
+      "transitionIn": "flash-to-real",
+      "actors": [
+        {
+          "id": "paulo",
+          "x": 96,
+          "y": 112,
+          "pose": "sentado"
+        }
+      ],
+      "lines": [
+        {
+          "speaker": null,
+          "text": "No shape, um adesivo FATES. Do lado, um ursinho desenhado."
+        },
+        {
+          "speaker": "paulo",
+          "text": "Foi só um sonho… né?"
+        }
+      ]
+    },
+    {
+      "id": "primeiro-adesivo",
+      "world": "real",
+      "backdrop": "pista-noite",
+      "actors": [
+        {
+          "id": "paulo",
+          "x": 96,
+          "y": 112,
+          "pose": "parado"
+        }
+      ],
+      "lines": [],
+      "interaction": {
+        "type": "choice",
+        "prompt": "Onde colar o primeiro?",
+        "options": [
+          {
+            "id": "caixote",
+            "label": "No caixote",
+            "photo": "caixote"
+          },
+          {
+            "id": "poste",
+            "label": "No poste",
+            "photo": "poste"
+          },
+          {
+            "id": "moletom",
+            "label": "No moletom",
+            "photo": "moletom"
+          }
+        ]
+      }
+    }
+  ],
+  "epilogue": "Desde então, a Fates aparece pela cidade. E o ursinho nunca mais ficou invisível."
+}

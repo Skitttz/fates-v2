@@ -12,7 +12,8 @@
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "cypress:open": "cypress open",
-    "cypress:run": "cypress run"
+    "cypress:run": "cypress run",
+    "cypress:run:about": "cypress run --headed --spec cypress/e2e/about.cy.ts"
   },
   "dependencies": {
     "@heroicons/react": "^2.1.4",
