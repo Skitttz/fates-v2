@@ -1,5 +1,6 @@
 import {
   entranceProgress,
+  landingGlow,
   OLLIE_TIMELINE,
   PLACING_TIMELINE,
   SPINNING_POSE,
@@ -19,6 +20,10 @@ const SPARK_EVERY_MS = 140;
 const ENTRANCE_SPARK_EVERY_MS = 70;
 const LANDING_DUST = 6;
 const STAMP_SPARKS = 16;
+const GLOW_SPARKS = 10;
+const GLOW_SPARK_EVERY_MS = 70;
+const GLOW_SPARK_SPREAD = 16;
+const GLOW_SPARK_RISE = 3;
 
 const particle = (
   x: number,
@@ -42,6 +47,27 @@ const crossed = (previous: number, current: number, at: number) => previous < at
 const actorAt = (input: RenderInput, id: string) => {
   const actor = input.scene.actors.find((candidate) => candidate.id === id);
   return actor ? walkActor({ ...actor, ...input.actorOverrides?.[id] }, input.walk) : null;
+};
+
+const glowSparks = (
+  input: RenderInput,
+  previous: RenderInput | null,
+  dtMs: number,
+  random: Random,
+): Particle[] => {
+  const paulo = actorAt(input, OLLIE_ACTOR);
+  const glow = paulo ? landingGlow(paulo, input.effect) : null;
+  if (!glow) return [];
+  const y = glow.y - GLOW_SPARK_RISE;
+  const appeared = crossed(
+    progressOf(previous, 'ollie'),
+    progressOf(input, 'ollie'),
+    OLLIE_TIMELINE.glow,
+  );
+  const opening = appeared ? burst(glow.x, y, GLOW_SPARKS, PARTICLE_COLORS.spark, random) : [];
+  if (random() >= dtMs / GLOW_SPARK_EVERY_MS) return opening;
+  const x = glow.x + (random() - 0.5) * GLOW_SPARK_SPREAD;
+  return [...opening, ...burst(x, y, 1, PARTICLE_COLORS.spark, random)];
 };
 
 export function emitParticles(
@@ -93,6 +119,8 @@ export function emitParticles(
   ) {
     spawned.push(...burst(paulo.x, GROUND_Y - 1, LANDING_DUST, PARTICLE_COLORS.dust, random));
   }
+
+  spawned.push(...glowSparks(input, previous, dtMs, random));
 
   if (sticker?.pose === SPINNING_POSE && random() < dtMs / SPARK_EVERY_MS) {
     const x = sticker.x + (random() - 0.5) * 16;

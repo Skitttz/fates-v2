@@ -32,7 +32,7 @@ export const OLLIE_TIMELINE = {
   crouch: 0.15,
   pop: 0.3,
   air: 0.7,
-  glow: 0.85,
+  glow: 0.7,
   landedSlip: 0.82,
   landedFall: 0.93,
   missedSlip: 0.45,
