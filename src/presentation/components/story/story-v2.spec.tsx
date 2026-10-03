@@ -1,9 +1,13 @@
 import '@/presentation/test/mock-next-navigation';
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { mockStoryModel } from '@/domain/test';
+import { SoundProvider } from '@/presentation/contexts/sound';
+import { TYPEWRITER_CHAR_MS } from '@/presentation/hooks/useTypewriter';
+import { SoundPlayer } from '@/presentation/protocols';
 import { PLACING_MS } from '@/presentation/story/engine/constants';
+import { BLIP_VOLUME } from '@/presentation/story/sounds';
 import { StoryGame } from '.';
 
 const mockReducedMotion = (matches: boolean) =>
@@ -11,6 +15,15 @@ const mockReducedMotion = (matches: boolean) =>
     'matchMedia',
     vi.fn(() => ({ matches, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
   );
+
+const fakePlayer = (): SoundPlayer => ({
+  setEnabled: vi.fn(),
+  play: vi.fn(),
+  loop: vi.fn(),
+  stopLoop: vi.fn(),
+  playMusic: vi.fn(),
+  stopMusic: vi.fn(),
+});
 
 const choiceOnly = () => mockStoryModel({ scenes: [mockStoryModel().scenes[2]] });
 
@@ -90,5 +103,68 @@ describe('StoryGame v2', () => {
 
     expect(screen.getByRole('region', { name: 'Final da história' })).toBeInTheDocument();
     expect(screen.queryByText('Any caixote outcome')).not.toBeInTheDocument();
+  });
+});
+
+describe('StoryGame sound', () => {
+  const renderWithSound = (story = mockStoryModel()) => {
+    const player = fakePlayer();
+    render(
+      <SoundProvider player={player}>
+        <StoryGame story={story} />
+      </SoundProvider>,
+    );
+    return player;
+  };
+
+  it('offers the sound toggle off by default only when there is a provider', async () => {
+    const player = renderWithSound();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Som: desligado' }));
+
+    expect(player.setEnabled).toHaveBeenLastCalledWith(true);
+    expect(screen.getByRole('button', { name: 'Som: ligado' })).toBeInTheDocument();
+  });
+
+  it('has no sound toggle without a provider', () => {
+    render(<StoryGame story={mockStoryModel()} />);
+
+    expect(screen.queryByRole('button', { name: /^Som:/ })).not.toBeInTheDocument();
+  });
+
+  it('plays the music of the current world and the ollie', async () => {
+    const player = renderWithSound();
+    expect(player.playMusic).toHaveBeenLastCalledWith('music-real');
+    expect(player.loop).toHaveBeenCalledWith('skate-roll');
+
+    await toChoice();
+    await toChoice();
+    await userEvent.click(screen.getByRole('button', { name: 'Ollie!' }));
+
+    expect(player.play).toHaveBeenCalledWith('ollie');
+    expect(player.stopLoop).toHaveBeenCalledWith('skate-roll');
+  });
+
+  it('plays the menu sound on arrows and the stamp sound on choose', async () => {
+    const player = renderWithSound(choiceOnly());
+    await reachChoice();
+
+    fireEvent.keyDown(screen.getByRole('button', { name: 'Caixote' }), { key: 'ArrowRight' });
+    await userEvent.click(screen.getByRole('button', { name: 'Poste' }));
+
+    expect(player.play).toHaveBeenCalledWith('menu-select');
+    expect(player.play).toHaveBeenCalledWith('sticker-place');
+  });
+
+  it('blips while the text is typed with the narration pitch', async () => {
+    mockReducedMotion(false);
+    useAnimationClock();
+    const player = renderWithSound();
+
+    for (let letter = 0; letter < 3; letter += 1) {
+      await act(() => vi.advanceTimersByTimeAsync(TYPEWRITER_CHAR_MS));
+    }
+
+    expect(player.play).toHaveBeenCalledWith('text-blip', { rate: 0.9, volume: BLIP_VOLUME });
   });
 });

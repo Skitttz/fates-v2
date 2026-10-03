@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react';
+import { useSound } from '@/presentation/contexts/sound';
 import { usePrefersReducedMotion } from '@/presentation/hooks/usePrefersReducedMotion';
 import { useProgress } from '@/presentation/hooks/useProgress';
 import { useTypewriter } from '@/presentation/hooks/useTypewriter';
@@ -22,6 +23,15 @@ import {
 } from '@/presentation/story/engine/story-reducer';
 import { isActionKey, isArrowKey, isFromInteractiveElement } from '@/presentation/story/keyboard';
 import { photoForChoice, resolveStoryPhoto } from '@/presentation/story/photos';
+import {
+  BLIP_VOLUME,
+  blipRate,
+  musicFor,
+  ollieSoundCues,
+  shouldBlip,
+  SOUNDS,
+  transitionSound,
+} from '@/presentation/story/sounds';
 import { getSpeakerName } from '@/presentation/story/speakers';
 import { ChoiceMenu } from '../ChoiceMenu';
 import { DialogueBox } from '../DialogueBox';
@@ -40,6 +50,8 @@ export function StoryGame({ story }: StoryGameProps) {
   const reducer = useMemo(() => createStoryReducer(story), [story]);
   const [state, dispatch] = useReducer(reducer, story, createInitialState);
   const reducedMotion = usePrefersReducedMotion();
+  const sound = useSound();
+  const { player } = sound;
   const [mode, setMode] = useState<StoryMode>('game');
   const [direction, setDirection] = useState<WalkDirection>(0);
   const [ollie, setOllie] = useState<OllieAnimation | null>(null);
@@ -56,8 +68,9 @@ export function StoryGame({ story }: StoryGameProps) {
 
   const completeWalk = useCallback(() => {
     setDirection(0);
+    player.play(SOUNDS.stickerFound);
     dispatch({ type: 'COMPLETE_INTERACTION' });
-  }, []);
+  }, [player]);
 
   const walkX = useWalk({
     active: Boolean(walk && walkActor),
@@ -67,10 +80,14 @@ export function StoryGame({ story }: StoryGameProps) {
     onArrive: completeWalk,
   });
 
-  const startOllie = useCallback((result: OllieResult) => {
-    ollieRef.current = { result };
-    setOllie({ result });
-  }, []);
+  const startOllie = useCallback(
+    (result: OllieResult) => {
+      ollieRef.current = { result };
+      setOllie({ result });
+      player.play(SOUNDS.ollie);
+    },
+    [player],
+  );
 
   const finishOllie = useCallback(() => {
     const current = ollieRef.current;
@@ -101,11 +118,15 @@ export function StoryGame({ story }: StoryGameProps) {
     finishPlacing,
   );
 
-  const choose = useCallback((choice: string) => {
-    if (placingRef.current) return;
-    placingRef.current = choice;
-    setPlacing(choice);
-  }, []);
+  const choose = useCallback(
+    (choice: string) => {
+      if (placingRef.current) return;
+      placingRef.current = choice;
+      setPlacing(choice);
+      player.play(SOUNDS.stickerPlace);
+    },
+    [player],
+  );
 
   const transitionProgress = useProgress(
     state.phase === 'transition',
@@ -113,6 +134,52 @@ export function StoryGame({ story }: StoryGameProps) {
     () => dispatch({ type: 'TRANSITION_END' }),
     state.sceneIndex,
   );
+
+  const ended = state.phase === 'ending';
+  const speaker = line?.speaker ?? null;
+  const typedCount = typewriter.visibleText.length;
+  const world = ended ? 'real' : scene.world;
+  const rolling =
+    mode === 'game' &&
+    !ended &&
+    ((Boolean(walk) && direction !== 0) ||
+      (scene.interaction?.type === 'ollie' && !ollie && state.ollieResult === null));
+  const ollieCueRef = useRef(0);
+
+  useEffect(() => {
+    player.playMusic(musicFor(world));
+  }, [player, world]);
+
+  useEffect(() => () => player.stopMusic(), [player]);
+
+  useEffect(() => {
+    if (!rolling) return;
+    player.loop(SOUNDS.skateRoll);
+    return () => player.stopLoop(SOUNDS.skateRoll);
+  }, [player, rolling]);
+
+  useEffect(() => {
+    if (state.phase !== 'transition') return;
+    const id = transitionSound(scene.transitionIn);
+    if (id) player.play(id);
+  }, [player, scene.transitionIn, state.phase, state.sceneIndex]);
+
+  useEffect(() => {
+    if (typewriter.done || !shouldBlip(typedCount)) return;
+    player.play(SOUNDS.textBlip, { rate: blipRate(speaker), volume: BLIP_VOLUME });
+  }, [player, speaker, typedCount, typewriter.done]);
+
+  useEffect(() => {
+    if (!ollie) {
+      ollieCueRef.current = 0;
+      return;
+    }
+    const previous = ollieCueRef.current;
+    ollieCueRef.current = ollieProgress;
+    ollieSoundCues(ollie.result).forEach(({ at, sound: id }) => {
+      if (previous < at && ollieProgress >= at) player.play(id);
+    });
+  }, [ollie, ollieProgress, player]);
 
   const handleAdvance = useCallback(() => {
     if (typewriter.done) dispatch({ type: 'NEXT_LINE' });
@@ -172,8 +239,6 @@ export function StoryGame({ story }: StoryGameProps) {
       ?.focus();
   }, [state.phase, state.sceneIndex, state.lineIndex]);
 
-  const ended = state.phase === 'ending';
-
   return (
     <section ref={sectionRef} aria-label={STORY_GAME_LABELS.region} className="flex flex-col gap-4">
       <p role="status" aria-label={STORY_GAME_LABELS.currentLine} className="sr-only">
@@ -185,6 +250,11 @@ export function StoryGame({ story }: StoryGameProps) {
         mode={mode}
         ended={ended}
         onSkip={skip}
+        sound={
+          sound.available
+            ? { enabled: sound.enabled, onToggle: () => sound.setEnabled(!sound.enabled) }
+            : undefined
+        }
         onToggleMode={() => setMode((current) => (current === 'game' ? 'text' : 'game'))}
       />
 
@@ -262,6 +332,7 @@ export function StoryGame({ story }: StoryGameProps) {
                   prompt={interaction.prompt}
                   options={interaction.options}
                   onChoose={choose}
+                  onMove={() => player.play(SOUNDS.menuSelect)}
                 />
               )}
               <div className="[@media(pointer:fine)]:hidden">
