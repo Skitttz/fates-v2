@@ -58,8 +58,13 @@
           {
             "patterns": [
               {
-                "group": ["@/main/*", "@/presentation/*", "@/validation/*"],
-                "message": "infra implementa protocols de data; não conhece main nem presentation."
+                "group": [
+                  "@/main/*",
+                  "@/presentation/*",
+                  "!@/presentation/protocols",
+                  "@/validation/*"
+                ],
+                "message": "infra implementa protocols de data e de presentation; não conhece main nem o resto de presentation."
               }
             ]
           }
