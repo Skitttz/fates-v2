@@ -6,4 +6,5 @@ export const TOOLBAR_LABELS = {
   soundOff: 'Som: desligado',
 };
 
-export const SOUND_ON_CLASS = 'min-h-12 border-street-lime text-street-lime';
+export const SOUND_ON_CLASS =
+  'min-h-12 !border-street-lime !text-street-lime hover:!bg-street-lime hover:!text-black';
