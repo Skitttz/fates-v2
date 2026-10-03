@@ -25,7 +25,7 @@ describe('story sounds', () => {
   it('follows the ollie timeline', () => {
     expect(ollieSoundCues('landed')).toEqual([
       { at: OLLIE_TIMELINE.air, sound: SOUNDS.landing },
-      { at: OLLIE_TIMELINE.landedFall, sound: SOUNDS.fall },
+      { at: OLLIE_TIMELINE.landedSlip, sound: SOUNDS.fall },
     ]);
     expect(ollieSoundCues('missed')).toEqual([
       { at: OLLIE_TIMELINE.missedSlip, sound: SOUNDS.fall },

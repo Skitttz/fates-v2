@@ -48,6 +48,6 @@ export const ollieSoundCues = (result: OllieResult): { at: number; sound: string
   result === 'landed'
     ? [
         { at: OLLIE_TIMELINE.air, sound: SOUNDS.landing },
-        { at: OLLIE_TIMELINE.landedFall, sound: SOUNDS.fall },
+        { at: OLLIE_TIMELINE.landedSlip, sound: SOUNDS.fall },
       ]
     : [{ at: OLLIE_TIMELINE.missedSlip, sound: SOUNDS.fall }];

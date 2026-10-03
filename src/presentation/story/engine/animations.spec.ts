@@ -30,7 +30,8 @@ describe('ollie timeline', () => {
     [0.2, 'landed', 'ollie-pop'],
     [0.5, 'landed', 'ollie-ar'],
     [0.8, 'landed', 'agachado'],
-    [0.97, 'landed', 'deitado'],
+    [0.85, 'landed', 'sentado'],
+    [0.97, 'landed', 'deitado-costas'],
     [0.2, 'missed', 'ollie-pop'],
     [0.4, 'missed', 'ollie-ar'],
     [0.5, 'missed', 'sentado'],
@@ -50,7 +51,7 @@ describe('ollie timeline', () => {
     expect(ollieActor(paulo, { type: 'placing', progress: 0.5 })).toBe(paulo);
   });
 
-  it('rolls the board away only after a missed ollie', () => {
+  it('rolls the board away once paulo slips', () => {
     expect(ollieBoard(paulo, ollie(0.4, 'missed'))).toBeNull();
     expect(ollieBoard(paulo, ollie(0.6, 'missed'))).toMatchObject({
       id: 'prancha',
@@ -60,7 +61,8 @@ describe('ollie timeline', () => {
     expect(ollieBoard(paulo, ollie(0.9, 'missed'))!.x).toBeGreaterThan(
       ollieBoard(paulo, ollie(0.6, 'missed'))!.x,
     );
-    expect(ollieBoard(paulo, ollie(0.9, 'landed'))).toBeNull();
+    expect(ollieBoard(paulo, ollie(0.8, 'landed'))).toBeNull();
+    expect(ollieBoard(paulo, ollie(0.9, 'landed'))).toMatchObject({ id: 'prancha', y: 112 });
   });
 
   it('shows the glow ahead of paulo after a landed ollie', () => {

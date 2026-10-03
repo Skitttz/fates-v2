@@ -41,7 +41,7 @@ const frame = (width: number, height: number) => ({ width, height }) as HTMLCanv
 const makeSprites = (): SpriteCache =>
   new Map([
     ['paulo:skate', { frames: [frame(14, 24)], fps: 0, loop: true }],
-    ['paulo:deitado', { frames: [frame(22, 12)], fps: 0, loop: true }],
+    ['paulo:deitado-costas', { frames: [frame(22, 12)], fps: 0, loop: true }],
     ['paulo:ollie-ar', { frames: [frame(14, 20)], fps: 0, loop: true }],
     ['paulo:sentado', { frames: [frame(12, 18)], fps: 0, loop: true }],
     ['prancha:rolando', { frames: [frame(14, 2)], fps: 0, loop: true }],

@@ -7,7 +7,8 @@ export const OLLIE_TIMELINE = {
   pop: 0.3,
   air: 0.7,
   glow: 0.85,
-  landedFall: 0.95,
+  landedSlip: 0.82,
+  landedFall: 0.93,
   missedSlip: 0.45,
   shakeEnd: 0.64,
 };
@@ -50,7 +51,10 @@ export function ollieActor(actor: StoryActorModel, effect?: StoryEffect | null):
     return { ...actor, pose: 'sentado' };
   }
   if (effect.result === 'landed' && progress >= OLLIE_TIMELINE.landedFall) {
-    return { ...actor, pose: 'deitado' };
+    return { ...actor, pose: 'deitado-costas' };
+  }
+  if (effect.result === 'landed' && progress >= OLLIE_TIMELINE.landedSlip) {
+    return { ...actor, pose: 'sentado' };
   }
   return { ...actor, pose: olliePose(progress), y: actor.y - ollieLift(progress) };
 }
@@ -60,12 +64,13 @@ export function ollieBoard(
   effect?: StoryEffect | null,
 ): StoryActorModel | null {
   const progress = ollieProgress(actor, effect);
-  if (progress === null || effect?.type !== 'ollie' || effect.result !== 'missed') return null;
-  if (progress < OLLIE_TIMELINE.missedSlip) return null;
+  if (progress === null || effect?.type !== 'ollie') return null;
+  const slip = effect.result === 'missed' ? OLLIE_TIMELINE.missedSlip : OLLIE_TIMELINE.landedSlip;
+  if (progress < slip) return null;
   return {
     id: BOARD_ACTOR,
     pose: 'rolando',
-    x: actor.x + (progress - OLLIE_TIMELINE.missedSlip) * BOARD_ROLL_DISTANCE,
+    x: actor.x + (progress - slip) * BOARD_ROLL_DISTANCE,
     y: actor.y,
   };
 }
